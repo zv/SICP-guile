@@ -58,3 +58,7 @@
         ((= kinds-of-coins 3) 10)
         ((= kinds-of-coins 4) 25)
         ((= kinds-of-coins 5) 50)))
+
+(define (valid-change n)
+  (filter (lambda (x) (<= x n)) '(1 5 10 25 50)))
+
