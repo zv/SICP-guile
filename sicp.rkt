@@ -62,3 +62,9 @@
 (define (valid-change n)
   (filter (lambda (x) (<= x n)) '(1 5 10 25 50)))
 
+(define (zv-count-change amt)
+  (cond ((= amt 0) 1)
+        ((or (< amt 0) (empty? (valid-change amt))) 0)
+        (else (foldr (lambda (x res) (+ res (zv-count-change (- amt x))))
+                     0
+                     (valid-change amt)))))
