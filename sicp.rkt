@@ -68,3 +68,20 @@
         (else (foldr (lambda (x res) (+ res (zv-count-change (- amt x))))
                      0
                      (valid-change amt)))))
+
+(define (pascals-triangle max-depth)
+  (for ([i (in-range 1 max-depth)])
+    (printf "~a~a\n" (make-string (- max-depth i) #\ ) (generate-row i))))
+
+(define (generate-row depth)
+  (for/list ([i (in-range 1 (+ 1 depth))])
+    (generate-elt depth i)))
+
+(define (generate-elt row col)
+  (cond ([> 0 col] 0)
+        ([> col (+ 1 row)] 0)
+        ([> 0 row] 0)
+        ([and (= row 1) (= col 1)] 1)
+        (else (+ (generate-elt (- row 1) (- col 1))
+                 (generate-elt (- row 1) col)))))
+
