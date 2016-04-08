@@ -85,3 +85,12 @@
         (else (+ (generate-elt (- row 1) (- col 1))
                  (generate-elt (- row 1) col)))))
 
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+(define (divides? a b) (= (modulo a b) 0))
+
+(define (find-primes below)
+  (primes-below (sequence->list (in-range 2 below))))
