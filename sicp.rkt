@@ -94,3 +94,10 @@
 
 (define (find-primes below)
   (primes-below (sequence->list (in-range 2 below))))
+
+(define (primes-below unprimes)
+  (if (empty? unprimes) '()
+      (let ([curr (car unprimes)])
+        (cons curr (primes-below
+                    (filter-not (lambda (x) (divides? x curr)) unprimes))))))
+
