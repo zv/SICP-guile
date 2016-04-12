@@ -115,3 +115,28 @@
     (= (expmod a n n) a))
   (try-it (+ 1 (random (- n 1)))))
 
+(define (deep-pp lst depth)
+  (printf "\n~a(" (make-string depth #\ ))
+  (map (lambda (elt) (cond
+                       [(list? elt) (deep-pp elt (+ 1 depth))]
+                       [else
+                        (printf "\n")
+                        (printf "~a~a" (make-string (+ 1 depth) #\ ) elt)
+                        ]))
+       lst)
+  (printf ")"))
+
+
+(define (deep-ppr lst depth)
+  (let ((elt (car lst)))
+    (if (list? elt)
+        (begin
+          (printf "~a(~a\n" (make-string depth #\ ) (car elt))
+          (deep-ppr (cdr elt) (+ 1 depth)))
+        ;; not a list
+        (begin
+          (printf "~a~a" (make-string depth #\ ) elt)))
+    (if (empty? (cdr lst)) (printf ")")
+        (begin
+          (printf "\n")
+          (deep-ppr (cdr lst) depth)))))
