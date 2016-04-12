@@ -140,3 +140,15 @@
         (begin
           (printf "\n")
           (deep-ppr (cdr lst) depth)))))
+
+(define (summation term a next b)
+  (if (> a b) 0
+      (+ (term a)
+         (summation term (next a) next b))))
+
+(define (pi-approx a b)
+  (define (pi-term a)
+    (/ 1.0 (* a (+ a 2))))
+  (define (pi-next b)
+    (+ b 4))
+  (summation pi-term a pi-next b))
