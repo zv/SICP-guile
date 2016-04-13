@@ -152,3 +152,9 @@
   (define (pi-next b)
     (+ b 4))
   (summation pi-term a pi-next b))
+
+(define (integral f a b dx)
+  (define (add-dx x) (+ x dx))
+  (* (summation f (+ a (/ dx 2.0)) add-dx b)
+     dx))
+
