@@ -158,3 +158,18 @@
   (* (summation f (+ a (/ dx 2.0)) add-dx b)
      dx))
 
+#| Exercise: 1.29
+|#
+(define (cube a) (* a (* a a)))
+(define (simpsons-stepper a b n) ((- b a) . / . n))
+(define (simpsons-approx f a b n)
+  (define (simpsons-term k)
+    (define stepper (simpsons-stepper a b n))
+    (let ([y (f (+ a (* k stepper)))])
+      (cond [(or (= k n)
+                 (zero? k)) y]
+            [(even? k) (* 2 y)]
+            [else (* 4 y)])))
+  (* (/ (simpsons-stepper a b n) 3)
+     (summation simpsons-term 0 inc n)))
+
