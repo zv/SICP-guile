@@ -173,3 +173,11 @@
   (* (/ (simpsons-stepper a b n) 3)
      (summation simpsons-term 0 inc n)))
 
+#| Exercise: 1.30
+|#
+(define (sum term a next b)
+  (define (iter a result)
+    (if (> a b) result
+        (iter (next a) (+ (term a) result))))
+  (iter a 0))
+
