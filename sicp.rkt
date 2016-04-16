@@ -181,3 +181,24 @@
         (iter (next a) (+ (term a) result))))
   (iter a 0))
 
+#| Exercise: 1.31
+|#
+(define (product term a next b)
+  (if (> a b) 1
+      (* (term a)
+         (product term (next a) next b))))
+
+(define (zv-factorial n)
+  (cond ((zero? n) 1)
+        (else (product identity 1 inc n))))
+
+
+(define (zv-pi-approx factor)
+  (define (pi-term k)
+    (let* ((numer1 (* 2 k))
+           (denom (+ numer1 1))
+           (numer2 (+ denom 1)))
+      (printf "numer1: ~a @ denom ~a @ numer2 ~a\n" numer1 denom numer2)
+      (/ (* numer1 numer2) (square denom))))
+  (* 4.0 (product pi-term 1 inc factor)))
+
