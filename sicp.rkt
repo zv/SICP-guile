@@ -246,3 +246,17 @@
 
 
 
+#| Exercise: 1.35
+|#
+;; x = 1 + 1/x
+;; x^2 = x + 1
+;; x^2 - 1 = x
+;; x^2 - x - 1 = 0
+;; roots of quadratic equation: (-b +/ -√ (b^2 - 4ac)) / 2a
+;; a = 1, b = -1, c = -1
+;; = [ -b+√(b2-4ac) ] / 2a
+;; = [ 1+√(1 + 4) ] / 2
+;; = (1+√5) / 2
+
+(define (compute-phi) (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+
