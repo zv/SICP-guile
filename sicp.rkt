@@ -260,3 +260,13 @@
 
 (define (compute-phi) (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
 
+#| Exercise: 1.36
+|#
+(define (fixed-point-p f first-guess tolerance)
+  (define (guess a)
+    (let [(next (f a))]
+      (printf "~a\n" next)
+      (if (< (abs (- a next)) tolerance) a
+        (guess next))))
+  (guess first-guess))
+
