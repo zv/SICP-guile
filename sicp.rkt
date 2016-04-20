@@ -270,3 +270,21 @@
         (guess next))))
   (guess first-guess))
 
+#| Exercise: 1.37
+|#
+;;; recursve
+(define (cont-frac n d k)
+  (define (sum-frac a)
+    (/ (n a) (if (< k a)
+                 (d a)
+                 (+ (d a) (sum-frac (inc a))))))
+  (sum-frac 1))
+
+;;; interative
+(define (cont-fraci n d k)
+  (define (sum-terms x result)
+    (if (> x k) 0
+        (+ result
+           (/ (n x) (+ (d x) (sum-terms (inc x) result))))))
+  (sum-terms 0 0))
+
