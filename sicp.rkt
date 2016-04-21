@@ -288,3 +288,12 @@
            (/ (n x) (+ (d x) (sum-terms (inc x) result))))))
   (sum-terms 0 0))
 
+#| Exercise: 1.38
+|#
+(define (approximate-eulers-constant y)
+  (define (find-e-d n)
+    (if (= 0 (modulo (+ n 1) 3))
+        (* 2 (/ (+ n 1) 3))
+        1))
+    (+ 2 (cont-frac (lambda (i) 1.0) find-e-d y)))
+
