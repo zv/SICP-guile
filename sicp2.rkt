@@ -51,3 +51,12 @@
     (if nsign (cons (* -1 num) den)
         (cons num den))))
 
+#| Exercise: 2.10
+|#
+(define (div-interval x y)
+  (cond ((or (= 0 (upper-bound y)) (= 0 (lower-bound y)))
+         (error "attempted to divide by the zero"))
+        (else (mul-interval x
+                            (make-interval (/ 1.0 (upper-bound y))
+                                           (/ 1.0 (lower-bound y)))))))
+
