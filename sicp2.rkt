@@ -40,3 +40,14 @@
       (gcd b (remainder a b))))
 
 
+#| Exercise: 2.1
+|#
+(define (make-rat n d)
+  (let* [(g (abs (gcd n d)))
+         (nsign (xor (negative? d)
+                    (negative? n)))
+         (num (/ (abs n) g))
+         (den (/ (abs d) g))]
+    (if nsign (cons (* -1 num) den)
+        (cons num den))))
+
