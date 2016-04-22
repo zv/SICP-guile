@@ -297,3 +297,11 @@
         1))
     (+ 2 (cont-frac (lambda (i) 1.0) find-e-d y)))
 
+#| Exercise: 1.39
+|#
+(define (tan-cf x k)
+  (define (tan-d i) (- (* i 2) 1.0))
+  (define (tan-n i)
+    (if (= i 1) x
+        (* -1.0 (* x x))))
+  (cont-frac tan-n tan-d k))
