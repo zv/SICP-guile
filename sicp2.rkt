@@ -77,3 +77,13 @@
     (if (null? lastls) (car lst)
         (last-pair lastls))))
 
+#| Exercise: 2.18
+|#
+(define (reverse-l lst)
+  (if (null? lst) null
+      (append (reverse-l (cdr lst)) (list (car lst)))))
+
+(define (reverse-ls xs [result null])
+  (cond [(null? xs) result]
+        [else (reverse-ls (cdr xs) (cons (car xs) result))]))
+
