@@ -70,3 +70,10 @@
     (make-interval (min p1 p2 p3 p4)
                    (max p1 p2 p3 p4))))
 
+#| Exercise: 2.17
+|#
+(define (last-pair lst)
+  (let [(lastls (cdr lst))]
+    (if (null? lastls) (car lst)
+        (last-pair lastls))))
+
