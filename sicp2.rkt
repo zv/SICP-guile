@@ -87,3 +87,15 @@
   (cond [(null? xs) result]
         [else (reverse-ls (cdr xs) (cons (car xs) result))]))
 
+#| Exercise: 2.19
+|#
+(define (valid-change n types)
+  (filter (lambda (x) (<= x n)) types))
+
+(define (zv-count-change amt types)
+  (cond ((= amt 0) 1)
+        ((or (< amt 0) (empty? (valid-change amt types))) 0)
+        (else (foldr (lambda (x res) (+ res (zv-count-change (- amt x))))
+                     0
+                     (valid-change amt types)))))
+
