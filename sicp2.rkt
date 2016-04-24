@@ -107,3 +107,14 @@
   (filter test-parity xs))
 
 
+#| Exercise: 2.21
+|#
+(define (square n) (* n n))
+
+(define (square-list items)
+  (if (null? items) null
+      (cons (square (car items)) (square-list (cdr items)))))
+
+(define (square-list-x items)
+  (map square items))
+
