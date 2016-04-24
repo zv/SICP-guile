@@ -99,3 +99,11 @@
                      0
                      (valid-change amt types)))))
 
+#| Exercise: 2.20
+|#
+
+(define (same-parity elt . xs)
+  (define (test-parity n) (= (remainder elt 2) (remainder n 2)))
+  (filter test-parity xs))
+
+
