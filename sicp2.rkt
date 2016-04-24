@@ -118,3 +118,13 @@
 (define (square-list-x items)
   (map square items))
 
+#| Exercise: 2.22
+|#
+;;; Louis Reasoner has mixed up the arguments `answer' and `(square (car things))'
+;;; In his second attempt
+;; correct version of iterative
+;; (define (square-list-b things [answer null])
+;;     (if (null? things) answer
+;;         (square-list-b (cdr things)
+;;                        (append answer (list (square (car things)))))))
+
