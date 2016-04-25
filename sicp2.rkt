@@ -170,3 +170,6 @@
         (else (+ (count-leaves (car x))
                  (count-leaves (cdr x))))))
 
+#| Exercise: 2.24
+|#
+
