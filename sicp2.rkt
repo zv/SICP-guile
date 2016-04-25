@@ -128,3 +128,45 @@
 ;;         (square-list-b (cdr things)
 ;;                        (append answer (list (square (car things)))))))
 
+#| Exercise: 2.23
+|#
+
+(define (for-each-zv fn xs)
+  (if [empty? xs] null
+      (cons (fn (car xs))
+            (for-each-zv fn (cdr xs))))
+  #t)
+
+
+;; not a exercize
+(define (closest a b x)
+  (if (< (abs (- x (/ (numer a) (denom a))))
+         (abs (- x (/ (numer b) (denom b))))) a
+      b))
+
+(define (find-closest-rational x limit)
+  (define (search-rationals n d top)
+    (cond [(> n limit) (search-rationals 0 (inc d) top)]
+          [(> d limit) top]
+          [else
+           (search-rationals (inc n)
+                             d
+                             (closest (make-rat n d) top x))]))
+  (search-rationals 1 1 (make-rat 1 1)))
+
+(define (find-closest-rational-t x limit)
+  (define (search-rationals n d)
+    (if (or (> n limit) (> d limit)) (make-rat n d)
+        (closest (make-rat n d)
+                 (closest
+                  (search-rationals (inc n) d)
+                  (search-rationals n (inc d))
+                  x) x)))
+  (search-rationals 1 1))
+
+(define (count-leaves x)
+  (cond ((null? x) 0)
+        ((not (pair? x)) 1)
+        (else (+ (count-leaves (car x))
+                 (count-leaves (cdr x))))))
+
