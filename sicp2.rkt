@@ -173,3 +173,44 @@
 #| Exercise: 2.24
 |#
 
+#| Exercise: 2.2
+|#
+;;; racket
+(struct coordinate (x y)
+  #:transparent)
+(struct segment (start end)
+  #:transparent)
+
+
+(define (midpoint segment)
+  (let [(mid-x (/ (+ (coordinate-x (segment-start segment))
+                  (coordinate-x (segment-end segment))) 2))
+        (mid-y (/ (+ (coordinate-y (segment-start segment))
+                     (coordinate-y (segment-end segment))) 2))]
+    (coordinate mid-x mid-y)))
+
+;; alternative scheme
+(define (make-point x y) `(,x . ,y))
+(define (make-segment s e) `(,s . ,e))
+(define (x-point p) (car p))
+(define (y-point p) (cdr p))
+(define (start-segment segment) (car segment))
+(define (end-segment segment) (cdr segment))
+
+(define (print-point p)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")")
+  (newline))
+
+(define (midpoint-s segment)
+  (make-segment
+   (/ (+ (x-point (start-segment segment))
+         (x-point (end-segment segment)))
+      2)
+   (/ (+ (y-point (start-segment segment))
+         (y-point (end-segment segment)))
+      2)))
+
