@@ -214,3 +214,10 @@
          (y-point (end-segment segment)))
       2)))
 
+#| Exercise: 2.25
+|#
+(define (is-sevens)
+  [ printf "~a\n" (car (cdaddr '(1 3 (5 7) 9)))]
+  [ printf "~a\n" (caar '((7)))]
+  [ printf "~a\n" (cadadr (cadadr (cadadr '(1 (2 (3 (4 (5 (6 7)))))))))])
+
