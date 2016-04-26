@@ -229,3 +229,12 @@
 ;;; (cons two-twentysix-x two-twentysix-y)   => '((1 2 3) 4 5 6)
 ;;;  (list two-twentysix-x two-twentysix-y)  => '((1 2 3) (4 5 6))
 
+#| Exercise: 2.27
+|#
+(define (deep-reverse-l lst)
+  (cond [(null? lst) null]
+        [(list? lst) (append
+                      (deep-reverse-l (rest lst))
+                      (list (deep-reverse-l (first lst))))]
+        [else lst]))
+
