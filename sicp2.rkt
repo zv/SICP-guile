@@ -221,3 +221,11 @@
   [ printf "~a\n" (caar '((7)))]
   [ printf "~a\n" (cadadr (cadadr (cadadr '(1 (2 (3 (4 (5 (6 7)))))))))])
 
+#| Exercise: 2.26
+|#
+(define two-twentysix-x (list 1 2 3))
+(define two-twentysix-y (list 4 5 6))
+;;; (append two-twentysix-x two-twentysix-y) => '(1 2 3 4 5 6)
+;;; (cons two-twentysix-x two-twentysix-y)   => '((1 2 3) 4 5 6)
+;;;  (list two-twentysix-x two-twentysix-y)  => '((1 2 3) (4 5 6))
+
