@@ -238,3 +238,12 @@
                       (list (deep-reverse-l (first lst))))]
         [else lst]))
 
+#| Exercise: 2.28
+|#
+(define (fringe xs)
+  (cond [(null? xs) null]
+        [(list? xs) (append (fringe (first xs))
+                            (fringe (rest xs)))]
+        [else (list xs)]))
+
+
