@@ -280,3 +280,9 @@
   (= (total-weight (left-branch mbl))
      (total-weight (right-branch mbl))))
 
+#| Exercise: 2.30
+|#
+(define (square-tree tree)
+  (map (λ (node)
+         (if (list? node) (square-tree node)
+             (* node node))) tree))
