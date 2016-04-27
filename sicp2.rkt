@@ -247,3 +247,36 @@
         [else (list xs)]))
 
 
+#| Exercise: 2.29
+|#
+;; Racket Style
+(struct mobile (l r)
+  #:transparent)
+(struct mbranch (len structure)
+  #:transparent)
+
+(define (total-weight node)
+  (let [(mstruct (mbranch-structure node))]
+    (if (mobile? mstruct)
+        (+ (total-weight (mobile-l node))
+           (total-weight (mobile-r node)))
+        mstruct)))
+
+(define (balanced-mobile? mbl)
+  (= (total-weight (mobile-l mbl))
+     (total-weight (mobile-r mbl))))
+
+;;; Guile Style
+(define (make-mobile left right) '(left right))
+(define (make-branch len structure) '(len structure))
+
+(define (sip-total-weight node)
+  (let [(mstruct (cadr node))]
+    (if (number? mstruct) mstruct
+        (+ (sip-total-weight (left-branch node))
+           (sip-total-weight (right-branch node))))))
+
+(define (sip-balanced-mobile? mbl)
+  (= (total-weight (left-branch mbl))
+     (total-weight (right-branch mbl))))
+
