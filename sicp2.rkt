@@ -325,3 +325,16 @@
                       (permutations (remove x s))))
                s)))
 ;; --------------------------------------------------
+#| Exercise: 2.33
+|#
+
+(define (map-z p sequence)
+  (accumulate (λ (x y) (cons (p x) y)) null sequence))
+
+(define (append-z seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (length-z sequence)
+  (accumulate (λ (x y) (+ y 1)) 0 sequence))
+
+
