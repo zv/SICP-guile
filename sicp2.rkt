@@ -286,3 +286,10 @@
   (map (λ (node)
          (if (list? node) (square-tree node)
              (* node node))) tree))
+#| Exercise: 2.31
+|#
+(define (tree-map fn tree)
+  (map (λ (node)
+         (if (list? node) (tree-map fn node)
+             (fn node))) tree))
+
