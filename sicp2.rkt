@@ -293,3 +293,35 @@
          (if (list? node) (tree-map fn node)
              (fn node))) tree))
 
+#| Exercise: 2.32
+|#
+(define (subsets s)
+  (if (null? s) (list null)
+      (let [(restl (subsets (cdr s)))]
+        (append restl (map (λ (x) (cons (car s) x)) restl)))))
+
+;; -- UTILITIES -------------------------------------
+(define (filter predicate sequence)
+  (cond ((null? sequence) null)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+(define (flatmap proc seq)
+  (accumulate append null (map proc seq)))
+
+(define (permutations s)
+  (if (null? s)                    ; empty set?
+      (list null)                   ; sequence containing empty set
+      (flatmap (lambda (x)
+                 (map (lambda (p) (cons x p))
+                      (permutations (remove x s))))
+               s)))
+;; --------------------------------------------------
