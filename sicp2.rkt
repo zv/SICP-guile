@@ -378,3 +378,8 @@
            (- (coordinate-x (rectangle-a rect))
               (coordinate-x (rectangle-b rect))))))
 
+#| Exercise: 2.35
+|#
+(define (count-leaves-z t)
+  (accumulate + 0 (map count-leaves t)))
+
