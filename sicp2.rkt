@@ -347,3 +347,34 @@
               coefficient-sequence))
 
 
+#| Exercise: 2.3
+|#
+(struct rectangle-s (height width)
+  #:guard (λ (height width type-name)
+            (if [and (segment? height) (segment? width)]
+                (values height width)
+                (error "not a valid rectangle"))))
+
+(struct rectangle (a b)
+  #:guard (λ (a b type-name)
+            (if [and (coordinate? a) (coordinate? b)]
+                (values a b)
+                (error "not a valid rectangle"))))
+
+(define (area rect)
+  (* (rect-height rect) (rect-width rect)))
+
+(define (rect-height rect)
+  (abs (if (rectangle-s? rect)
+           (- (coordinate-y (segment-start (rectangle-s-height rect)))
+              (coordinate-y (segment-end   (rectangle-s-height rect))))
+           (- (coordinate-y (rectangle-a rect))
+              (coordinate-y (rectangle-b rect))))))
+
+(define (rect-width rect)
+  (abs (if (rectangle-s? rect)
+           (- (coordinate-x (segment-start (rectangle-s-width rect)))
+              (coordinate-x (segment-end   (rectangle-s-width rect))))
+           (- (coordinate-x (rectangle-a rect))
+              (coordinate-x (rectangle-b rect))))))
+
