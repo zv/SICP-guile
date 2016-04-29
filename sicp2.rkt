@@ -338,3 +338,12 @@
   (accumulate (λ (x y) (+ y 1)) 0 sequence))
 
 
+#| Exercise: 2.34
+|#
+(define (horner-eval x coefficient-sequence)
+  (accumulate (λ (this-coeff higher-terms)
+                (+ this-coeff (* x higher-terms)))
+              0
+              coefficient-sequence))
+
+
