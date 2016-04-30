@@ -391,3 +391,21 @@
       (cons (accumulate op ini (map (lambda (x) (car x)) seqs))
             (accumulate-n op ini (map (lambda (x) (cdr x)) seqs)))))
 
+#| Exercise: 2.37
+|#
+(define zv-matrix '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
+(define zv-square '((1 2 3) (4 5 6) (6 7 8)))
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (row) (dot-product row v)) m))
+
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+
+(define (matrix-*-matrix m n)
+   (let [(elems (transpose n))]
+     (map (λ (row) (matrix-*-vector elems row)) m)))
+
