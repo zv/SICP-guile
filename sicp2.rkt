@@ -409,3 +409,7 @@
    (let [(elems (transpose n))]
      (map (λ (row) (matrix-*-vector elems row)) m)))
 
+#| Exercise: 2.38
+|#
+;;;; skipped
+
