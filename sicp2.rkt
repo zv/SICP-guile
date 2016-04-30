@@ -383,3 +383,11 @@
 (define (count-leaves-z t)
   (accumulate + 0 (map count-leaves t)))
 
+#| Exercise: 2.36
+|#
+(define (accumulate-n op ini seqs)
+  (if (null? (car seqs))
+      null
+      (cons (accumulate op ini (map (lambda (x) (car x)) seqs))
+            (accumulate-n op ini (map (lambda (x) (cdr x)) seqs)))))
+
