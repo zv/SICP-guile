@@ -413,3 +413,11 @@
 |#
 ;;;; skipped
 
+#| Exercise: 2.39
+|#
+(define (reverse-fr sequence)
+  (foldr (lambda (x y) (append y `(,x))) null sequence))
+
+(define (reverse-fl sequence)
+  (foldl (lambda (x y) (cons x y)) null sequence))
+
