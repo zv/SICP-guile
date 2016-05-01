@@ -421,3 +421,24 @@
 (define (reverse-fl sequence)
   (foldl (lambda (x y) (cons x y)) null sequence))
 
+#| Exercise: 2.40
+|#
+(define (unique-pairs n)
+  (flatmap (λ (i)
+             (map (λ (j) (list i j))
+                  (range i n)))
+           (range 1 n)))
+
+(define (prime? n)
+  (empty?
+   (filter (lambda (p) (= n (* (car p) (cadr p))))
+           (unique-pairs n))))
+
+(define (prime-sum? pair) (prime? (+ (car pair) (cadr pair))))
+
+(define (make-pair-sum pair)
+  (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum (filter prime-sum? (unique-pairs n))))
+
