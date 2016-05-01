@@ -442,3 +442,18 @@
 (define (prime-sum-pairs n)
   (map make-pair-sum (filter prime-sum? (unique-pairs n))))
 
+#| Exercise: 2.41
+|#
+(define (triplets-summing-to s n)
+  (define (unique-triplets n)
+    (flatmap (λ (i)
+               (flatmap (λ (j)
+                          (map (λ (k)
+                                 (list i j k))
+                               (range j n)))
+                        (range i n)))
+             (range 0 n)))
+
+  (filter (λ (t) (= s (foldr + 0 t)))
+          (unique-triplets n)))
+
