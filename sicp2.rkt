@@ -457,3 +457,85 @@
   (filter (λ (t) (= s (foldr + 0 t)))
           (unique-triplets n)))
 
+#| Exercise: 2.42
+|# (finally!)
+;;; Real Solution (copied)
+(define (queens board-size)
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+         (lambda (positions) (safe? k positions))
+         (flatmap
+          (lambda (rest-of-queens)
+            (map (lambda (new-row)
+                   (adjoin-position new-row k rest-of-queens))
+                 (range 1 board-size)))
+          (queen-cols (- k 1))))))
+  (queen-cols board-size))
+
+;; (struct posn (row col)
+;;   #:transparent)
+
+;; (define (make-position row col) (cons row col))
+
+;; (define empty-board null)
+
+;; (define (adjoin-position row col positions)
+;;   (append positions (list (posn row col))))
+
+;; (define (safe? col positions)
+;;   (let ((kth-queen (list-ref positions (- col 1)))
+;;         (other-queens (filter (λ (q)
+;;                                 (not (= col (posn-col q))))
+;;                               positions)))
+;;     (define (attacks? q1 q2)
+;;       ;; what the fuck???
+;;       (or (= (posn-row q1) (posn-row q2))
+;;           (= (abs (- (posn-row q1) (posn-row q2)))
+;;              (abs (- (posn-col q1) (posn-col q2))))))
+
+;;     (define (iter q board)
+;;       (or (null? board)
+;;           (and (not (attacks? q (car board)))
+;;                (iter q (cdr board)))))
+;;     (iter kth-queen other-queens)))
+
+
+(define empty-board null)
+
+(define (adjoin-position row positions)
+  (cons row positions))
+
+(define (safe? position)
+
+  (define board-size (length position))
+
+  (define (safe-diagonal? position)
+
+    ; test the position for the newly placed queen
+    (define (col-safe? new-row col position)
+      (cond ((> col board-size) true)
+            ((= (abs (- new-row (car position)))
+                ; the new qeeen's position is always on column 1
+                (abs (- col 1))) false)
+            (else (col-safe? new-row (+ col 1) (cdr position)))))
+
+    ; the new queen's position is always in column 1
+    ; so the initial column to check is always 2
+    (col-safe? (car position) 2 (cdr position)))
+
+  (define (safe-horizontal? position)
+    ; does the new row (car) appear anywhere else?
+    (not (member (car position) (cdr position))))
+
+  (or (= (length position) 1)  ; 1x1 board
+      (and (safe-horizontal? position)
+           (safe-diagonal?   position))))
+
+;; ------------------------------------------------------------
+;; Picture Exercises are included in `picture.rkt'
+;; ------------------------------------------------------------
+
+;;;; Symbolic Manipulation
+
