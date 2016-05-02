@@ -550,3 +550,13 @@
 ;;; (memq 'red '((red shoes) (blue socks))) => null
 ;;; (memq 'red '(red shoes blue socks))     => '(shoes blue socks)
 
+#| Exercise: 2.54
+|#
+(define (zv-equal? a b)
+  (cond [(or (empty? a) (empty? b)) (eq? a b)]
+        [(and (list? a) (list? b))
+         (and (eq? (car a) (car b))
+              (zv-equal? (cdr a) (cdr b)))]
+        [(or (list? a) (list? b)) false]
+        [else (eq? a b)]))
+
