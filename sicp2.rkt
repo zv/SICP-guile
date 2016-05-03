@@ -622,3 +622,17 @@
   (and (list? x) (eq? (car x) '*)))
 
 
+#| Exercise: 2.56
+|#
+(define (exponentiation? x)
+  (and (list? x) (eq? (car x) 'expt)))
+(define (base p) (cadr p))
+(define (exponent p) (caddr p))
+
+(define (make-exponent e1 e2)
+  (cond [(=number? e1 0) 1]
+        [(=number? e2 0) 1]
+        [(and (number? e1) (number? e2)
+              (expt e1 e2))]
+        [else `(expt ,e1 ,e2)]))
+
