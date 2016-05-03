@@ -560,3 +560,16 @@
         [(or (list? a) (list? b)) false]
         [else (eq? a b)]))
 
+#| Exercise: 2.4
+|#
+;;; whoa!!!
+(define (recons x y)
+  (λ (m) (m x y)))
+
+(define (recar z)
+  (z (λ (p q) p)))
+
+(define (recdr z)
+  (z (λ (p q) q)))
+
+
