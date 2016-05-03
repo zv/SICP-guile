@@ -573,3 +573,52 @@
   (z (λ (p q) q)))
 
 
+#| Exercise: 2.55
+|#
+;; It is a "double quoted" item, e.g the symbols (quote abracadabra) resolve to
+;; the *function* quote, which is created from syntax sugar.
+
+
+;; Utilities
+(define (deriv expr var)
+  (cond [(number? expr) 0]
+        [(variable? expr)
+         (if (same-variable? expr var) 1 0)]
+        [(sum? expr)
+         (make-sum (deriv (addend expr) var)
+                   (deriv (augend expr) var))]
+        [(product? expr)
+         (make-sum
+          (make-product
+           (multiplier expr)
+           (deriv (multiplicand expr) var))
+          (make-product
+           (deriv (multiplier expr) var)
+           (multiplicand expr)))]
+        [(exponentiation? expr)
+         (make-product
+          (make-product
+           (exponent expr)
+           (make-exponent (base expr)
+                          (- (exponent expr) 1)))
+          (deriv (base expr) var))]
+        [else (error "unknown exprression type: DERIV" expr)]))
+
+(define (variable? x) (symbol? x))
+
+(define (same-variable? v1 v2)
+  (and (variable? v1)
+       (variable? v2)
+       (eq? v1 v2)))
+
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+;; A sum is a list whose first element is the symbol +:
+;; TODO
+(define (sum? x)
+  (and (list? x) (eq? (car x) '+)))
+
+(define (product? x)
+  (and (list? x) (eq? (car x) '*)))
+
+
