@@ -741,3 +741,12 @@ x^2 + 9
                (intersection (cdr ss1) ss2))]
         [else (intersection (cdr ss1) ss2)]))
 
+#| Exercise: 2.59
+|#
+(define (union-set ss1 ss2)
+  (cond [(or (empty? ss1) (empty? ss2)) (append ss1 ss2)]
+        [(element-of-set? (car ss1) ss2)
+         (union-set (cdr ss1) ss2)]
+        [else
+         (cons (car ss1) (union-set (cdr ss1) ss2))]))
+
