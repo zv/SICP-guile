@@ -666,3 +666,78 @@
       (caddr s)
       `(* ,@(cddr s))))
 
+#| Exercise: 2.58
+|#
+;;; 1.
+(define (infix-addend s) (car s))
+(define (infix-augend s) (caddr s))
+(define (infix-multiplier s) (car s))
+(define (infix-multiplicand s) (caddr s))
+
+(define (infix-sum? x)
+  (and (list? x) (eq? (cadr x) '+)))
+
+(define (infix-product? x)
+  (and (list? x) (eq? (cadr x) '*)))
+
+(define (infix-make-sum a1 a2)
+  (cond [(=number? a1 0) a2]
+        [(=number? a2 0) a1]
+        [(and (number? a1) (number? a2)
+              (+ a1 a2))]
+        [else `(,a1 + ,a2)]))
+
+(define (infix-make-product m1 m2)
+  (cond [(or (=number? m1 0)
+             (=number? m2 0)) 0]
+        [(=number? m1 1) m2]
+        [(=number? m2 1) m1]
+        [(and (number? m1) (number? m2))
+         (* m1 m2)]
+        [else `(,m1 * ,m2)]))
+
+(define (infix-deriv expr var)
+  "This function is for computing the derivative of a simple, infix'd function"
+  (cond [(number? expr) 0]
+        [(variable? expr)
+         (if (same-variable? expr var) 1 0)]
+        [(infix-sum? expr)
+         (infix-make-sum (infix-deriv (infix-addend expr) var)
+                         (infix-deriv (infix-augend expr) var))]
+        [(infix-product? expr)
+         (infix-make-sum
+          (infix-make-product
+           (infix-multiplier expr)
+           (infix-deriv (infix-multiplicand expr) var))
+          (infix-make-product
+           (infix-deriv (infix-multiplier expr) var)
+           (infix-multiplicand expr)))]
+        [else (error "unknown exprression type: DERIV" expr)]))
+;;; 2.
+#|
+(x + 3 * (x + y + 2))
+(+ x (* 3 (+ x y 2)))
+4x + 3y + 6
+x+3 * x
+x^2 + 9
+|#
+
+
+;; Set Utils
+(define (element-of-set? elt ss)
+  (cond [(empty? ss) false]
+        [(equal? elt (car ss)) true]
+        [else (element-of-set? elt (cdr ss))]))
+
+(define (adjoin-set elt ss)
+  (if (element-of-set? elt ss)
+      set
+      (cons elt ss)))
+
+(define (intersection ss1 ss2)
+  (cond [(or (empty? ss1) (empty? ss2)) null]
+        [(element-of-set? (car ss1) ss2)
+         (cons (car ss1)
+               (intersection (cdr ss1) ss2))]
+        [else (intersection (cdr ss1) ss2)]))
+
