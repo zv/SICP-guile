@@ -789,3 +789,14 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
               [(> x1 x2)
                (intersection-ordered-set set1 (cdr set2))]))))
 
+#| Exercise: 2.61
+|#
+(define (adjoin-ordered-set elt os)
+  "Takes advantage of the ordering of the set to stop when elt > (car os)"
+  (if (empty? os) (list elt)
+      (let [(oelt (car os))]
+        (cond [(< elt oelt) (cons elt os)]
+              [(> elt oelt)
+               (cons oelt (adjoin-ordered-set elt (cdr os)))]
+              [(= elt oelt) os]))))
+
