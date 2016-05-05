@@ -750,3 +750,42 @@ x^2 + 9
         [else
          (cons (car ss1) (union-set (cdr ss1) ss2))]))
 
+#| Exercise: 2.60
+|#
+(define (element-of-joined-set? elt ss)
+  (element-of-set? elt ss))
+
+(define (adjoin-joined-set elt ss)
+  (cons elt ss))
+
+(define (adjoin-intersection ss1 ss2)
+  (intersection ss1 ss2))
+
+(define (adjoin-union-set ss1 ss2)
+  (append ss1 ss2))
+
+;; Much cheaper, but to be useful it would require another deduplication pass.
+(define (element-of-set-ordered? elt ss)
+  (cond [(empty? ss) false]
+        [(= elt (car ss)) true]
+        [(< elt (car ss)) false]
+        [else (element-of-set-ordered? elt (cdr ss))]))
+
+(define (intersection-ordered-set set1 set2)
+  "Begin by comparing the initial elements, x1 and x2, of the two sets. If x1
+equals x2, then that gives an element of the intersection, and the rest of the
+intersection is the intersection of the cdr-s of the two sets. Suppose, however,
+that x1 is less than x2. Since x2 is the smallest element in set2, we can
+immediately conclude that x1 cannot appear anywhere in set2 and hence is not in
+the intersection. Hence, the intersection is equal to the intersection of set2
+with the cdr of set1. Similarly, if x2 is less than x1, then the intersection is
+given by the intersection of set1 with the cdr of set2. Here is the procedure"
+  (if (or (null? set1) (null? set2)) null
+      (let [(x1 (car set1)) (x2 (car set2))]
+        (cond [(= x1 x2)
+               (cons x1 (intersection-ordered-set (cdr set1) (cdr set2)))]
+              [(< x1 x2)
+               (intersection-ordered-set (cdr set1) set2)]
+              [(> x1 x2)
+               (intersection-ordered-set set1 (cdr set2))]))))
+
