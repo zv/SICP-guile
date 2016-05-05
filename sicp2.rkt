@@ -800,3 +800,18 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
                (cons oelt (adjoin-ordered-set elt (cdr os)))]
               [(= elt oelt) os]))))
 
+#| Exercise: 2.62
+|#
+(define (union-ordered-set ss1 ss2)
+  "Perform an O(n) union of 2 ordered sets"
+  (if (or (empty? ss1) (empty? ss2)) (append ss1 ss2)
+      (let [(x1 (car ss1))
+            (x2 (car ss2))]
+        (cond [(= x1 x2)
+               (cons x1 (union-ordered-set (cdr ss1) (cdr ss2)))]
+              [(< x1 x2)
+               (cons x1 (union-ordered-set (cdr ss1) ss2) )]
+              [(> x1 x2)
+               (cons x2 (union-ordered-set ss1 (cdr ss2)) )]))))
+
+
