@@ -871,3 +871,480 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
                    (make-linear-bset maxct (inc ct)))))
 
 
+#| Exercise: 2.63
+|#
+#|
+1. I don't think they differ.
+2. The former grows faster than the latter because of the `append' call. The orders of growth are identical.
+|#
+(define (tree->list-1 tree)
+  (if (null? tree)
+      '()
+      (append
+       (tree->list-1
+        (node-left tree))
+       (cons (node-val tree)
+             (tree->list-1
+              (node-right tree))))))
+
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+        result-list
+        (copy-to-list
+         (node-left tree)
+         (cons (node-val tree)
+               (copy-to-list
+                (node-right tree)
+                result-list)))))
+  (copy-to-list tree '()))
+
+#| 2.64
+
+Write a short paragraph explaining as clearly as you can how partial-tree works.
+
+Draw the tree produced by list->tree for the list (1 3 5 7 9 11).
+What is the order of growth in the number of steps required by list->tree to
+convert a list of n elements?
+
+Partial tree effectively performs binary search to split the tree. |#
+(define (partial-tree elts n)
+  (if (= n 0) (cons null elts)
+      (let* ([left-size      (quotient (- n 1) 2)]
+             [left-result    (partial-tree elts left-size)]
+             [left-tree      (first left-result)]
+             [right-elts     (rest left-result)]
+             [right-size     (- n (+ left-size 1))]
+             [this-entry     (first right-elts)]
+             [right-result   (partial-tree (cdr right-elts)
+                                           right-size)]
+             [right-tree     (first right-result)]
+             [remaining-elts (rest right-result)])
+
+        (cons (node this-entry
+                    left-tree
+                    right-tree)
+              remaining-elts))))
+
+(define (list->tree elements)
+  (car (partial-tree
+        elements (length elements))))
+
+(define tbsize 20)
+(define tbset (make-random-bset tbsize))
+(define tbbad (make-linear-bset tbsize))
+(define tbsorted (list->tree (range tbsize)))
+(define (nprint p)
+  (pretty-print p (current-output-port) 1))
+
+
+#|
+def __str__(self, depth=0):
+ret = ""
+
+# Print right branch
+if self.right != None:
+ret += self.right.__str__(depth + 1)
+
+# Print own value
+ret += "\n" + ("    "*depth) + str(self.value)
+
+# Print left branch
+if self.left != None:
+ret += self.left.__str__(depth + 1)
+
+return ret
+|#
+(define (pprint tree [depth 0] [str ""])
+  (string-append
+   (if (empty? (node-left tree)) ""
+       (string-append str (pprint (node-left tree) (+ 1 depth))))
+
+    (string-append (make-string (* 2 depth) #\ ) str (number->string (node-val tree)) "\n")
+
+   (if (empty? (node-right tree)) ""
+       (string-append str (pprint (node-right tree) (+ 1 depth))))))
+
+#|
+Exercise 2.65: Use the results of Exercise 2.63 and Exercise 2.64 to give Θ ( n ) implementations of union-set and intersection-set for sets implemented as (balanced) binary trees.107
+|#
+(define (union-balanced-set bs1 bs2)
+  (list->tree ((union-set (tree->list-1 bs1)
+                          (tree->list-1 bs2)))))
+
+
+(define (intersection-balanced-set bs1 bs2)
+  (list->tree ((intersection (tree->list-1 bs1)
+                             (tree->list-1 bs2)))))
+
+#| Exercise 2.66
+Implement the lookup procedure for the case where the set of records is
+structured as a binary tree, ordered by the numerical values of the keys.
+|#
+(define (lookup-bset elt bs)
+  (if (null? bs) false
+      (let [(val (node-val bs))]
+        (cond [(= val elt) bs]
+              [(> val elt) (lookup-bset elt (node-left bs))]
+              [(< val elt) (lookup-bset elt (node-right bs))]))))
+
+#|
+--Utility Functions-------------------------------------------------------------
+|#
+
+(struct leaf (sym weight)
+  #:transparent)
+(struct code-tree (left right syms weight)
+  #:transparent)
+
+(define (make-code-tree left right)
+  (code-tree left
+             right
+             (append (syms left)
+                     (syms right))
+             (+ (weight left) (weight right))))
+
+(define (left-branch tree) (code-tree-left tree))
+(define (right-branch tree) (code-tree-right tree))
+
+(define (syms tree)
+  (if (leaf? tree)
+      (list (leaf-sym tree))
+      (code-tree-syms tree)))
+
+(define (weight tree)
+  (if (leaf? tree)
+      (leaf-weight tree)
+      (code-tree-weight tree)))
+
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits)
+        null
+        (let [(next-branch
+               (choose-branch
+                (car bits)
+                current-branch))]
+          (if (leaf? next-branch)
+              (cons
+               (leaf-sym next-branch)
+               (decode-1 (cdr bits) tree))
+              (decode-1 (cdr bits)
+                        next-branch)))))
+  (decode-1 bits tree))
+
+(define (choose-branch bit branch)
+  (cond [(= bit 0) (left-branch branch)]
+        [(= bit 1) (right-branch branch)]
+        [else (error "bad bit(ch?)")]))
+
+(define (adjoin-htset x ss)
+  (cond ((null? ss) (list x))
+        ((< (weight x) (weight (car ss)))
+         (cons x ss))
+        (else
+         (cons (car ss)
+               (adjoin-htset x (cdr ss))))))
+
+(define (make-leaf-set pairs)
+  (if (null? pairs) null
+      (let ((pair (car pairs)))
+        (adjoin-htset
+         (leaf (car pair)    ; symbol
+               (cadr pair))  ; frequency
+         (make-leaf-set (cdr pairs))))))
+
+#|
+--End of Utility Functions------------------------------------------------------
+2.67: Define an encoding tree and a sample message:
+|#
+(define sample-tree
+  (make-code-tree
+   (leaf 'A 4)
+   (make-code-tree
+    (leaf 'B 2)
+    (make-code-tree
+     (leaf 'D 1)
+     (leaf 'C 1)))))
+
+;; A D A B B C A
+(define sample-message
+  '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+
+(define (decode-sample)
+  (decode sample-message sample-tree)) ;; => '(A D A B B C A)
+
+#| Exercise 2.68
+The encode procedure takes as arguments a message and a tree and produces the
+list of bits that gives the encoded message.
+
+Encode-symbol is a procedure, which you must write, that returns the list of
+bits that encodes a given symbol according to a given tree. You should design
+encode-symbol so that it signals an error if the symbol is not in the tree at
+all. Test your procedure by encoding the result you obtained in Exercise 2.67
+with the sample tree and seeing whether it is the same as the original sample
+message.
+|#
+
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append
+       (encode-symbol (car message)
+                      tree)
+       (encode (cdr message) tree))))
+
+(define (encode-symbol symbol tree)
+  (cond
+    [(null? tree) (error "Not found")]
+    [(leaf? tree) null]
+    [(memq symbol (syms (left-branch tree)))
+     (cons 0 (encode-symbol symbol (left-branch tree)))]
+    [(memq symbol (syms (right-branch tree)))
+     (cons 1 (encode-symbol symbol (right-branch tree)))]))
+
+#| Exercise 2.69
+The following procedure takes as its argument a list of symbol-frequency pairs
+(where no symbol appears in more than one pair) and generates a Huffman encoding
+tree according to the Huffman algorithm.
+
+Make-leaf-set is the procedure given above that transforms the list of pairs
+into an ordered set of leaves. Successive-merge is the procedure you must write,
+using make-code-tree to successively merge the smallest-weight elements of the
+set until there is only one element left, which is the desired Huffman tree.
+(This procedure is slightly tricky, but not really complicated. If you find
+yourself designing a complex procedure, then you are almost certainly doing
+something wrong. You can take significant advantage of the fact that we are
+using an ordered set representation.)
+|#
+(define (generate-huffman-tree pairs)
+  (successive-merge
+   (make-leaf-set pairs)))
+
+(define (successive-merge xs)
+  (if (= 1 (length xs)) (car xs)
+      (successive-merge
+       (cons (make-code-tree (cadr xs) (car xs))
+             (cddr xs)))))
+
+#| Exercise 2.70
+The following eight-symbol alphabet with associated relative frequencies was
+designed to efficiently encode the lyrics of 1950s rock songs. (Note that the
+“symbols” of an “alphabet” need not be individual letters.)
+
+    A    2    NA  16
+    BOOM 1    SHA  3
+    GET  2    YIP  9
+    JOB  2    WAH  1
+
+Use generate-huffman-tree (Exercise 2.69) to generate a corresponding Huffman
+tree, and use encode (Exercise 2.68) to encode the following message:
+
+    Get a job
+    Sha na na na na na na na na
+
+    Get a job
+    Sha na na na na na na na na
+
+    Wah yip yip yip yip
+    yip yip yip yip yip
+    Sha boom
+|#
+
+(define (generate-rock-n-roll-htree)
+  (define rockfreq (generate-huffman-tree
+                    '((A 2)    (NA  16)
+                      (BOOM 1) (SHA  3)
+                      (GET  2) (YIP  9)
+                      (JOB  2) (WAH  1))))
+  (define msg-to-youth
+    (map (λ (s) (string->symbol (string-upcase s)))
+         (string-split "Get a job Sha na na na na na na na na
+                        Get a job Sha na na na na na na na na Wah yip yip
+                        yip yip yip yip yip yip yip Sha boom")))
+  (define rock-bits (encode msg-to-youth rockfreq))
+  (printf "bits: ~a\n\n" rock-bits)
+  (printf "decoded: ~a\n" (decode rock-bits rockfreq)))
+
+#|
+Exercise 2.72
+Consider the encoding procedure that you designed in Exercise 2.68. What is the
+order of growth in the number of steps needed to encode a symbol? Be sure to
+include the number of steps needed to search the symbol list at each node
+encountered. To answer this question in general is difficult. Consider the
+special case where the relative frequencies of the n symbols are as described in
+Exercise 2.71, and give the order of growth (as a function of n ) of the number
+of steps needed to encode the most frequent and least frequent symbols in the
+alphabet.
+|#
+
+;; Answer:
+;; (Copied from Eli Bendersky)
+
+;; In general, in the worst case we’d need to descend n levels (as Exercise 2.71
+;; shows), and at each step we have to find the symbol in a set of symbols at that
+;; node. The implementation of encode used an unordered set to keep the symbols, so
+;; the search takes O(n)[3]. Therefore, the whole encoding procedure takes O(n^2).
+;; Had we used a binary tree for the sets of symbols, we could bring this time down
+;; to O(n^2). Of course, building the tree would then take longer.
+
+;; --------------------------------------------------
+;; Section 2.4
+;; --------------------------------------------------
+
+#| Exercise 2.73
+2.3.2 described a program that performs symbolic differentiation:
+
+(define (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var) 1 0))
+        ((sum? exp)
+         (make-sum (deriv (addend exp) var)
+                   (deriv (augend exp) var)))
+        ((product? exp)
+         (make-sum
+           (make-product
+            (multiplier exp)
+            (deriv (multiplicand exp) var))
+           (make-product
+            (deriv (multiplier exp) var)
+            (multiplicand exp))))
+        ⟨more rules can be added here⟩
+        (else (error "unknown expression type:
+                      DERIV" exp))))
+
+We can regard this program as performing a dispatch on the type of the
+expression to be differentiated. In this situation the “type tag” of the datum
+is the algebraic operator symbol (such as +) and the operation being performed
+is deriv. We can transform this program into data-directed style by rewriting
+the basic derivative procedure as
+
+(define (deriv exp var)
+   (cond ((number? exp) 0)
+         ((variable? exp)
+           (if (same-variable? exp var)
+               1
+               0))
+         (else ((get 'deriv (operator exp))
+                (operands exp)
+                var))))
+
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+
+(define (deriv exp var)
+   (cond ((number? exp) 0)
+         ((variable? exp)
+           (if (same-variable? exp var)
+               1
+               0))
+         (else ((get 'deriv (operator exp))
+                (operands exp)
+                var))))
+
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+
+  1. Explain what was done above. Why can’t we assimilate the predicates number?
+and variable? into the data-directed dispatch?
+
+The procedures are now being dispatched on the type of the tag -- It would be meaningless to integrate predicates into a data-driven programming method -- They are the first-order methods.
+
+  2. Write the procedures for derivatives of sums and products, and the auxiliary
+code required to install them in the table used by the program above.
+
+  3. Choose any additional differentiation rule that you like, such as the one for
+exponents (Exercise 2.56), and install it in this data-directed system.
+
+  4. In this simple algebraic manipulator the type of an expression is the
+algebraic operator that binds it together. Suppose, however, we indexed the
+procedures in the opposite way, so that the dispatch line in deriv looked like
+
+    ((get (operator exp) 'deriv)
+     (operands exp) var)
+
+What corresponding changes to the derivative system are required?
+|#
+;; TODO BORING
+
+#| Exercise 2.75
+Implement the constructor make-from-mag-ang in message-passing style. This
+procedure should be analogous to the make-from-real-imag procedure given above.
+|#
+
+(define (make-from-mag-ang magnitude angle)
+  (define (dispatch op)
+    (cond [(eq? op 'magnitude) magnitude]
+          [(eq? op 'angle) angle]
+          [(eq? op 'real-part)
+           (* magnitude (cos angle))]
+          [(eq? op 'imag-part)
+           (* magnitude (sin angle))]
+          [else (error "you fucked up")]))
+  dispatch)
+
+
+#| Exercise 2.76
+
+As a large system with generic operations evolves, new types of data objects or
+new operations may be needed. For each of the three strategies—generic
+operations with explicit dispatch, data-directed style, and
+message-passing-style—describe the changes that must be made to a system in
+order to add new types or new operations. Which organization would be most
+appropriate for a system in which new types must often be added? Which would be
+most appropriate for a system in which new operations must often be added?
+|#
+
+;;
+;; | System         | Changes                                                          |
+;; -------------------------------------------------------------------------------------
+;; Direct           | New functions must be added, existing dispatch functions must
+;;                    introduce the new behaviour manually or modify the existing
+;;                    code to suit new datatypes
+
+;; Data Directed    | Each new function must be "registered" in the table of
+;;                    dispatch-functions, if a data type changes, existing predicates
+;;                    and selectors must compute their values in terms of
+;;                    new structure elements
+
+;; Message Passing  | The function/module that provides the representation of
+;;                    data structure must have functions added to it, existing
+;;                    functions are to new behaviour directly if possible.
+
+;; --------------------------------------------------
+;; Section 2.5
+;; --------------------------------------------------
+(module number-package racket
+  (provide add)
+  (provide sub)
+  (provide mul)
+  (provide div)
+
+  (define generics-table (make-hash))
+
+  (define (mk-opname op type-tag)
+    "Make the name used in the hash table to refer to the operation and type"
+    (printf "~a~a" op type-tag))
+  (define (put op type-tag item)
+    "Install an operation into the generic functions table"
+    (hash-set! generics-table (mk-opname "~a~a" op type-tag) item))
+  (define (get op type-tag)
+    "Find a function in the generics function table"
+    (hash-ref generics-table (mk-opname op type-tag)))
+
+  (define (apply-generic op args)
+    (let* ([type-tags (map type-tag args)]
+           [proc (get op type-tags)])
+        (if proc
+            (apply proc (map contents args))
+            (error
+             "No method for these types:
+             APPLY-GENERIC"
+             (list op type-tags)))))
+
+  (define (add x y) (apply-generic 'add x y))
+  (define (sub x y) (apply-generic 'sub x y))
+  (define (mul x y) (apply-generic 'mul x y))
+  (define (div x y) (apply-generic 'div x y))
+  )
