@@ -815,3 +815,59 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
                (cons x2 (union-ordered-set ss1 (cdr ss2)) )]))))
 
 
+#| Exercise: 2.63
+|#
+
+(define (sum-of-halves n)
+  "Get the limit of a half a number, plus half of that, and so on"
+  (if (= 0 n) 0
+      (+ n (sum-of-halves (quotient n 2)))))
+
+(define (get-depth tree)
+  (if (null? tree) 0
+      (+ 1 (max (get-depth (node-right tree))
+           (get-depth (node-left tree))) )))
+
+(struct node (val left right)
+  #:transparent
+  ;; #:methods gen:custom-write
+  ;; [(define (write-proc self port mode)
+  ;;    (fprintf port "(val: ~a left: ~a right: ~a)"
+  ;;             (node-val self)
+  ;;             (node-left self)
+  ;;             (node-right self)))]
+  )
+
+(define (element-of-bset? elt ss)
+  (cond [(null? ss) null]
+        [(= elt (node-val ss)) true]
+        [(< elt (node-val ss))
+         (element-of-bset? elt (node-left ss))]
+        [(> elt (node-val ss))
+         (element-of-bset? elt (node-right ss))]))
+
+(define (adjoin-bset elt ss)
+  (cond [(null? ss) (node elt null null)]
+        [(= elt (node-val ss)) ss]
+        [(< elt (node-val ss))
+         (node (node-val ss)
+               (adjoin-bset elt (node-left ss))
+               (node-right ss))]
+        [(> elt (node-val ss))
+         (node (node-val ss)
+               (node-left ss)
+               (adjoin-bset elt (node-right ss)))]))
+
+(define (make-random-bset maxct [ct 0])
+  "Helper function to create a binary treeset"
+  (if (< maxct ct) (adjoin-bset (random maxct) null)
+      (adjoin-bset (random maxct)
+                   (make-random-bset maxct (inc ct)))))
+
+(define (make-linear-bset maxct [ct 0])
+  "Helper function to create a binary treeset"
+  (if (< maxct ct) (adjoin-bset ct null)
+      (adjoin-bset ct
+                   (make-linear-bset maxct (inc ct)))))
+
+
