@@ -1348,3 +1348,20 @@ most appropriate for a system in which new operations must often be added?
   (define (mul x y) (apply-generic 'mul x y))
   (define (div x y) (apply-generic 'div x y))
   )
+#| Exercise: 2.5
+|#
+(define lower-expt 2)
+(define higher-expt 5)
+(define (pack-pair a b)
+  (* (expt lower-expt a)
+     (expt higher-expt b)))
+
+(define (unpack-base x base)
+  (if [= 0 (remainder x base)]
+      (+ 1 (unpack-base (/ x base) base))
+      0))
+
+(define (unpack-pair d)
+  `(,(unpack-base d lower-expt)
+    ,(unpack-base d higher-expt)))
+
