@@ -1391,3 +1391,16 @@ most appropriate for a system in which new operations must often be added?
         x)))))
 
 
+#| Exercise: 2.7
+|#
+;; (module interval racket
+;;   (provide add-interval mul-interval div-interval)
+;;   (define (add-interval x y)
+;;     (make-interval (+ (lower-bound x) (lower-bound y))
+;;                    (+ (upper-bound x) (upper-bound y))))
+;;   )
+
+(define (make-interval a b) (cons a b))
+(define (upper-bound interval) (cdr interval))
+(define (lower-bound interval) (car interval))
+
