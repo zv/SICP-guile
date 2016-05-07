@@ -1404,3 +1404,11 @@ most appropriate for a system in which new operations must often be added?
 (define (upper-bound interval) (cdr interval))
 (define (lower-bound interval) (car interval))
 
+#| Exercise: 2.8
+|#
+(define (sub-interval x y)
+  (let ((p1 (- (lower-bound x) (lower-bound y)))
+        (p2 (- (lower-bound y) (upper-bound x))))
+    (make-interval (min p1 p2)
+                   (max p1 p2))))
+
