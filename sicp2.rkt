@@ -1365,3 +1365,29 @@ most appropriate for a system in which new operations must often be added?
   `(,(unpack-base d lower-expt)
     ,(unpack-base d higher-expt)))
 
+#| Exercise: 2.6
+|#
+(define church-zero (λ (f) (λ (x) x)))
+
+(define (church-add-1 n)
+  (λ (f) (λ (x) (f ((n f) x)))))
+
+(define church-one
+  (λ (f)
+    (λ (x)
+      (f x))))
+
+(define church-two
+  (λ (f)
+    (λ (x)
+      (f
+       (f x)))))
+
+(define (church-addition m n)
+  (λ (f)
+    (λ (x)
+      ((n f)
+       ((m f)
+        x)))))
+
+
