@@ -1412,3 +1412,6 @@ most appropriate for a system in which new operations must often be added?
     (make-interval (min p1 p2)
                    (max p1 p2))))
 
+#| Exercise: 2.9
+|#
+
