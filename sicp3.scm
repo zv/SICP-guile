@@ -1835,3 +1835,27 @@ counter. For instance, we could make a monitored version of the sqrt procedure: 
           (f n)))))
 
 
+#| Exercise 3.3
+Modify the make-account procedure so that it creates password-protected
+accounts. That is, make-account should take a symbol as an additional argument,
+as in
+
+(define acc (make-account 100 'secret-password))
+(define (zv-make-account acct# passwd)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance
+                     (- balance amount))
+               balance)
+        "Insufficient funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (define (dispatch m)
+    (cond ((eq? m 'withdraw) withdraw)
+          ((eq? m 'deposit) deposit)
+          (else (error "Unknown request:
+                 MAKE-ACCOUNT" m))))
+  dispatch)
+|#
+
