@@ -1963,3 +1963,11 @@ empty x.)
 (define y (list 'c 'd))
 (define z (append x y))
 
+;; Exercise 3.13
+;; What happens if we try to compute (last-pair z)?
+(define (make-cycle x)
+  (set-cdr! (last-pair x) x)
+  x)
+
+;;; Answer: An infinite loop occurs (a cycle in the linked list has been made)
+
