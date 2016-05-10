@@ -2034,3 +2034,25 @@ Answer:
 |#
 
 
+#| Exercise 3.17
+
+Devise a correct version of the count-pairs procedure of exercise 3.16 that
+returns the number of distinct pairs in any structure.
+
+(Hint: Traverse the structure, maintaining an auxiliary data structure that is
+       used to keep track of which pairs have already been counted.)
+|#
+
+(define (zv-count-pairs xs)
+  (define counted '())
+  (define (loop xs)
+    (cond ((not (pair? xs)) 1)
+          ((null? xs) 0)
+          ((memq (car xs) counted) 0)
+          (else
+           (begin
+             (set! counted (cons (car xs) counted))
+             (+ (loop (car xs))
+                (loop (cdr xs)))))))
+  (loop xs))
+
