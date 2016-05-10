@@ -2056,3 +2056,21 @@ returns the number of distinct pairs in any structure.
                 (loop (cdr xs)))))))
   (loop xs))
 
+#| Exercise 3.18
+Write a procedure that examines a list and determines whether it contains a
+cycle, that is, whether a program that tried to find the end of the list by
+taking successive cdrs would go into an infinite loop. exercise 3.13 constructed
+such lists.
+|#
+(define (has-cycles? xs)
+  (define visited '())
+  (define (search ys)
+    (cond ((null? ys) #f)
+          ((memq (car ys) visited) #t)
+          (else
+           (begin
+             (set! visited (cons (car ys) visited))
+             (search (cdr ys))))))
+  (search xs))
+
+
