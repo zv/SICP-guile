@@ -2445,3 +2445,21 @@ accomplished in Θ(1) steps.
 (define carry (make-wire))
 
 
+#| Exercise 3.28
+Define an or-gate as a primitive function box. Your or-gate constructor should
+be similar to and-gate.
+|#
+(define or-gate-delay 5)
+(define (or-gate a1 a2 output)
+  (define (or-action-procedure)
+    (let ((new-value
+           (logior (signal-value a1)
+                   (signal-value a2))))
+      (after-delay
+       or-gate-delay
+       (λ ()
+         (set-signal! output new-value)))))
+  (add-action! a1 or-action-procedure)
+  (add-action! a2 or-action-procedure)
+  'ok)
+
