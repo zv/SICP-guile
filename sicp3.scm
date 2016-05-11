@@ -2204,3 +2204,244 @@ operations using this representation.
     dispatch))
 
 #|
+TODO: Exercise 3.23
+A deque (“double-ended queue”) is a sequence in which items can be inserted and
+deleted at either the front or the rear. Operations on deques are the
+constructor make-deque, the predicate empty-deque?, selectors front-deque and
+rear-deque, and mutators front-insert-deque!, rear-insert-deque!,
+front-delete-deque!, rear-delete-deque!. Show how to represent deques using
+pairs, and give implementations of the operations.151 All operations should be
+accomplished in Θ(1) steps.
+|#
+
+;; -- 3.3.3 | Representing Tables  -------------------
+;; --( Utility Functions )----------------------------
+(define (lookup key table)
+  (let ((record (assoc key (cdr table))))
+    (if record
+        (cdr record)
+        #f)))
+
+(define (assoc key records)
+  (cond ((null? records) #f)
+        ((equal? key (caar records))
+         (car records))
+        (else (assoc key (cdr records)))))
+
+(define (insert! key value table)
+  (let ((record (assoc key (cdr table))))
+    (if record
+        (set-cdr! record value)
+        (set-cdr! table
+                  (cons (cons key value)
+                        (cdr table)))))
+  'ok)
+
+(define (make-table)
+  (let ((local-table (list '*table*)))
+    (define (lookup key-1 key-2)
+      (let ((subtable
+             (assoc key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (assoc key-2 (cdr subtable))))
+              (if record (cdr record) #f))
+            #f)))
+    (define (insert! key-1 key-2 value)
+      (let ((subtable
+             (assoc key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (assoc key-2 (cdr subtable))))
+              (if record
+                  (set-cdr! record value)
+                  (set-cdr! subtable
+                            (cons (cons key-2 value)
+                                  (cdr subtable)))))
+            (set-cdr!
+             local-table
+             (cons (list key-1 (cons key-2 value))
+                   (cdr local-table)))))
+      'ok)
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation: TABLE" m))))
+    dispatch))
+
+(define operation-table (make-table))
+(define get (operation-table 'lookup-proc))
+(define put (operation-table 'insert-proc!))
+
+
+;; -- 3.3.4 | Constraint Satisfaction ----------------
+;; --( Utility Functions )----------------------------
+(define-class <wire> ()
+  (signal-value
+   #:init-value 0
+   #:setter set-signal!
+   #:getter signal-value)
+
+  (action-procedures #:init-form '()
+                     #:accessor action-procedures))
+(define (make-wire)
+  (make <wire>))
+
+(define-method (set-signal! (w <wire>) new-value)
+    (let ([old-value (signal-value w)]
+         [result (slot-set! w 'signal-value new-value)])
+      (unless (equal? old-value new-value)
+        (map (λ (x) (x)) (action-procedures w)))))
+
+;; (define-generic add-action!)
+(define-method (add-action! (w <wire>) proc)
+  (set-action-procedures w (cons proc (action-procedures w)))
+  (proc))
+
+(define inverter-delay 2)
+(define (inverter input output)
+  (define (invert-input)
+    (let ([new-value (logical-not (signal-value input))])
+      (after-delay inverter-delay
+                   (λ ()
+                     (set-signal! output
+                                       new-value)))))
+  (add-action! input invert-input)
+  'ok)
+
+(define (logical-not s)
+  (cond [0 1]
+        [1 0]
+        (else (error "Invalid signal"))))
+
+(define and-gate-delay 3)
+
+(define (and-gate a1 a2 output)
+  (define (and-action-procedure)
+    (let ((new-value
+           (logand (signal-value a1)
+                   (signal-value a2))))
+      (after-delay
+       and-gate-delay
+       (λ ()
+         (set-signal! output new-value)))))
+  (add-action! a1 and-action-procedure)
+  (add-action! a2 and-action-procedure)
+  'ok)
+
+(define (after-delay delay action)
+  (add-to-agenda!
+   (+ delay (current-time the-agenda))
+   action
+   the-agenda))
+
+(define (propagate)
+  (if (empty-agenda? the-agenda) 'done
+      (let ([first-item (first-agenda-item the-agenda)])
+        (first-item)
+        (remove-first-agenda-item! the-agenda)
+        (propagate))))
+
+
+
+(define (make-time-segment time queue)
+  (cons time queue))
+(define (segment-time s) (car s))
+(define (segment-queue s) (cdr s))
+(define (make-agenda) (list 0))
+(define (current-time agenda) (car agenda))
+(define (set-current-time! agenda time)
+  (set-car! agenda time))
+(define (segments agenda) (cdr agenda))
+(define (set-segments! agenda segments)
+  (set-cdr! agenda segments))
+(define (first-segment agenda)
+  (car (segments agenda)))
+(define (rest-segments agenda)
+  (cdr (segments agenda)))
+(define (empty-agenda? agenda)
+  (null? (segments agenda)))
+
+(define (add-to-agenda! time action agenda)
+  (define (belongs-before? segments)
+    (or (null? segments)
+        (< time
+           (segment-time (car segments)))))
+  (define (make-new-time-segment time action)
+    (let ((q (make-q)))
+      (enq! q action)
+      (make-time-segment time q)))
+  (define (add-to-segments! segments)
+    (if (= (segment-time (car segments)) time)
+        (q-push! (segment-queue (car segments))
+         action)
+        (let ((rest (cdr segments)))
+          (if (belongs-before? rest)
+              (set-cdr! segments
+               (cons (make-new-time-segment time action)
+                     (cdr segments)))
+              (add-to-segments! rest)))))
+  (let ((segments (segments agenda)))
+    (if (belongs-before? segments)
+        (set-segments! agenda
+         (cons (make-new-time-segment time action)
+               segments))
+        (add-to-segments! segments))))
+
+(define (remove-first-agenda-item! agenda)
+  (let ((q (segment-queue
+            (first-segment agenda))))
+    (deq! q)
+    (if (q-empty? q)
+        (set-segments!
+         agenda
+         (rest-segments agenda)))))
+
+(define (first-agenda-item agenda)
+  (if (empty-agenda? agenda)
+      (error "Agenda is empty: FIRST-AGENDA-ITEM")
+      (let ((first-seg
+             (first-segment agenda)))
+        (set-current-time!
+         agenda
+         (segment-time first-seg))
+        (q-front
+         (segment-queue first-seg)))))
+
+(define the-agenda (make-agenda))
+
+
+(define (half-adder a b s c)
+  (let ((d (make-wire)) (e (make-wire)))
+    (or-gate a b d)
+    (and-gate a b c)
+    (inverter c e)
+    (and-gate d e s)
+    'ok))
+
+(define (full-adder a b c-in sum c-out)
+  (let ((c1 (make-wire))
+        (c2 (make-wire))
+        (s  (make-wire)))
+    (half-adder b c-in s c1)
+    (half-adder a s sum c2)
+    (or-gate c1 c2 c-out)
+    'ok))
+
+(define (probe name wire)
+  (add-action!
+   wire
+   (lambda ()
+     (newline)
+     (display name)
+     (display " ")
+     (display (current-time the-agenda))
+     (display "  New-value = ")
+     (display (signal-value wire))
+     (display "\n"))))
+
+
+(define input-1 (make-wire))
+(define input-2 (make-wire))
+(define sum (make-wire))
+(define carry (make-wire))
+
+
