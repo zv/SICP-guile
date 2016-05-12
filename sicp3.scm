@@ -2472,3 +2472,18 @@ inverter-delay? |#
 ;; (!a1) && a2 is congruent to a1 || a2, it is as fast as (AND-DELAY + INVERTER_DELAY)
 
 
+#| TODO: Exercise 3.30
+Figure 3.27 shows a ripple-carry adder formed by stringing together n
+full-adders. This is the simplest form of parallel adder for adding two n -bit
+binary numbers. The inputs A 1 , A 2 , A 3 , …, A n and B 1 , B 2 , B 3 , …, B n
+are the two binary numbers to be added (each A k and B k is a 0 or a 1). The
+circuit generates S 1 , S 2 , S 3 , …, S n , the n bits of the sum, and C , the
+carry from the addition. Write a procedure ripple-carry-adder that generates
+this circuit. The procedure should take as arguments three lists of n wires
+each—the A k , the B k , and the S k —and also another wire C . The major
+drawback of the ripple-carry adder is the need to wait for the carry signals to
+propagate. What is the delay needed to obtain the complete output from an n -bit
+ripple-carry adder, expressed in terms of the delays for and-gates, or-gates,
+and inverters?
+|#
+
