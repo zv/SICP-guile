@@ -51,6 +51,158 @@
     (if nsign (cons (* -1 num) den)
         (cons num den))))
 
+#| Exercise: 2.2
+|#
+;;; racket
+(struct coordinate (x y)
+  #:transparent)
+(struct segment (start end)
+  #:transparent)
+
+
+(define (midpoint segment)
+  (let [(mid-x (/ (+ (coordinate-x (segment-start segment))
+                  (coordinate-x (segment-end segment))) 2))
+        (mid-y (/ (+ (coordinate-y (segment-start segment))
+                     (coordinate-y (segment-end segment))) 2))]
+    (coordinate mid-x mid-y)))
+
+;; alternative scheme
+(define (make-point x y) `(,x . ,y))
+(define (make-segment s e) `(,s . ,e))
+(define (x-point p) (car p))
+(define (y-point p) (cdr p))
+(define (start-segment segment) (car segment))
+(define (end-segment segment) (cdr segment))
+
+(define (print-point p)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")")
+  (newline))
+
+(define (midpoint-s segment)
+  (make-segment
+   (/ (+ (x-point (start-segment segment))
+         (x-point (end-segment segment)))
+      2)
+   (/ (+ (y-point (start-segment segment))
+         (y-point (end-segment segment)))
+      2)))
+
+#| Exercise: 2.3
+|#
+(struct rectangle-s (height width)
+  #:guard (λ (height width type-name)
+            (if [and (segment? height) (segment? width)]
+                (values height width)
+                (error "not a valid rectangle"))))
+
+(struct rectangle (a b)
+  #:guard (λ (a b type-name)
+            (if [and (coordinate? a) (coordinate? b)]
+                (values a b)
+                (error "not a valid rectangle"))))
+
+(define (area rect)
+  (* (rect-height rect) (rect-width rect)))
+
+(define (rect-height rect)
+  (abs (if (rectangle-s? rect)
+           (- (coordinate-y (segment-start (rectangle-s-height rect)))
+              (coordinate-y (segment-end   (rectangle-s-height rect))))
+           (- (coordinate-y (rectangle-a rect))
+              (coordinate-y (rectangle-b rect))))))
+
+(define (rect-width rect)
+  (abs (if (rectangle-s? rect)
+           (- (coordinate-x (segment-start (rectangle-s-width rect)))
+              (coordinate-x (segment-end   (rectangle-s-width rect))))
+           (- (coordinate-x (rectangle-a rect))
+              (coordinate-x (rectangle-b rect))))))
+
+#| Exercise: 2.4
+|#
+;;; whoa!!!
+(define (recons x y)
+  (λ (m) (m x y)))
+
+(define (recar z)
+  (z (λ (p q) p)))
+
+(define (recdr z)
+  (z (λ (p q) q)))
+
+
+#| Exercise: 2.5
+|#
+(define lower-expt 2)
+(define higher-expt 5)
+(define (pack-pair a b)
+  (* (expt lower-expt a)
+     (expt higher-expt b)))
+
+(define (unpack-base x base)
+  (if [= 0 (remainder x base)]
+      (+ 1 (unpack-base (/ x base) base))
+      0))
+
+(define (unpack-pair d)
+  `(,(unpack-base d lower-expt)
+    ,(unpack-base d higher-expt)))
+
+#| Exercise: 2.6
+|#
+(define church-zero (λ (f) (λ (x) x)))
+
+(define (church-add-1 n)
+  (λ (f) (λ (x) (f ((n f) x)))))
+
+(define church-one
+  (λ (f)
+    (λ (x)
+      (f x))))
+
+(define church-two
+  (λ (f)
+    (λ (x)
+      (f
+       (f x)))))
+
+(define (church-addition m n)
+  (λ (f)
+    (λ (x)
+      ((n f)
+       ((m f)
+        x)))))
+
+
+#| Exercise: 2.7
+|#
+;; (module interval racket
+;;   (provide add-interval mul-interval div-interval)
+;;   (define (add-interval x y)
+;;     (make-interval (+ (lower-bound x) (lower-bound y))
+;;                    (+ (upper-bound x) (upper-bound y))))
+;;   )
+
+(define (make-interval a b) (cons a b))
+(define (upper-bound interval) (cdr interval))
+(define (lower-bound interval) (car interval))
+
+#| Exercise: 2.8
+|#
+(define (sub-interval x y)
+  (let ((p1 (- (lower-bound x) (lower-bound y)))
+        (p2 (- (lower-bound y) (upper-bound x))))
+    (make-interval (min p1 p2)
+                   (max p1 p2))))
+
+#| Exercise: 2.9
+|#
+
 #| Exercise: 2.10
 |#
 (define (div-interval x y)
@@ -172,47 +324,6 @@
 
 #| Exercise: 2.24
 |#
-
-#| Exercise: 2.2
-|#
-;;; racket
-(struct coordinate (x y)
-  #:transparent)
-(struct segment (start end)
-  #:transparent)
-
-
-(define (midpoint segment)
-  (let [(mid-x (/ (+ (coordinate-x (segment-start segment))
-                  (coordinate-x (segment-end segment))) 2))
-        (mid-y (/ (+ (coordinate-y (segment-start segment))
-                     (coordinate-y (segment-end segment))) 2))]
-    (coordinate mid-x mid-y)))
-
-;; alternative scheme
-(define (make-point x y) `(,x . ,y))
-(define (make-segment s e) `(,s . ,e))
-(define (x-point p) (car p))
-(define (y-point p) (cdr p))
-(define (start-segment segment) (car segment))
-(define (end-segment segment) (cdr segment))
-
-(define (print-point p)
-  (display "(")
-  (display (x-point p))
-  (display ",")
-  (display (y-point p))
-  (display ")")
-  (newline))
-
-(define (midpoint-s segment)
-  (make-segment
-   (/ (+ (x-point (start-segment segment))
-         (x-point (end-segment segment)))
-      2)
-   (/ (+ (y-point (start-segment segment))
-         (y-point (end-segment segment)))
-      2)))
 
 #| Exercise: 2.25
 |#
@@ -346,37 +457,6 @@
               0
               coefficient-sequence))
 
-
-#| Exercise: 2.3
-|#
-(struct rectangle-s (height width)
-  #:guard (λ (height width type-name)
-            (if [and (segment? height) (segment? width)]
-                (values height width)
-                (error "not a valid rectangle"))))
-
-(struct rectangle (a b)
-  #:guard (λ (a b type-name)
-            (if [and (coordinate? a) (coordinate? b)]
-                (values a b)
-                (error "not a valid rectangle"))))
-
-(define (area rect)
-  (* (rect-height rect) (rect-width rect)))
-
-(define (rect-height rect)
-  (abs (if (rectangle-s? rect)
-           (- (coordinate-y (segment-start (rectangle-s-height rect)))
-              (coordinate-y (segment-end   (rectangle-s-height rect))))
-           (- (coordinate-y (rectangle-a rect))
-              (coordinate-y (rectangle-b rect))))))
-
-(define (rect-width rect)
-  (abs (if (rectangle-s? rect)
-           (- (coordinate-x (segment-start (rectangle-s-width rect)))
-              (coordinate-x (segment-end   (rectangle-s-width rect))))
-           (- (coordinate-x (rectangle-a rect))
-              (coordinate-x (rectangle-b rect))))))
 
 #| Exercise: 2.35
 |#
@@ -559,19 +639,6 @@
               (zv-equal? (cdr a) (cdr b)))]
         [(or (list? a) (list? b)) false]
         [else (eq? a b)]))
-
-#| Exercise: 2.4
-|#
-;;; whoa!!!
-(define (recons x y)
-  (λ (m) (m x y)))
-
-(define (recar z)
-  (z (λ (p q) p)))
-
-(define (recdr z)
-  (z (λ (p q) q)))
-
 
 #| Exercise: 2.55
 |#
@@ -1348,70 +1415,3 @@ most appropriate for a system in which new operations must often be added?
   (define (mul x y) (apply-generic 'mul x y))
   (define (div x y) (apply-generic 'div x y))
   )
-#| Exercise: 2.5
-|#
-(define lower-expt 2)
-(define higher-expt 5)
-(define (pack-pair a b)
-  (* (expt lower-expt a)
-     (expt higher-expt b)))
-
-(define (unpack-base x base)
-  (if [= 0 (remainder x base)]
-      (+ 1 (unpack-base (/ x base) base))
-      0))
-
-(define (unpack-pair d)
-  `(,(unpack-base d lower-expt)
-    ,(unpack-base d higher-expt)))
-
-#| Exercise: 2.6
-|#
-(define church-zero (λ (f) (λ (x) x)))
-
-(define (church-add-1 n)
-  (λ (f) (λ (x) (f ((n f) x)))))
-
-(define church-one
-  (λ (f)
-    (λ (x)
-      (f x))))
-
-(define church-two
-  (λ (f)
-    (λ (x)
-      (f
-       (f x)))))
-
-(define (church-addition m n)
-  (λ (f)
-    (λ (x)
-      ((n f)
-       ((m f)
-        x)))))
-
-
-#| Exercise: 2.7
-|#
-;; (module interval racket
-;;   (provide add-interval mul-interval div-interval)
-;;   (define (add-interval x y)
-;;     (make-interval (+ (lower-bound x) (lower-bound y))
-;;                    (+ (upper-bound x) (upper-bound y))))
-;;   )
-
-(define (make-interval a b) (cons a b))
-(define (upper-bound interval) (cdr interval))
-(define (lower-bound interval) (car interval))
-
-#| Exercise: 2.8
-|#
-(define (sub-interval x y)
-  (let ((p1 (- (lower-bound x) (lower-bound y)))
-        (p2 (- (lower-bound y) (upper-bound x))))
-    (make-interval (min p1 p2)
-                   (max p1 p2))))
-
-#| Exercise: 2.9
-|#
-
