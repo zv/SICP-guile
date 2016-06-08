@@ -1,9 +1,14 @@
-(use-modules (ice-9 format))
-(use-modules (ice-9 q))
-(use-modules (oop goops))
+;;; -*- mode: scheme; coding: utf-8; -*-
+;;; Guile Lisp
+
+;;; Commentary
 ;;--------------------------------------------------
 ;; Chapter 3 of SICP
 ;;--------------------------------------------------
+
+(use-modules (ice-9 format))
+(use-modules (ice-9 q))
+(use-modules (oop goops))
 
 ;; utilities
 (define (inc n) (+ n 1))
@@ -493,7 +498,8 @@ accomplished in Θ(1) steps.
    #:getter signal-value)
 
   (action-procedures #:init-form '()
-                     #:accessor action-procedures))
+                     #:accessor action-procedures
+                     #:setter set-action-procedures))
 (define (make-wire)
   (make <wire>))
 
@@ -638,7 +644,7 @@ accomplished in Θ(1) steps.
     (or-gate c1 c2 c-out)
     'ok))
 
-(define (probe name wire)
+(define (zv-probe name wire)
   (add-action!
    wire
    (lambda ()
