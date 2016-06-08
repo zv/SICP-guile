@@ -948,4 +948,17 @@ constraint that the value of c is the average of the values of a and b. |#
                    (multiplier half sum c)
                    'ok))
 
+#| Exercise 3.34
+Louis Reasoner wants to build a squarer, a constraint device with two terminals
+such that the value of connector b on the second terminal will always be the
+square of the value a on the first terminal. He proposes the following simple
+device made from a multiplier:
 
+  (define (squarer a b) (multiplier a a b))
+
+There is a serious flaw in this idea. Explain.
+|#
+
+
+;; Answer: The value of `a' is not "duplicated" across -- so `process-new-value' only
+;; reads either `rhs' or `lhs''s value
