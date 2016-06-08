@@ -13,6 +13,7 @@
 ;; utilities
 (define (inc n) (+ n 1))
 (define (dec n) (- n 1))
+(define (square n) (* x x))
 
 ;;--------------------------------------------------
 ;; Section 3.1
@@ -958,7 +959,61 @@ device made from a multiplier:
 
 There is a serious flaw in this idea. Explain.
 |#
-
-
 ;; Answer: The value of `a' is not "duplicated" across -- so `process-new-value' only
 ;; reads either `rhs' or `lhs''s value
+
+#| Exercise 3.35
+Ben Bitdiddle tells Louis that one way to avoid the trouble in
+Exercise 3.34 is to define a squarer as a new primitive constraint. Fill in the
+missing portions in Ben’s outline for a procedure to implement such a
+constraint:
+
+(define (squarer a b)
+  (define (process-new-value)
+    (if (has-value? b)
+        (if (< (get-value b) 0)
+            (error "square less than 0:
+                    SQUARER"
+                   (get-value b))
+            ⟨alternative1⟩)
+        ⟨alternative2⟩))
+  (define (process-forget-value) ⟨body1⟩)
+  (define (me request) ⟨body2⟩)
+  ⟨rest of definition⟩
+  me)
+|#
+
+(define-class <squarer> (<constraint>)
+  ;; in squarer, there is essentially only one value
+  (rhs #:allocation #:virtual
+       #:slot-ref (lambda (o) (slot-ref o 'lhs))
+       #:slot-set! (lambda (o s) (slot-set! o 'lhs s)))
+  ;; strictly speaking these are not nessasary, as they are defined directly in
+  ;; `process-new-value', they are kept for posteriety.
+  (operator #:init-value square)
+  (inverse-operator #:init-value sqrt))
+
+(define-method (process-new-value (c <squarer>))
+  (let* ([lhs-conn (lhs c)]
+         [total-conn (total c)]
+         [has-total? (has-value? total-conn)]
+         [has-lhs? (has-value? lhs-conn)])
+    ;; Determine what values *are* known and set the appropriate connector.
+    (cond
+     ;; (lhs < 0) => error
+     [(and (has-lhs?
+            (< (connector-value lhs-conn) 0)))
+      (error "square less than 0: SQUARER" (connector-value lhs-conn))]
+
+     ;; lhs = √total
+     [has-total?
+      (set-value! lhs-conn (sqrt (connector-value total-conn)) c)]
+
+     ;; total = lh²
+     [has-lhs?
+      (set-value! total-conn (square (connector-value lhs-conn)) c)])))
+
+(define-method (process-forget-value (c <squarer>))
+  (forget-value! (lhs c) c)
+  (forget-value! (total c) c)
+  (process-new-value c))
