@@ -729,83 +729,6 @@ procedures only at the front (last in, first out).
 ;; ------- 3.3.5 - Propagation of Contraints --------
 ;; -----------( Utility Functions )------------------
 
-
-
-
-
-(define-class <connector> ()
-  (value #:init-value #f
-         #:getter value
-         #:setter set-val)
-  (informant #:init-value #f
-             #:accessor informant
-             #:getter informant
-             #:setter set-informant)
-
-  (constraints
-   #:getter constraints
-   #:init-form '()))
-
-(define (make-connector)
-  (make <connector>))
-
-(define-class <constraint> ()
-  (lhs #:getter lhs)
-  (rhs #:getter rhs)
-  (total #:getter total)
-  (operator #:getter constraint-operator)
-  (inverse-operator #:getter constraint-inv-operator))
-
-(define-class <adder> (<constraint>)
-  (operator #:init-value + )
-  (inverse-operator #:init-value - ))
-
-(define-class <multiplier> (<constraint>)
-  (operator #:init-value * )
-  (inverse-operator #:init-value / ))
-
-(define-class <constant> (<constraint>))
-
-(define (multiplier m1 m2 product)
-  (let ((cs (make <multiplier>
-             #:lhs m1 #:rhs m2 #:total product)))
-    (connect m1 cs)
-    (connect m2 cs)
-    (connect product cs)
-    cs))
-
-(define (adder a1 a2 sum)
-  (let ((cs (make <adder>
-              #:lhs a1 #:rhs a2 #:total sum)))
-    (connect a1 cs)
-    (connect a2 cs)
-    (connect sum cs)
-    cs))
-
-(define-method (constant value (conn <connector>))
-  (let ([cs (make <constant>)])
-    (connect conn cs)
-    (set-value! conn value cs)
-    cs))
-
-(define-method (has-value? (conn <connector>))
-  (if (informant conn) #t
-      #nil))
-
-(define-method (set-value! (conn <connector>) newval setter)
-  (cond [(not (has-value? conn))
-         (set-val conn newval)
-         (set-informant conn setter)
-         (for-each-except setter process-new-value (constraints conn))]
-        [(not (= value newval)) `(,value ,newval)]))
-
-(define-method (forget-value! (conn <connector>) retractor)
-  (if (eq? retractor (informant conn))
-      (begin (set-informant conn #nil)
-             (for-each-except retractor
-                              process-forget-value
-                              (constraints conn)))))
-
 ;; ;; ;; macro to define the set-value terms
 ;; (define-syntax define-constraint-fns
 ;;   (syntax-rules (value c)
@@ -819,79 +742,169 @@ procedures only at the front (last in, first out).
 
 ;; (define-constraint-fns set-total set-lhs set-rhs)
 
-(define (connect conn new-constraint)
-  (let ([constraints (constraints conn)])
-    (if (not (memq new-constraint constraints))
-        (set! constraints (cons new-constraint constraints))
-        (if (has-value? conn)
-            (process-new-value new-constraint)))))
 
 (define (for-each-except exception procedure list)
   (define (loop items)
     (cond ((null? items) 'done)
-          ((eq? (car items) exception)
+          ((equal? (car items) exception)
            (loop (cdr items)))
           (else (procedure (car items))
                 (loop (cdr items)))))
   (loop list))
 
-(define-method (process-new-value (c <constraint>))
-  (let ([c-total (has-value? c total)]
-        [c-lhs (has-value? c lhs)]
-        [c-rhs (has-value? c rhs)])
-    (cond ([(and c-lhs c-rhs)
-            (set-value! c (((constraint-operator c)
-                                 (value lhs)
-                                 (value rhs)) c-total))])
+(define-class <connector> ()
+  (value #:init-value #f #:accessor connector-value #:setter set-connector-value)
+  (informant #:init-value #f #:accessor informant #:setter set-informant)
+  (constraints #:accessor constraints #:setter set-constraints #:init-form '()))
 
-           [(and c-lhs c-total)
-            (set-value! c ((constraint-inv-operator c)
-                               (value total)
-                               (value rhs)) c-rhs)]
+(define (make-connector)
+  (make <connector>))
 
-          [(and c-rhs c-total)
-           (set-value! c ((constraint-inv-operator c)
-                              (value total)
-                              (value lhs)) c-lhs)]
+(define-method (has-value? (connxn <connector>))
+  (if (informant connxn) #t
+      #f))
 
-          [else (error "processign")])))
+(define-method (set-value! (connxn <connector>) newval setter)
+  ;; (format #t "\nhas-value: ~a\n" (not (has-value? connxn) ))
 
-(define-method (process-new-value (c <multiplier>))
-  ;; If either the lhs or rhs is 0, the value is 0
-  (if (or (= (has-value? c lhs) 0)
-          (= (has-value? c rhs) 0))
-      (set-value! c total 0)
-      ;; Otherwise proceed to the next method
-   (next-method)))
+  (cond [(not (has-value? connxn))
+         (set-connector-value  connxn newval)
+         (set-informant        connxn setter)
+         (for-each-except setter
+                          process-new-value
+                          (constraints connxn))]
+        [(not (= (connector-value connxn) newval))
+         (error "contradiction" `(,(connector-value connxn) ,newval))]
+        [else 'ignored]))
 
-(define-method (process-forget-value (c <constraint>))
-  (forget-value! (has-value? c rhs) c)
-  (forget-value! (has-value? c lhs) c)
-  (forget-value! (has-value? c total) c)
-  (process-new-value c))
+(define-method (forget-value! (connxn <connector>) retractor)
+  (if (eq? retractor (informant connxn))
+      (begin (set-informant connxn #nil)
+             (for-each-except retractor
+                              process-forget-value
+                              (constraints connxn)))))
 
-;;; Driver Fns
+(define (connect connxn new-constraint)
+  (let ([constraints (constraints connxn)])
+    (if (not (memq new-constraint constraints))
+        (set-constraints connxn (cons new-constraint constraints))
+        (if (has-value? connxn)
+            (process-new-value new-constraint)))))
 
-(define-class <probe> (<connector>)
-  (name #:accessor name)
-  (connector #:accessor connector))
+(define-class <constraint> ()
+  (lhs #:getter lhs
+       #:init-keyword #:lhs)
+  (rhs #:getter rhs
+       #:init-keyword #:rhs)
+  (total #:getter total
+         #:init-keyword #:total)
+  (operator #:getter constraint-operator)
+  (inverse-operator #:getter constraint-inv-operator))
 
-(define (probe name connector)
-  (let ((cs (make <probe>
-             #:name name
-             #:connector connector)))
-    (connect connector cs)
+(define-class <constant> ())
+
+(define (constant value connxn)
+  (let ([cs (make <constant>)])
+    (connect connxn cs)
+    (set-value! connxn value cs)
     cs))
 
-(define (print-probe cs value)
-  (format #t "~%Probe: ~a = ~a" (name cs) value))
+(define-method (process-new-value (c <constant>)) (error "Unable to set new value for constant"))
+(define-method (process-forget-value (c <constant>)) (error "Unable to forget value for constant"))
 
-(define-method (process-new-value (c <probe>))
-  (print-probe c (value c)))
+;; Multiplier constructs a product constraint among total connectors rhs, lhs and total
+(define-class <multiplier> (<constraint>)
+  (operator #:init-value * )
+  (inverse-operator #:init-value / ))
+(define (multiplier m1 m2 product)
+  (let ((cs (make <multiplier> #:lhs m1 #:rhs m2 #:total product)))
+    (connect m1 cs) (connect m2 cs) (connect product cs)
+    cs))
 
-(define (process-forget-value cs)
-  (print-probe cs "?"))
+;; Adder constructs an adder constraint among summand connectors (rhs and lhs)
+(define-class <adder> (<constraint>)
+  (operator #:init-value + )
+  (inverse-operator #:init-value - ))
+(define (adder a1 a2 sum)
+  (let ((cs (make <adder> #:lhs a1 #:rhs a2 #:total sum)))
+    (connect a1 cs) (connect a2 cs) (connect sum cs)
+    cs))
 
+;; a probe is a special connector that prints a message about the setting or unsetting of the designated connector
+(define-class <probe> (<constraint>)
+  (name #:getter name
+        #:setter set-name
+        #:init-keyword #:name)
+  (connector #:getter connector
+             #:setter set-connector
+             #:init-keyword #:connector))
+(define (probe name connector)
+  (let ((cs (make <probe> #:name name #:connector connector)))
+    (connect connector cs) cs))
+
+;; Probe internal methods
+(define-method (print-probe (c <probe>) pval) (format #t "~%Probe: ~a = ~a" (name c) pval))
+(define-method (process-new-value (c <probe>)) (print-probe c (connector-value (connector c))))
+(define-method (process-forget-value (c <probe>)) (print-probe c "?"))
+
+;; Processed whenever a new connection exists
+(define-method (process-new-value (c <constraint>))
+  (let* ([lhs-conn (lhs c)]
+         [rhs-conn (rhs c)]
+         [total-conn (total c)]
+         [has-total? (has-value? total-conn)]
+         [has-lhs? (has-value? lhs-conn)]
+         [has-rhs? (has-value? rhs-conn)])
+
+    ;; (format #t "r:~a l:~a t:~a\n" has-rhs? has-lhs? has-total?)
+    ;; (format #t "and lt ~a\n" (and has-lhs? has-total?))
+
+    ;; Determine what values *are* known and set the appropriate connector.
+    (cond [(and has-lhs? has-rhs?)
+            (set-value! total-conn
+                        ((constraint-operator c)
+                         (connector-value lhs-conn)
+                         (connector-value rhs-conn))
+                        c)]
+
+          [(and has-lhs? has-total?)
+           (set-value! rhs-conn
+                       ((constraint-inv-operator c)
+                        (connector-value total-conn)
+                        (connector-value lhs-conn))
+                       c)]
+
+          [(and has-rhs? has-total?)
+           (set-value! lhs-conn
+                       ((constraint-inv-operator c)
+                        (connector-value total-conn)
+                        (connector-value rhs-conn))
+                       c)])))
+
+;; This is a specialized implementation for multiplication.
+(define-method (process-new-value (c <multiplier>))
+  ;; If either the lhs or rhs is 0, the value is 0
+  (let ([lhs-connector (lhs c)]
+        [rhs-connector (rhs c)])
+    (if (or (and
+             (has-value? lhs-connector)
+             (= (connector-value lhs-connector) 0))
+            (and
+             (has-value? rhs-connector)
+             (= (connector-value rhs-connector) 0)))
+        ;; true: We can safely set to 0
+        (set-value! (total c) 0 c)
+        ;; false: Otherwise proceed to the next method
+        (next-method))))
+
+(define-method (process-forget-value (c <constraint>))
+  (forget-value! (rhs c) c)
+  (forget-value! (lhs c) c)
+  (forget-value! (total c) c)
+  (process-new-value c))
+
+
+;;; Driver Fns
 (define (celsius-fahrenheit-converter c f)
   (let ([u (make-connector)]
         [v (make-connector)]
@@ -906,5 +919,10 @@ procedures only at the front (last in, first out).
     (constant 32 y)
     'ok))
 
+;;c
 (define C (make-connector))
 (define F (make-connector))
+(celsius-fahrenheit-converter C F)
+
+(probe "Celsius temp" C)
+(probe "Fahrenheit temp" F)
