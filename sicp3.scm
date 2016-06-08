@@ -1017,3 +1017,66 @@ constraint:
   (forget-value! (lhs c) c)
   (forget-value! (total c) c)
   (process-new-value c))
+
+#| Exercise 3.36 TODO
+Suppose we evaluate the following sequence of expressions in the global
+environment:
+
+  (define a (make-connector)) (define b (make-connector)) (set-value! a 10 'user)
+
+At some time during evaluation of the set-value!, the following expression from
+the connector’s local procedure is evaluated:
+
+  (for-each-except setter inform-about-value constraints)
+
+Draw an environment diagram showing the environment in which the above
+expression is evaluated. |#
+
+
+#| Exercise 3.37
+The celsius-fahrenheit-converter procedure is cumbersome when compared with a
+more expression-oriented style of definition, such as
+
+(define (celsius-fahrenheit-converter x)
+  (c+ (c* (c/ (cv 9) (cv 5))
+          x)
+      (cv 32)))
+
+(define C (make-connector))
+(define F (celsius-fahrenheit-converter C))
+
+Here c+, c*, etc. are the “constraint” versions of the arithmetic operations.
+For example, c+ takes two connectors as arguments and returns a connector that
+is related to these by an adder constraint:
+
+(define (c+ x y)
+  (let ((z (make-connector)))
+    (adder x y z)
+    z))
+
+Define analogous procedures c-, c*, c/, and cv (constant value) that enable us
+to define compound constraints as in the converter example above.
+|#
+(define (c+ augend addend)
+  (with-connectors (sum)
+                   (adder augend addend sum)
+                   sum))
+
+(define (c- minuend subtrahend)
+  (with-connectors (difference)
+                   (adder difference subtrahend minuend)
+                   difference))
+
+(define (c* multiplicand m2)
+  (with-connectors (product)
+                   (multiplier multiplicand  m2 product)
+                   product))
+
+(define (c/ dividend divisor)
+  (with-connectors (quotient)
+                   (multiplier quotient divisor dividend)
+                   quotient))
+(define (cv value)
+  (with-connectors (result)
+                   (constant value result)
+                   result))
