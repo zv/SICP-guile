@@ -909,26 +909,43 @@ procedures only at the front (last in, first out).
   (forget-value! (total c) c)
   (process-new-value c))
 
+;;; driver fns
+;; Function tha
+(define-syntax with-connectors
+  (syntax-rules ()
+    ([with-connectors () form . forms]
+     [begin form . forms])
+    ([with-connectors (name . more) form . forms]
+     (let ((name (make-connector)))
+       (with-connectors more form . forms)))))
 
-;;; Driver Fns
 (define (celsius-fahrenheit-converter c f)
-  (let ([u (make-connector)]
-        [v (make-connector)]
-        [w (make-connector)]
-        [x (make-connector)]
-        [y (make-connector)])
-    (multiplier c w u)
-    (multiplier v x u)
-    (adder v y f)
-    (constant 9 w)
-    (constant 5 x)
-    (constant 32 y)
-    'ok))
+  (with-connectors (u v w x y)
+                   (multiplier c w u)
+                   (multiplier v x u)
+                   (adder v y f)
+                   (constant 9 w)
+                   (constant 5 x)
+                   (constant 32 y)
+                   'ok))
 
 ;;c
-(define C (make-connector))
-(define F (make-connector))
-(celsius-fahrenheit-converter C F)
+(define c (make-connector))
+(define f (make-connector))
+(celsius-fahrenheit-converter c f)
 
-(probe "Celsius temp" C)
-(probe "Fahrenheit temp" F)
+(probe "celsius temp" c)
+(probe "Fahrenheit temp" f)
+
+#| Exercise 3.33
+Using primitive multiplier, adder, and constant constraints, define a procedure
+averager that takes three connectors a, b, and c as inputs and establishes the
+constraint that the value of c is the average of the values of a and b. |#
+(define (averager a b c)
+  (with-connectors (half sum)
+                   (constant 0.5 half)
+                   (adder a b sum)
+                   (multiplier half sum c)
+                   'ok))
+
+
