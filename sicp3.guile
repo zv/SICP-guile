@@ -1120,4 +1120,32 @@ to define compound constraints as in the converter example above.
 
 (define (parallel-execute . thunks)
   (for-each call-with-new-thread thunks))
+#| Exercise 3.38
+Suppose that Peter, Paul, and Mary share a joint bank account that initially
+contains $100. Concurrently, Peter deposits $10, Paul withdraws $20, and Mary
+withdraws half the money in the account, by executing the following commands:
+
+  Peter: (set! balance (+ balance 10))
+  Paul:  (set! balance (- balance 20))
+  Mary:  (set! balance (- balance (/ balance 2)))
+
+1.  List all the different possible values for balance after these three
+    transactions have been completed, assuming that the banking system forces the
+    three processes to run sequentially in some order.
+
+2.  What are some other values that could be produced if the system allows the
+    processes to be interleaved? Draw timing diagrams like the one in Figure 3.29 to
+    explain how these values can occur.
+|#
+
+#| Answer (1):
+  Peter->Paul->Mary: (calc-eval "((100+10)-20)/2")       => 45
+  Peter->Mary->Paul: (calc-eval "((100+10)/2)-20")       => 35
+  Mary->Paul->Peter: (calc-eval "((100 / 2) - 20) + 20") => 50
+  Mary->Peter->Paul: (calc-eval "((100 / 2) + 10) - 20") => 40
+  Paul->Peter->Mary: (calc-eval "((100 - 20) + 10) / 2") => 45
+  Paul->Mary->Peter: (calc-eval "((100 - 20) / 2) + 10") => 50
+|#
+
+
 
