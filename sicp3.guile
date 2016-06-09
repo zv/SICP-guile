@@ -19,7 +19,6 @@
 ;; Section 3.1
 ;;--------------------------------------------------
 
-
 #| Exercise 3.1
 An accumulator is a procedure that is called repeatedly with a single numeric
 argument and accumulates its arguments into a sum. Each time it is called, it
@@ -1080,3 +1079,26 @@ to define compound constraints as in the converter example above.
   (with-connectors (result)
                    (constant value result)
                    result))
+
+#| --------------------------------------------------
+                  Section 3.4
+  ------------------------------------------------- |#
+(use-modules (ice-9 threads))
+
+;; (define (parallel-execute . thunks)
+;;   (for-each make-thread thunks))
+
+(define x 10)
+(define xsq (lambda ()
+              (sleep 2)
+              (set! x (* x x))))
+(define xadd (lambda ()
+               (sleep 1)
+               (set! x (+ x 1))))
+
+;; (begin-thread xsq)
+;; (begin-thread xadd)
+
+(define (parallel-execute . thunks)
+  (for-each call-with-new-thread thunks))
+
