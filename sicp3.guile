@@ -1,11 +1,5 @@
 ;;; -*- mode: scheme; coding: utf-8; -*-
-;;; Guile Lisp
-
-;;; Commentary
-;;--------------------------------------------------
 ;; Chapter 3 of SICP
-;;--------------------------------------------------
-
 (use-modules (ice-9 format))
 (use-modules (ice-9 q))
 (use-modules (oop goops))
@@ -15,9 +9,9 @@
 (define (dec n) (- n 1))
 (define (square n) (* x x))
 
-;;--------------------------------------------------
+
 ;; Section 3.1
-;;--------------------------------------------------
+
 
 #| Exercise 3.1
 An accumulator is a procedure that is called repeatedly with a single numeric
@@ -30,6 +24,8 @@ make-accumulator should specify the initial value of the sum;
 (define (make-accumulator x)
   (lambda (n)
     (+ x n)))
+
+
 
 #| Exercise 3.2
 In software-testing applications, it is useful to be able to count
@@ -50,6 +46,8 @@ counter. For instance, we could make a monitored version of the sqrt procedure: 
         (begin
           (set! calls (inc calls))
           (f n)))))
+
+
 
 
 #| Exercise 3.3
@@ -75,6 +73,7 @@ as in
                  MAKE-ACCOUNT" m))))
   dispatch)
 |#
+
 
 #| Exercise 3.5
 Monte Carlo integration is a method of estimating definite integrals by means of
@@ -128,6 +127,7 @@ number less than its input.136 |#
 (define (unit-circle-pred x y)
   (<= (+ (* x x) (* y y)) 1))
 
+
 #| Exercise 3.6
 
 It is useful to be able to reset a random-number generator to produce a sequence
@@ -157,6 +157,7 @@ very handy to have when testing and debugging programs that use random numbers. 
 ;;   x)
 
 
+
 #| Exercise 3.12: The following procedure for appending lists was introduced in 2.2.1:
 
 (define (append x y)
@@ -188,6 +189,7 @@ empty x.)
 
 ;;; Answer: An infinite loop occurs (a cycle in the linked list has been made)
 
+
 #| Exercise 3.14: The following procedure is quite useful, although obscure:
 |#
 
@@ -217,6 +219,7 @@ Mystery reverses an array "in-place"
 |#
 
 
+
 #| Exercise 3.16
 Ben Bitdiddle decides to write a procedure to count the number of pairs in any
 list structure. “It’s easy,” he reasons. “The number of pairs in any structure
@@ -251,6 +254,7 @@ Answer:
 |#
 
 
+
 #| Exercise 3.17
 
 Devise a correct version of the count-pairs procedure of Exercise 3.16 that
@@ -273,6 +277,7 @@ returns the number of distinct pairs in any structure.
                 (loop (cdr xs)))))))
   (loop xs))
 
+
 #| Exercise 3.18
 Write a procedure that examines a list and determines whether it contains a
 cycle, that is, whether a program that tried to find the end of the list by
@@ -291,6 +296,7 @@ such lists.
   (search xs))
 
 
+
 #| Exercise 3.19
 Redo Exercise 3.18 using an algorithm that takes only a constant amount of
 space. (This requires a very clever idea.)
@@ -340,6 +346,7 @@ space. (This requires a very clever idea.)
         (else
          (set-front-ptr! queue (cdr (front-ptr queue)))
          queue)))
+
 #| Exercise 3.21
 Ben Bitdiddle decides to test the queue implementation described above. He types
 in the procedures to the Lisp interpreter and proceeds to try them out:
@@ -376,6 +383,7 @@ the sequence of items in the queue.
   (format #t "~a~%" (car qs)))
 
 
+
 #| Exercise 3.22
 Instead of representing a queue as a pair of pointers, we can build a queue as a
 procedure with local state. The local state will consist of pointers to the
@@ -420,8 +428,8 @@ operations using this representation.
             [(eq? m 'print-queue) print-queue]))
     dispatch))
 
-#|
-TODO: Exercise 3.23
+
+#| TODO: Exercise 3.23
 A deque (“double-ended queue”) is a sequence in which items can be inserted and
 deleted at either the front or the rear. Operations on deques are the
 constructor make-deque, the predicate empty-deque?, selectors front-deque and
@@ -489,6 +497,7 @@ accomplished in Θ(1) steps.
 (define put (operation-table 'insert-proc!))
 
 
+
 ;; -- 3.3.4 | Constraint Satisfaction ----------------
 ;; --( Utility Functions )----------------------------
 (define-class <wire> ()
@@ -663,6 +672,7 @@ accomplished in Θ(1) steps.
 (define carry (make-wire))
 
 
+
 #| Exercise 3.28
 Define an or-gate as a primitive function box. Your or-gate constructor should
 be similar to and-gate.
@@ -681,6 +691,7 @@ be similar to and-gate.
   (add-action! a2 or-action-procedure)
   'ok)
 
+
 #| Exercise 3.29
 Another way to construct an or-gate is as a compound digital logic device, built
 from and-gates and inverters. Define a procedure or-gate that accomplishes this.
@@ -705,6 +716,7 @@ ripple-carry adder, expressed in terms of the delays for and-gates, or-gates,
 and inverters?
 |#
 
+
 #| Exercise 3.31
 The internal procedure `accept-action-procedure!' defined in make-wire specifies
 that when a new action procedure is added to a wire, the procedure is
@@ -722,6 +734,7 @@ the signal value must be initialized or the entire system will run the action
 procedures (no matter what has changed)
 |#
 
+
 #| TODO: Exercise 3.32
 The procedures to be run during each time segment of the agenda are kept in a
 queue. Thus, the procedures for each segment are called in the order in which
@@ -732,6 +745,7 @@ we stored a segment’s procedures in an ordinary list, adding and removing
 procedures only at the front (last in, first out).
 |#
 
+
 ;; ------- 3.3.5 - Propagation of Contraints --------
 ;; -----------( Utility Functions )------------------
 
@@ -937,6 +951,7 @@ procedures only at the front (last in, first out).
 (probe "celsius temp" c)
 (probe "Fahrenheit temp" f)
 
+
 #| Exercise 3.33
 Using primitive multiplier, adder, and constant constraints, define a procedure
 averager that takes three connectors a, b, and c as inputs and establishes the
@@ -948,6 +963,7 @@ constraint that the value of c is the average of the values of a and b. |#
                    (multiplier half sum c)
                    'ok))
 
+
 #| Exercise 3.34
 Louis Reasoner wants to build a squarer, a constraint device with two terminals
 such that the value of connector b on the second terminal will always be the
@@ -961,6 +977,7 @@ There is a serious flaw in this idea. Explain.
 ;; Answer: The value of `a' is not "duplicated" across -- so `process-new-value' only
 ;; reads either `rhs' or `lhs''s value
 
+
 #| Exercise 3.35
 Ben Bitdiddle tells Louis that one way to avoid the trouble in
 Exercise 3.34 is to define a squarer as a new primitive constraint. Fill in the
@@ -1017,6 +1034,7 @@ constraint:
   (forget-value! (total c) c)
   (process-new-value c))
 
+
 #| Exercise 3.36 TODO
 Suppose we evaluate the following sequence of expressions in the global
 environment:
@@ -1032,6 +1050,7 @@ Draw an environment diagram showing the environment in which the above
 expression is evaluated. |#
 
 
+
 #| Exercise 3.37
 The celsius-fahrenheit-converter procedure is cumbersome when compared with a
 more expression-oriented style of definition, such as
