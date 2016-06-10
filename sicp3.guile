@@ -1288,25 +1288,22 @@ implementations of semaphores
 2. In terms of atomic test-and-set! operations.
 |#
 
-(define (semaphore-of-mutex n)
-  "check if val > n
-  increment n (safely)
-  if n == val, lock mutex
-  mutex is unlocked, proceed. "
-  (let ([mutex (make-mutex)]
-        [val 0])
-    (λ (proc)
-      (λ args
-        (define docont #f)
-        (monitor
-         (set! val (+ val 1))
-         (if (<= n val) (set! docont #t)))
-        (if docont
-            (with-mutex mutex
-              (begin
-                (apply proc args)
-                (set! val (- val 1))))
-            (apply proc args))))))
+;; ok, this is really irritating me.
+(define (zv-semaphore n)
+  (define current 0)
+  (define mutex (make-mutex))
+  (define (acquire)
+    (if (or (mutex-locked? mutex) (>= current n)) #f
+        (begin
+          (monitor
+           (set! current (+ current 1)))
+          (if (>= current n)
+              (lock-mutex mutex)))))
+  (define (release)
+    (if (= n 0) (error "called on 0 semaphore")
+        (begin
+          (if (mutex-locked?)
+              (unlock-mutex mutex))
+          (set! current (- current 1))))))
 
-;; It is a safe change to make, I cannot see any kind of concurrency permitted
-;; by this sort of result.
+
