@@ -1,4 +1,6 @@
 ;;; -*- mode: scheme; coding: utf-8; -*-
+;; TODO: DEADLOCK
+;; TODO: 3.4
 ;; Chapter 3 of SICP
 (use-modules (ice-9 format))
 (use-modules (ice-9 q))
@@ -1035,7 +1037,7 @@ constraint:
   (process-new-value c))
 
 
-#| Exercise 3.36 TODO
+#| Exercise 3.36 WONTFIX
 Suppose we evaluate the following sequence of expressions in the global
 environment:
 
@@ -1099,27 +1101,34 @@ to define compound constraints as in the converter example above.
                    (constant value result)
                    result))
 
+
 #| --------------------------------------------------
                   Section 3.4
   ------------------------------------------------- |#
-(use-modules (ice-9 threads))
-
-;; (define (parallel-execute . thunks)
-;;   (for-each make-thread thunks))
+;; (use-modules (ice-9 threads))
+(define (parallel-execute . thunks)
+  (for-each call-with-new-thread thunks))
 
 (define x 10)
 (define xsq (lambda ()
-              (sleep 2)
-              (set! x (* x x))))
+              (let ([y x])
+                (set! x (* y 2)))))
+
 (define xadd (lambda ()
                (sleep 1)
-               (set! x (+ x 1))))
+               (format #t "running")
+               (let ([y x])
+                 (set! x (+ y 1)))))
 
-;; (begin-thread xsq)
-;; (begin-thread xadd)
+(define (make-serializer)
+  (let ((mutex (make-mutex)))
+    (λ (fn)
+      (λ args
+        (with-mutex mutex
+          (apply fn args))))))
 
-(define (parallel-execute . thunks)
-  (for-each call-with-new-thread thunks))
+(define s (make-serializer))
+
 #| Exercise 3.38
 Suppose that Peter, Paul, and Mary share a joint bank account that initially
 contains $100. Concurrently, Peter deposits $10, Paul withdraws $20, and Mary
@@ -1227,7 +1236,7 @@ behavior. Do you agree? Is there any scenario that demonstrates Ben’s concern?
 ;; *BALANCE* is safe. the other functions are *UNSAFE*
 
 
-
+
 #| Exercise 3.42
 Ben Bitdiddle suggests that it’s a waste of time to create a new serialized
 procedure in response to every withdraw and deposit message. He says that
@@ -1263,9 +1272,41 @@ asked for a withdrawal procedure.
                        MAKE-ACCOUNT"
                       m))))
       dispatch)))
+|#
 
-Is this a safe change to make? In particular, is there any difference in what
-concurrency is allowed by these two versions of make-account? |#
+;; This is fine
+
+
+#| Exercise 3.47
+A semaphore (of size n ) is a generalization of a mutex. Like a mutex, a
+semaphore supports acquire and release operations, but it is more general in
+that up to n processes can acquire it concurrently. Additional processes that
+attempt to acquire the semaphore must wait for release operations. Give
+implementations of semaphores
+
+1. In terms of mutexes
+2. In terms of atomic test-and-set! operations.
+|#
+
+(define (semaphore-of-mutex n)
+  "check if val > n
+  increment n (safely)
+  if n == val, lock mutex
+  mutex is unlocked, proceed. "
+  (let ([mutex (make-mutex)]
+        [val 0])
+    (λ (proc)
+      (λ args
+        (define docont #f)
+        (monitor
+         (set! val (+ val 1))
+         (if (<= n val) (set! docont #t)))
+        (if docont
+            (with-mutex mutex
+              (begin
+                (apply proc args)
+                (set! val (- val 1))))
+            (apply proc args))))))
 
 ;; It is a safe change to make, I cannot see any kind of concurrency permitted
 ;; by this sort of result.
