@@ -1,35 +1,50 @@
 #lang racket
 (require (lib "trace.ss"))
+(require compatibility/mlist)
 
 (define (inc n) (+ n 1))
 (define (dec n) (- n 1))
 
 #| Utilities |#
-(define (zeval expr env)
-  "Eval takes as arguments an expression and an environment. It classifis the
-expression and directs its evaluation. Eval is structured as a case analysis of
-the syntactic type of the expression to be evaluated. In order to keep the
-procedure general, we express the determination of the type of an expression
-abstractly, making no commitment to any particular representation for the
-various types of expressions. Each type of expression has a predicate that tests
-for it and an abstract means for selecting its parts. This abstract syntax makes
-it easy to see how we can change the syntax of the language by using the same
-evaluator, but with a different collection of syntax procedures."
-  (match expr
-    [self-evaluating? expr]
-    [variable?        (lookup-variable-value expr env)]
-    [quoted?          (text-of-quotation expr)]
-    [assignment?      (eval-assignment expr env)]
-    [definition?      (eval-definition expr env)]
-    [if?              (eval-if expr env)]
-    [lambda?          (make-procedure (lambda-parameters expr) (lambda-body expr) env)]
-    [begin?           (eval-sequence (begin-actions expr) env)]
-    [cond?            (zeval (cond->if expr) env)]
-    [application?     (zapply (zeval (operator expr) env)
-                                        (list-of-values (operands expr) env))]
-    [_
-     (error "Bad Expression" expr)]))
+(define-signature evaluator^
+  (zeval))
 
+(define-unit simple-evaluator@
+  (import)
+  (export evaluator^)
+  (define (zeval exp env)
+    (cond [(self-evaluating? exp)
+           exp]
+          [(variable? exp)
+           (lookup-variable-value exp env)]
+          [(quoted? exp)
+           (text-of-quotation exp)]
+          [(assignment? exp)
+           (eval-assignment exp env)]
+          [(definition? exp)
+           (eval-definition exp env)]
+          [(if? exp)
+           (eval-if exp env)]
+          [(lambda? exp)
+           (make-procedure
+            (lambda-parameters exp)
+            (lambda-body exp)
+            env)]
+          [(begin? exp)
+           (eval-sequence
+            (begin-actions exp)
+            env)]
+          [(cond? exp)
+           (zeval (cond->if exp) env)]
+          [(application? exp)
+           (zapply (zeval (operator exp) env)
+                  (list-of-values
+                   (operands exp)
+                   env))]
+          [else
+           (error "Unknown expression type: EVAL" exp)])))
+
+(define-values/invoke-unit/infer simple-evaluator@)
 
 ;; Utility
 (define (tagged-list? expr tag)
@@ -53,10 +68,9 @@ evaluator, but with a different collection of syntax procedures."
 ;; Expression Components
 ;;; Self-Evaluating
 (define (self-evaluating? expr)
-  (match expr
-    [number? #t]
-    [string? #t]
-    [_ #f]))
+  (cond ((number? exp) #t)
+        ((string? exp) #t)
+        (else #f)))
 
 ;; Variables
 (define (variable? expr) (symbol? expr))
@@ -71,11 +85,10 @@ environment, we signal an “unbound variable” error. "
       (cond
         [(null? vars)
          (env-loop (enclosing-environment env))]
-        [(eq? var (car vars))
-         (car vals)]
+        [(eq? var (mcar vars))
+         (mcar vals)]
         [else
-         (scan (cdr vars) (cdr vals))]))
-
+         (scan (mcdr vars) (mcdr vals))]))
     (if (eq? env the-empty-environment)
         (error "Unbound variable" var)
         (let ([frame (first-frame env)])
@@ -232,8 +245,8 @@ apply"
          (eval-sequence
           (procedure-body procedure)
           (extend-environment
-           (procedure-parameters procedure)
-           arguments
+           (list->mlist (procedure-parameters procedure))
+           (list->mlist arguments)
            (procedure-environment procedure)))]
         [else
          (error "Unknown procedure type: APPLY" procedure)]))
@@ -252,26 +265,25 @@ apply"
 (define (procedure-body p) (caddr p))
 (define (procedure-environment p) (cadddr p))
 
-(define (enclosing-environment env) (cdr env))
-(define (first-frame env) (car env))
+(define (enclosing-environment env) (mcdr env))
+(define (first-frame env) (mcar env))
 
-(define the-empty-environment '())
+(define the-empty-environment (mlist))
 
 (define (make-frame variables values)
-  (cons variables values))
+  (mcons variables values))
 
-(define (frame-variables frame) (car frame))
-(define (frame-values frame)    (cdr frame))
-(define (add-binding-to-frame var val frame)
-  "Add a var/val pair to the front of the stack frame"
-  (cons
-   (cons var (frame-variables frame))
-   (cons val (frame-values frame))))
+(define (frame-variables frame) (mcar frame))
+(define (frame-values frame)    (mcdr frame))
+
+(define (add-binding-to-frame! var val frame)
+  (set-mcar! frame (mcons var (mcar frame)))
+  (set-mcdr! frame (mcons val (mcdr frame))))
 
 (define (extend-environment vars vals base-env)
-  (if (= (length vars) (length vals))
-      (cons (make-frame vars vals) base-env)
-      (if (< (length vars) (length vals))
+  (if (= (mlength vars) (mlength vals))
+      (mcons (make-frame vars vals) base-env)
+      (if (< (mlength vars) (mlength vals))
           (error "Too many arguments supplied" vars vals)
           (error "Too few arguments supplied" vars vals))))
 
@@ -294,19 +306,14 @@ apply"
   (env-loop env))
 
 (define (define-variable! var val env)
-  (let ([frame (first-frame env)])
+  (let ((frame (first-frame env)))
     (define (scan vars vals)
-      (cond
-        [(null? vars)
-         (set! frame
-               (add-binding-to-frame var val frame))]
-
-        [(eq? var (car vars))
-         (set! vals (cons val (cdr vals)))]
-
-        [else
-         (scan (cdr vars) (cdr vals))]))
-
+      (cond ((null? vars)
+             (add-binding-to-frame! var val frame))
+            ((eq? var (mcar vars))
+             (set-mcar! vals val))
+            (else (scan (mcdr vars)
+                        (mcdr vals)))))
     (scan (frame-variables frame)
           (frame-values frame))))
 
@@ -339,8 +346,8 @@ to the arguments, using the underlying Lisp system"
 (define (setup-environment)
   (let ((initial-env
          (extend-environment
-          (primitive-procedure-names)
-          (primitive-procedure-objects)
+          (list->mlist (primitive-procedure-names))
+          (list->mlist (primitive-procedure-objects))
           the-empty-environment)))
     (define-variable! 'true true initial-env)
     (define-variable! 'false false initial-env)
@@ -357,7 +364,7 @@ to the arguments, using the underlying Lisp system"
   (let ((input (read)))
     (let ((output
            (zeval input
-                 the-global-environment)))
+                  the-global-environment)))
       (announce-output output-prompt)
       (user-print output)))
   (driver-loop))
