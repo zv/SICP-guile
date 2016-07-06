@@ -245,8 +245,8 @@ apply"
          (eval-sequence
           (procedure-body procedure)
           (extend-environment
-           (list->mlist (procedure-parameters procedure))
-           (list->mlist arguments)
+           (procedure-parameters procedure)
+           arguments
            (procedure-environment procedure)))]
         [else
          (error "Unknown procedure type: APPLY" procedure)]))
@@ -271,7 +271,8 @@ apply"
 (define the-empty-environment (mlist))
 
 (define (make-frame variables values)
-  (mcons variables values))
+  (mcons (list->mlist variables)
+         (list->mlist values)))
 
 (define (frame-variables frame) (mcar frame))
 (define (frame-values frame)    (mcdr frame))
@@ -281,9 +282,9 @@ apply"
   (set-mcdr! frame (mcons val (mcdr frame))))
 
 (define (extend-environment vars vals base-env)
-  (if (= (mlength vars) (mlength vals))
+  (if (= (length vars) (length vals))
       (mcons (make-frame vars vals) base-env)
-      (if (< (mlength vars) (mlength vals))
+      (if (< (length vars) (length vals))
           (error "Too many arguments supplied" vars vals)
           (error "Too few arguments supplied" vars vals))))
 
@@ -346,8 +347,8 @@ to the arguments, using the underlying Lisp system"
 (define (setup-environment)
   (let ((initial-env
          (extend-environment
-          (list->mlist (primitive-procedure-names))
-          (list->mlist (primitive-procedure-objects))
+          (primitive-procedure-names)
+          (primitive-procedure-objects)
           the-empty-environment)))
     (define-variable! 'true true initial-env)
     (define-variable! 'false false initial-env)
@@ -482,13 +483,13 @@ appropriate for the syntax implemented in this section.) |#
       (send dispatch-tt put 'eval (car proc) (cadr proc))))
 
   (install-procedures
-   `([quote  ,(λ (expr env) (text-of-quotation expr))]
-     [set    ,(λ (expr env) (eval-assignment expr env))]
-     [define ,(λ (expr env) (eval-definition expr env))]
-     [if     ,(λ (expr env) (eval-if expr env))]
-     [lambda ,(λ (expr env) (make-procedure (lambda-parameters expr) (lambda-body expr) env))]
-     [begin  ,(λ (expr env) (eval-sequence (begin-actions expr) env))]
-     [cond   ,(λ (expr env) (zeval (cond->if expr) env))]))
+   '([quote  (λ (expr env) (text-of-quotation expr))]
+     [set    eval-assignment]
+     [define eval-definition]
+     [if     eval-if]
+     [lambda (λ (expr env) (make-procedure (lambda-parameters expr) (lambda-body expr) env))]
+     [begin  (λ (expr env) (eval-sequence (begin-actions expr) env))]
+     [cond   (λ (expr env) (zeval (cond->if expr) env))]))
 
   (define (zeval expr env)
     (cond
@@ -509,4 +510,4 @@ appropriate for the syntax implemented in this section.) |#
        (error "Bad Expression" expr)])))
 
 
-(define-values/invoke-unit/infer type-dispatched-evaluator@)
+;; (define-values/invoke-unit/infer type-dispatched-evaluator@)
