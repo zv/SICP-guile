@@ -440,10 +440,10 @@ Rewrite eval so that the dispatch is done in data-directed style. Compare this
 with the data-directed differentiation procedure of Exercise 2.73. (You may use
 the car of a compound expression as the type of the expression, as is
 appropriate for the syntax implemented in this section.) |#
-
 (define dispatch-table%
   (class object%
     (define method-table (make-hash))
+    (super-new)
 
     (define/private (table-ordinal op type)
       (let ([opstr (symbol->string op)]
@@ -457,3 +457,49 @@ appropriate for the syntax implemented in this section.) |#
 
     (define/public (get op type)
       (hash-ref method-table (table-ordinal op type)))))
+
+(define dispatch-tt (new dispatch-table%))
+
+(define-unit type-dispatched-evaluator@
+  (import)
+  (export evaluator^)
+
+  (define (list-tag expr)
+    "Extract the type of expression"
+    (if (pair? expr) (car expr)
+        #f))
+
+  ;; Create our dispatch-on-type procedures
+  (define (install-procedures procs)
+    (for ([proc procs])
+      (send dispatch-tt put 'eval (car proc) (cadr proc))))
+
+  (install-procedures
+   `([quote  ,(λ (expr env) (text-of-quotation expr))]
+     [set    ,(λ (expr env) (eval-assignment expr env))]
+     [define ,(λ (expr env) (eval-definition expr env))]
+     [if     ,(λ (expr env) (eval-if expr env))]
+     [lambda ,(λ (expr env) (make-procedure (lambda-parameters expr) (lambda-body expr) env))]
+     [begin  ,(λ (expr env) (eval-sequence (begin-actions expr) env))]
+     [cond   ,(λ (expr env) (zeval (cond->if expr) env))]))
+
+  (define (zeval expr env)
+    (cond
+      [(self-evaluating? expr)
+       expr]
+      [(variable? expr)
+       (lookup-variable-value expr env)]
+
+      [(symbol? (car expr))
+       ((send dispatch-tt get 'eval (list-tag expr)) ;; retrieve method
+        expr ;; .. and pass in `expr' and `env'
+        env)]
+
+      [(application? expr)
+       (zapply (zeval (operator expr) env)
+               (list-of-values (operands expr) env))]
+      [else
+       (error "Bad Expression" expr)])))
+
+
+(define-values/invoke-unit/infer type-dispatched-evaluator@)
