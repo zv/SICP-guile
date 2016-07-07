@@ -769,3 +769,49 @@ appropriate clause to eval to handle let expressions. |#
 (install-procedure `(let ,(λ (exp env) (zeval (let->lambda exp) env))))
 
 
+#| Exercise 4.7
+`let*' is similar to `let', except that the bindings of the `let*' variables are
+performed sequentially from left to right, and each binding is made in an
+environment in which all of the preceding bindings are visible. For example
+
+    (let* ((x 3)
+           (y (+ x 2))
+           (z (+ x y 5)))
+      (* x z))
+
+returns 39. Explain how a `let*' expression can be rewritten as a set of nested
+let expressions, and write a procedure `let*->nested-lets' that performs this
+transformation. If we have already implemented let (Exercise 4.6) and we want to
+extend the evaluator to handle `let*', is it sufficient to add a clause to eval
+whose action is
+
+    (eval (let*->nested-lets exp) env)
+
+(let (x 3)
+  (let (y 2)
+    1))
+
+((lambda (x) (lambda (y) 1) 2) 3)
+
+or must we explicitly expand `let*' in terms of non-derived expressions? |#
+(define (let*->nested-lets exp)
+  (define (next exp)
+    (list (car exp)           ; let*
+          (cdadr exp) ; rest-bindings
+          (caddr exp)))         ; body
+
+  (if (null? exp) 'false
+      (let ([bindings (let-bindings exp)]
+            [body     (let-body exp)])
+        (if (null? bindings) body
+            (cons (make-lambda (list (car (let-binding-vars bindings)))
+                               (let*->nested-lets (next exp)))
+                  (list (car (let-binding-exprs bindings))))))))
+
+(install-procedure `(let* ,(λ (exp env)
+                             (display (let*->nested-lets exp))
+                             (zeval (let*->nested-lets exp) env))))
+
+
+;;; There is nothing preventing `let*' from being defined in terms of existing
+;;; `let' expressions
