@@ -592,3 +592,61 @@ cannot be made into a procedure because the arguments will be evaluated.
 (define operator (exp) (cadr exp))
 (define operands (exp) (cddr exp)) |#
 
+
+#| Exercise 4.3
+Rewrite eval so that the dispatch is done in data-directed style. Compare this
+with the data-directed differentiation procedure of Exercise 2.73.
+(You may use the car of a compound expression as the type of the expression, as
+is appropriate for the syntax implemented in this section.) |#
+(define-class <dispatch-table> ()
+  (method-table #:init-value (make-hash-table)
+                #:getter method-table))
+
+(define (table-ordinal op type)
+  (let ([opstr   (symbol->string op)]
+        [typestr (symbol->string type)])
+    (string-append opstr "/" typestr)))
+
+(define-method (get (dt <dispatch-table>) op type)
+  (if (and (symbol? op) (symbol? type))
+      (hash-ref (method-table dt) (table-ordinal op type))
+      #f))
+
+(define-method (put (dt <dispatch-table>) op type item)
+  (hash-set! (method-table dt) (table-ordinal op type) item))
+
+(define dispatch-tt (make <dispatch-table>))
+
+(define (list-tag expr)
+  "Extract the type of expression"
+  (if (pair? expr) (car expr) #f))
+
+(define (install-procedure p)
+  (put dispatch-tt 'eval (car p) (cadr p)))
+
+;; Install our procedures
+(map
+ install-procedure
+ `([quote  ,(λ (expr env) (text-of-quotation expr))]
+   [set    ,eval-assignment]
+   [define ,eval-definition]
+   [if     ,eval-if]
+   [lambda ,(λ (expr env) (make-procedure (lambda-parameters expr) (lambda-body expr) env))]
+   [begin  ,(λ (expr env) (eval-sequence (begin-actions expr) env))]
+   [cond   ,(λ (expr env) (zeval (cond->if expr) env))]))
+
+(define (zeval expr env)
+  (let ([dispatch-fn (get dispatch-tt 'eval (list-tag expr))])
+    (cond
+     [(self-evaluating? expr)
+      expr]
+     [(variable? expr)
+      (lookup-variable-value expr env)]
+     [(procedure? dispatch-fn)
+      (dispatch-fn expr env)]
+     [(application? expr)
+      (zapply (zeval (operator expr) env)
+              (list-of-values (operands expr) env))]
+     [else (error "Bad Expression" expr)])))
+
+
