@@ -734,3 +734,38 @@ Modify the handling of cond so that it supports this extended syntax. |#
                          (expand-clauses rest)))))))
 
 
+
+#| Exercise 4.6
+Let expressions are derived expressions, because
+
+    (let ((⟨var₁⟩ ⟨exp₁⟩) … (⟨varₙ⟩ ⟨expₙ⟩))
+      ⟨body⟩)
+
+is equivalent to
+
+    ((lambda (⟨var₁⟩ … ⟨varₙ⟩)
+       ⟨body⟩)
+     ⟨exp₁⟩
+     …
+     ⟨expₙ⟩)
+
+Implement a syntactic transformation let->combination that reduces evaluating
+let expressions to evaluating combinations of the type shown above, and add the
+appropriate clause to eval to handle let expressions. |#
+(define (let? exp) (tagged-list? exp 'let))
+(define (let-bindings clause) (cadr clause))
+(define (let-body clause)     (cddr clause))
+(define (let-binding-vars bindings) (map car bindings))
+(define (let-binding-exprs bindings) (map cadr bindings))
+
+(define (let->lambda exp)
+  (if (null? exp) 'false
+      (let ([bindings (let-bindings exp)]
+            [body     (let-body exp)])
+        (cons (make-lambda (let-binding-vars bindings) ; variables
+                                  body)                ; fn body
+                     (let-binding-exprs bindings)))))  ; arguments
+
+(install-procedure `(let ,(λ (exp env) (zeval (let->lambda exp) env))))
+
+
