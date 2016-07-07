@@ -650,3 +650,47 @@ is appropriate for the syntax implemented in this section.) |#
      [else (error "Bad Expression" expr)])))
 
 
+#| Exercise 4.4
+Recall the definitions of the special forms and and or from Chapter 1:
+
+`and': The expressions are evaluated from left to right. If any expression
+evaluates to false, false is returned; any remaining expressions are not
+evaluated. If all the expressions evaluate to true values, the value of the last
+expression is returned. If there are no expressions then true is returned.
+`or': The expressions are evaluated from left to right. If any expression
+evaluates to a true value, that value is returned; any remaining expressions are
+not evaluated. If all expressions evaluate to false, or if there are no
+expressions, then false is returned.
+
+Install `and' and `or' as new special forms for the evaluator by defining
+appropriate syntax procedures and evaluation procedures eval-and and eval-or.
+Alternatively, show how to implement and and or as derived expressions. |#
+(define (disjunct exp)
+  (if (null? (cdr exp)) 'false
+      (cadr exp)))
+
+(define (rest-disjunctions exp)
+  (if (null? (cdr exp)) '()
+      (cddr exp)))
+
+;; or
+(define (or? exp) (tagged-list? exp 'or))
+(define (eval-or exp env) (eval-connective exp env true?))
+(install-procedure `(or ,eval-or))
+
+;; and
+(define (and? exp) (tagged-list? exp 'and))
+(define (eval-and exp env) (eval-connective exp env false?))
+(install-procedure `(and ,eval-and))
+
+(define (eval-connective exp env oper)
+  "eval-connective evaluates the first part of an expression in the given
+environment. If the result applied to `oper' is false, it continues to evaluate
+until `(oper exp)' argument returns true or no arguments remain."
+  (let ([disjunction (zeval (disjunct exp) env)]
+        [rest-disjunctions (rest-disjunctions exp)])
+    (if (or (oper disjunction) (null? rest-disjunctions)) disjunction
+        (eval-connective (cons (operator exp) rest-disjunctions)
+                         env
+                         oper))))
+
