@@ -10,6 +10,17 @@
 
 
 ;; Custom Macros
+(define-syntax generate-accessors
+  (syntax-rules (generate-accessors define exp)
+    ((generate-accessors ()) #t)
+
+    ((generate-accessors ((fn def) . remaining))
+     (begin
+       (define (fn exp) (def exp))
+       (generate-accessors remaining)))
+
+    ((generate-accessors non-list)
+     (syntax-error "not a list"))))
 
 
 ;; Section 4.1
