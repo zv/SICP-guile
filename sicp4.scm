@@ -763,21 +763,25 @@ is equivalent to
 Implement a syntactic transformation let->combination that reduces evaluating
 let expressions to evaluating combinations of the type shown above, and add the
 appropriate clause to eval to handle let expressions. |#
-(define (let? exp) (tagged-list? exp 'let))
-(define (let-bindings clause) (cadr clause))
-(define (let-body clause)     (cddr clause))
-(define (let-binding-vars bindings) (map car bindings))
-(define (let-binding-exprs bindings) (map cadr bindings))
+(generate-accessors
+ ([let-bindings cadr]
+  [let-body     cddr]
+  [let-binding-vars  (λ (b) (map car b))]
+  [let-binding-exprs (λ (b) (map cadr b))]))
 
-(define (let->lambda exp)
+(define (make-let->lambda vars exprs body)
+  "Makes a let expression as ((lambda (vars) body) exprs)"
+  (cons (make-lambda vars body) exprs))
+
+(define (let->combination exp)
   (if (null? exp) 'false
       (let ([bindings (let-bindings exp)]
             [body     (let-body exp)])
-        (cons (make-lambda (let-binding-vars bindings) ; variables
-                                  body)                ; fn body
-                     (let-binding-exprs bindings)))))  ; arguments
+        (make-let->lambda (let-binding-vars bindings)
+                          (let-binding-exprs bindings)
+                          body))))
 
-(install-procedure `(let ,(λ (exp env) (zeval (let->lambda exp) env))))
+(install-procedure `(let ,(λ (exp env) (zeval (let->combination exp) env))))
 
 
 #| Exercise 4.7
@@ -805,24 +809,35 @@ whose action is
 ((lambda (x) (lambda (y) 1) 2) 3)
 
 or must we explicitly expand `let*' in terms of non-derived expressions? |#
-(define (let*->nested-lets exp)
-  (define (next exp)
-    (list (car exp)           ; let*
-          (cdadr exp) ; rest-bindings
-          (caddr exp)))         ; body
 
+;;; There is nothing preventing `let*' from being defined in terms of existing
+;;; `let' expressions
+(generate-accessors
+ ([let*-body caddr]
+  [let*-inits cadr]))
+
+#|
+(define (let*->nested-let exp)
+  (define (next exp)
+    (list (operator exp) (cdadr exp) (caddr exp)))
   (if (null? exp) 'false
       (let ([bindings (let-bindings exp)]
             [body     (let-body exp)])
         (if (null? bindings) body
-            (cons (make-lambda (list (car (let-binding-vars bindings)))
-                               (let*->nested-lets (next exp)))
-                  (list (car (let-binding-exprs bindings))))))))
+            (make-let->lambda
+             (list (car (let-binding-vars bindings)))
+             (list (car (let-binding-exprs bindings)))
+             (let*->nested-let (next exp)))))))
+|#
 
-(install-procedure `(let* ,(λ (exp env)
-                             (display (let*->nested-lets exp))
-                             (zeval (let*->nested-lets exp) env))))
+(define (let*->nested-lets expr)
+  (let ([inits (let*-inits expr)]
+        [body (let*-body expr)])
+    (define (next expr)
+      (if (null? expr) body
+          (list 'let (list (car expr)) (next (cdr expr)))))
+    (next inits)))
 
 
-;;; There is nothing preventing `let*' from being defined in terms of existing
-;;; `let' expressions
+(install-procedure `(let* ,(λ (exp env) (zeval (let*->nested-lets exp) env))))
+(driver-loop)
