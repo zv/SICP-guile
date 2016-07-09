@@ -767,7 +767,9 @@ appropriate clause to eval to handle let expressions. |#
  ([let-bindings cadr]
   [let-body     cddr]
   [let-binding-vars  (λ (b) (map car b))]
-  [let-binding-exprs (λ (b) (map cadr b))]))
+  [let-binding-exprs (λ (b) (map cadr b))]
+  [let-vars  (compose let-binding-vars let-bindings)]
+  [let-exprs (compose let-binding-exprs let-bindings)]))
 
 (define (make-let->lambda vars exprs body)
   "Makes a let expression as ((lambda (vars) body) exprs)"
@@ -816,20 +818,20 @@ or must we explicitly expand `let*' in terms of non-derived expressions? |#
  ([let*-body caddr]
   [let*-inits cadr]))
 
-#|
-(define (let*->nested-let exp)
-  (define (next exp)
-    (list (operator exp) (cdadr exp) (caddr exp)))
-  (if (null? exp) 'false
-      (let ([bindings (let-bindings exp)]
-            [body     (let-body exp)])
-        (if (null? bindings) body
-            (make-let->lambda
-             (list (car (let-binding-vars bindings)))
-             (list (car (let-binding-exprs bindings)))
-             (let*->nested-let (next exp)))))))
-|#
-
+;;;; This is a little funky here, I've replaced this with another version copied
+;;;; online -- the only thing wrong with this is some monkeying around with the let
+;;;; order
+;; (define (let*->nested-let exp)
+;;   (define (next exp)
+;;     (list (operator exp) (cdadr exp) (caddr exp)))
+;;   (if (null? exp) 'false
+;;       (let ([bindings (let-bindings exp)]
+;;             [body     (let-body exp)])
+;;         (if (null? bindings) body
+;;             (make-let->lambda
+;;              (list (car (let-binding-vars bindings)))
+;;              (list (car (let-binding-exprs bindings)))
+;;              (let*->nested-let (next exp)))))))
 (define (let*->nested-lets expr)
   (let ([inits (let*-inits expr)]
         [body (let*-body expr)])
@@ -840,4 +842,55 @@ or must we explicitly expand `let*' in terms of non-derived expressions? |#
 
 
 (install-procedure `(let* ,(λ (exp env) (zeval (let*->nested-lets exp) env))))
+
+
+#| Exercise 4.8
+“Named let” is a variant of let that has the form
+
+    (let ⟨var⟩ ⟨bindings⟩ ⟨body⟩)
+
+The ⟨bindings⟩ and ⟨body⟩ are just as in ordinary let, except that ⟨var⟩ is
+bound within ⟨body⟩ to a procedure whose body is ⟨body⟩ and whose parameters are
+the variables in the ⟨bindings⟩. Thus, one can repeatedly execute the ⟨body⟩ by
+invoking the procedure named ⟨var⟩. For example, the iterative Fibonacci
+procedure (1.2.2) can be rewritten using named let as follows:
+
+    (define (fib n)
+      (let fib-iter ((a 1) (b 0) (count n))
+        (if (= count 0)
+            b
+            (fib-iter (+ a b)
+                      a
+                      (- count 1)))))
+
+Modify let->combination of Exercise 4.6 to also support named let. |#
+
+(define (named-let? exp) (symbol? (cadr exp)))
+(generate-accessors
+ ([nlet-var cadr]
+  [nlet-bindings caddr]
+  [nlet-body cdddr]))
+
+(define (make-named-let exp)
+  ;; get prepped for that long let
+  (let* ([body       (nlet-body exp)]
+         [bindings   (nlet-bindings exp)]
+         [vars       (let-binding-vars bindings)]
+         [exprs      (let-binding-exprs bindings)]
+         [fnname     (nlet-var exp)]
+         [fn         (make-lambda vars body)]
+         [let-vars   (cons fnname vars)]
+         [let-exprs  (cons fn exprs)])
+    (make-let->lambda let-vars
+                      let-exprs
+                      body)))
+
+(define (let->combination exp)
+  (if (null? exp) 'false
+      (if (named-let? exp) (make-named-let exp)
+          ;; otherwise we're processing a normal let
+          (make-let->lambda (let-vars exp)
+                            (let-exprs exp)
+                            (let-body exp)))))
+
 (driver-loop)
