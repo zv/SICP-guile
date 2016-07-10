@@ -302,92 +302,6 @@ set-variable-value! to be installed in the designated environment."
 
 ;; Each (stack) frame of an environment is represented as a pair of lists: a list of the
 ;; variables bound in that frame and a list of the associated values.
-
-(define (make-frame variables values)
-  (cons variables values))
-(define (frame-variables frame) (car frame))
-(define (frame-values frame) (cdr frame))
-(define (add-binding-to-frame! var val frame)
-  (set-car! frame (cons var (car frame)))
-  (set-cdr! frame (cons val (cdr frame))))
-
-
-(define (extend-environment vars vals base-env)
-  "To extend an environment by a new frame that associates variables with
-values, we make a frame consisting of the list of variables and the list of
-values, and we adjoin this to the environment. We signal an error if the number
-of variables does not match the number of values."
-  (if (= (length vars) (length vals))
-      (cons (make-frame vars vals) base-env)
-      (if (< (length vars) (length vals))
-          (error "Too many arguments supplied"
-                 vars
-                 vals)
-          (error "Too few arguments supplied"
-                 vars
-                 vals))))
-
-(define (lookup-variable-value var env)
-  "To look up a variable in an environment, we scan the list of variables in the
-first frame. If we find the desired variable, we return the corresponding
-element in the list of values. If we do not find the variable in the current
-frame, we search the enclosing environment, and so on. If we reach the empty
-environment, we signal an “unbound variable” error."
-  (define (env-loop env)
-    (define (scan vars vals)
-      (cond ((null? vars)
-             (env-loop
-              (enclosing-environment env)))
-            ((eq? var (car vars))
-             (car vals))
-            (else (scan (cdr vars)
-                        (cdr vals)))))
-    (if (eq? env the-empty-environment)
-        (error "Unbound variable" var)
-        (let ((frame (first-frame env)))
-          (scan (frame-variables frame)
-                (frame-values frame)))))
-  (env-loop env))
-
-(define (set-variable-value! var val env)
-  "To set a variable to a new value in a specified environment, we scan for the
-variable, just as in lookup-variable-value, and change the corresponding value
-when we find it."
-  (define (env-loop env)
-    (define (scan vars vals)
-      (cond ((null? vars)
-             (env-loop
-              (enclosing-environment env)))
-            ((eq? var (car vars))
-             (set-car! vals val))
-            (else (scan (cdr vars)
-                        (cdr vals)))))
-    (if (eq? env the-empty-environment)
-        (error "Unbound variable: SET!" var)
-        (let ((frame (first-frame env)))
-          (scan (frame-variables frame)
-                (frame-values frame)))))
-  (env-loop env))
-
-
-(define (define-variable! var val env)
-  "To define a variable, we search the first frame for a binding for the
-variable, and change the binding if it exists (just as in set-variable-value!).
-If no such binding exists, we adjoin one to the first frame."
-  (let ((frame (first-frame env)))
-    (define (scan vars vals)
-      (cond ((null? vars)
-             (add-binding-to-frame!
-              var val frame))
-            ((eq? var (car vars))
-             (set-car! vals val))
-            (else (scan (cdr vars)
-                        (cdr vals)))))
-    (scan (frame-variables frame)
-          (frame-values frame))))(define (enclosing-environment env) (cdr env))
-(define (first-frame env) (car env))
-(define the-empty-environment '())
-
 ;; Each frame of an environment is represented as a pair of lists: a list of the
 ;; variables bound in that frame and a list of the associated values.
 (define (make-frame variables values)
@@ -397,7 +311,6 @@ If no such binding exists, we adjoin one to the first frame."
 (define (add-binding-to-frame! var val frame)
   (set-car! frame (cons var (car frame)))
   (set-cdr! frame (cons val (cdr frame))))
-
 
 (define (extend-environment vars vals base-env)
   "To extend an environment by a new frame that associates variables with
@@ -510,7 +423,6 @@ to the arguments, using the underlying Lisp system"
 
 (define the-global-environment
   (setup-environment))
-
 
                                         ; Driver Functions
 
@@ -864,7 +776,6 @@ procedure (1.2.2) can be rewritten using named let as follows:
                       (- count 1)))))
 
 Modify let->combination of Exercise 4.6 to also support named let. |#
-
 (define (named-let? exp) (symbol? (cadr exp)))
 (generate-accessors
  ([nlet-var cadr]
