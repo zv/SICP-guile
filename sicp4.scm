@@ -789,12 +789,11 @@ Modify let->combination of Exercise 4.6 to also support named let. |#
          [vars       (let-binding-vars bindings)]
          [exprs      (let-binding-exprs bindings)]
          [fnname     (nlet-var exp)]
-         [fn         (make-lambda vars body)]
-         [let-vars   (cons fnname vars)]
-         [let-exprs  (cons fn exprs)])
-    (make-let->lambda let-vars
-                      let-exprs
-                      body)))
+         [fn         (make-lambda vars body)])
+    `(let ,bindings
+       (begin
+         (define ,fnname ,fn)
+         ,body))))
 
 (define (let->combination exp)
   (if (null? exp) 'false
@@ -803,6 +802,7 @@ Modify let->combination of Exercise 4.6 to also support named let. |#
           (make-let->lambda (let-vars exp)
                             (let-exprs exp)
                             (let-body exp)))))
+
 
 #| Exercise 4.9
 Many languages support a variety of iteration constructs, such as `do', `for',
