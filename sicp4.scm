@@ -873,7 +873,7 @@ not completely specified. For example, should we remove only the binding in the
 first frame of the environment? Complete the specification and justify any
 choices you make. |#
 
-#| Spec:
+#| - - - - - Spec:
 `undefine' and `unset' are functions that set the name of the binding inside the
 closest stack-frame to null. |#
 (define (undefine-variable! var env)
@@ -885,7 +885,17 @@ closest stack-frame to null. |#
   'ok)
 
 (install-procedure `(undefine ,eval-undefinition))
+
 
+#| Exercise 4.14
+Eva Lu Ator and Louis Reasoner are each experimenting with the metacircular
+evaluator. Eva types in the definition of map, and runs some test programs that
+use it. They work fine. Louis, in contrast, has installed the system version of
+map as a primitive for the metacircular evaluator. When he tries it, things go
+terribly wrong. Explain why Louis’s map fails even though Eva’s works. |#
+
+#| - - - - - Solution:
+Louis is trying to use a variable defined inside the *interpreters* stack frame, not the *interpreTED* stack frame |#
 
 (define the-global-environment (setup-environment))
 (driver-loop)
