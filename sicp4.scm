@@ -1,7 +1,8 @@
 ;;; -*- mode: scheme; coding: utf-8; -*-
-(use-modules (ice-9 format))
 (use-modules (ice-9 q))
+(use-modules (ice-9 format))
 (use-modules (oop goops))
+(use-modules (ice-9 pretty-print))
 
 
 (define (inc n) (+ n 1))
@@ -802,7 +803,6 @@ Modify let->combination of Exercise 4.6 to also support named let. |#
           (make-let->lambda (let-vars exp)
                             (let-exprs exp)
                             (let-body exp)))))
-
 
 #| Exercise 4.9
 Many languages support a variety of iteration constructs, such as `do', `for',
@@ -826,6 +826,42 @@ show how to implement them as derived expressions. |#
                false)))))
 
 (install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
+
+#| Exercise 4.11 & Exercise 4.12
+4.11: Instead of representing a frame as a pair of lists, we can represent a
+frame as a list of bindings, where each binding is a name-value pair. Rewrite
+the environment operations to use this alternative representation.
 
+4.12: The procedures define-variable!, set-variable-value! and
+lookup-variable-value can be expressed in terms of more abstract procedures for
+traversing the environment structure. Define abstractions that capture the
+common patterns and redefine the three procedures in terms of these
+abstractions. |#
+(define (primitive-procedure-objects) ; redefine to maintain alist
+  (map (λ (proc) (cons 'primitive (cadr proc))) primitive-procedures))
 
+(define (make-frame variables values)
+  (map cons variables values))
+
+(define (var-process var environment fn)
+  (define (var-search env)
+    (if (eq? env the-empty-environment) (error "Unbound variable" var)
+        (let* ([frame (first-frame env)]
+               [entry (assoc var frame)])
+          (if entry (fn entry)
+              (var-search (enclosing-environment env))))))
+  (var-search environment))
+
+(define (lookup-variable-value var env)
+  (var-process var env cdr))
+
+(define (set-variable-value! var val env)
+  (var-process var env (λ (entry) (set-cdr! entry val))))
+
+(define (define-variable! var val env)
+  (set-car! env (assoc-set! (first-frame env) var val)))
+
+
+
+(define the-global-environment (setup-environment))
 (driver-loop)
