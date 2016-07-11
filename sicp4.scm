@@ -896,6 +896,40 @@ terribly wrong. Explain why Louis’s map fails even though Eva’s works. |#
 
 #| - - - - - Solution:
 Louis is trying to use a variable defined inside the *interpreters* stack frame, not the *interpreTED* stack frame |#
+
+
+#| Exercise 4.15
+Given a one-argument procedure p and an object a, p is said to “halt” on a if
+evaluating the expression (p a) returns a value (as opposed to terminating with
+an error message or running forever). Show that it is impossible to write a
+procedure halts? that correctly determines whether p halts on a for any
+procedure p and object a. Use the following reasoning: If you had such a
+procedure halts?, you could implement the following program:
+
+  (define (run-forever)
+    (run-forever))
+
+  (define (try p)
+    (if (halts? p p)
+        (run-forever)
+        'halted))
+
+Now consider evaluating the expression (try try) and show that any possible
+outcome (either halting or running forever) violates the intended behavior of
+halts?. |#
+
+#| - - - - - Solution:
+This problem is an abstract description of a thought experiment Turing conducted in the 1930s which would later be known as the 'halting problem'.
+
+The problem has no solution for a similar reason to the 'liar' paradox:
+
+Suppose it returns true -- `try' enters an endless loop, so it obviously doesn’t halt, while halts? returned true. The contrawise position is identical
+
+Therefore there can be no solution to the problem |#
+
+
+;; Section 4.2
+
 
 (define the-global-environment (setup-environment))
 (driver-loop)
