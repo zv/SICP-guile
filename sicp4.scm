@@ -37,10 +37,6 @@
          exp]
         [(variable? exp)
          (lookup-variable-value exp env)]
-        ((or? exp)
-         (eval-or exp env))
-        ((and? exp)
-         (eval-and exp env))
         [(quoted? exp)
          (text-of-quotation exp)]
         [(assignment? exp)
@@ -87,11 +83,9 @@ apply"
          (eval-sequence
            (procedure-body procedure)
            (extend-environment
-             (procedure-parameters
-              procedure)
+             (procedure-parameters procedure)
              arguments
-             (procedure-environment
-              procedure))))
+             (procedure-environment procedure))))
         (else
          (error "Unknown procedure
                  type: APPLY"
@@ -311,13 +305,15 @@ set-variable-value! to be installed in the designated environment."
 ;; variables bound in that frame and a list of the associated values.
 ;; Each frame of an environment is represented as a pair of lists: a list of the
 ;; variables bound in that frame and a list of the associated values.
+#|
 (define (make-frame variables values)
   (cons variables values))
+|#
 (define (frame-variables frame) (car frame))
 (define (frame-values frame) (cdr frame))
-(define (add-binding-to-frame! var val frame)
-  (set-car! frame (cons var (car frame)))
-  (set-cdr! frame (cons val (cdr frame))))
+;; (define (add-binding-to-frame! var val frame)
+;;   (set-car! frame (cons var (car frame)))
+;;   (set-cdr! frame (cons val (cdr frame))))
 
 (define (extend-environment vars vals base-env)
   "To extend an environment by a new frame that associates variables with
@@ -556,7 +552,7 @@ is appropriate for the syntax implemented in this section.) |#
 (map
  install-procedure
  `([quote  ,(λ (expr env) (text-of-quotation expr))]
-   [set    ,eval-assignment]
+   [set!    ,eval-assignment]
    [define ,eval-definition]
    [if     ,eval-if]
    [lambda ,(λ (expr env) (make-procedure (lambda-parameters expr) (lambda-body expr) env))]
@@ -678,13 +674,15 @@ is equivalent to
 Implement a syntactic transformation let->combination that reduces evaluating
 let expressions to evaluating combinations of the type shown above, and add the
 appropriate clause to eval to handle let expressions. |#
+
 (generate-accessors
- ([let-bindings cadr]
-  [let-body     cddr]
-  [let-binding-vars  (λ (b) (map car b))]
-  [let-binding-exprs (λ (b) (map cadr b))]
-  [let-vars  (compose let-binding-vars let-bindings)]
-  [let-exprs (compose let-binding-exprs let-bindings)]))
+ ([let-bindings       cadr]
+  [let-body           cddr]
+  [let-binding-vars   (curry map car)]
+  [let-binding-exprs  (curry map cadr)]
+  [let-vars           (compose let-binding-vars let-bindings)]
+  [let-exprs          (compose let-binding-exprs let-bindings)]))
+
 
 (define (make-let->lambda vars exprs body)
   "Makes a let expression as ((lambda (vars) body) exprs)"
