@@ -4,10 +4,10 @@
 (use-modules (oop goops))
 (use-modules (ice-9 pretty-print))
 
-
-(define (inc n) (+ n 1))
-(define (dec n) (- n 1))
-
+(define (inc a) (+ a 1))
+(define (curry fn . c-args)
+  (λ args
+    (apply fn (append c-args args))))
 
 
 ;; Custom Macros
@@ -22,6 +22,12 @@
 
     ((generate-accessors non-list)
      (syntax-error "not a list"))))
+
+;; Construct a piece of syntax (essentially just a quasiquote wrapper)
+(define-syntax %as-syntax
+  (syntax-rules ()
+    ((%as-syntax exp)
+     `exp)))
 
 
 ;; Section 4.1
@@ -422,8 +428,6 @@ to the arguments, using the underlying Lisp system"
     (define-variable! 'false #f initial-env)
     initial-env))
 
-(define the-global-environment
-  (setup-environment))
 
                                         ; Driver Functions
 
@@ -656,8 +660,6 @@ Modify the handling of cond so that it supports this extended syntax. |#
                 (make-if (cond-predicate first)
                          (sequence->exp (cond-actions first))
                          (expand-clauses rest)))))))
-
-
 
 #| Exercise 4.6
 Let expressions are derived expressions, because
@@ -697,7 +699,6 @@ appropriate clause to eval to handle let expressions. |#
                           body))))
 
 (install-procedure `(let ,(λ (exp env) (zeval (let->combination exp) env))))
-
 
 #| Exercise 4.7
 `let*' is similar to `let', except that the bindings of the `let*' variables are
@@ -728,7 +729,7 @@ or must we explicitly expand `let*' in terms of non-derived expressions? |#
 ;;; There is nothing preventing `let*' from being defined in terms of existing
 ;;; `let' expressions
 (generate-accessors
- ([let*-body caddr]
+ ([let*-body  caddr]
   [let*-inits cadr]))
 
 ;;;; This is a little funky here, I've replaced this with another version copied
@@ -755,7 +756,6 @@ or must we explicitly expand `let*' in terms of non-derived expressions? |#
 
 
 (install-procedure `(let* ,(λ (exp env) (zeval (let*->nested-lets exp) env))))
-
 
 #| Exercise 4.8
 “Named let” is a variant of let that has the form
@@ -791,10 +791,11 @@ Modify let->combination of Exercise 4.6 to also support named let. |#
          [exprs      (let-binding-exprs bindings)]
          [fnname     (nlet-var exp)]
          [fn         (make-lambda vars body)])
-    `(let ,bindings
+    (%as-syntax
+     (let ,bindings
        (begin
          (define ,fnname ,fn)
-         ,body))))
+         ,body)))))
 
 (define (let->combination exp)
   (if (null? exp) 'false
@@ -819,11 +820,12 @@ show how to implement them as derived expressions. |#
   (let ([body (while-body exp)]
         [cond (while-cond exp)])
     (if (null? cond) 'false
-        `(let while-loop ()
+        (%as-syntax
+         (let while-loop ()
            (if ,cond
                (begin ,body
                       (while-loop))
-               false)))))
+               false))))))
 
 (install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
 
