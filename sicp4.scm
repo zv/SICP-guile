@@ -960,32 +960,38 @@ procedure-body (see 4.1.3). Which place is better? Why? |#
 (define (scan-out-defines expr)
   "Transform a procedure, returning an equivalent one with no internal
 definitions"
-  (fold
-   (λ (elt prev)
-     (let ([bindings (let-bindings prev)]
-           [body     (let-body prev)])
-       ;; merge our (new) bindings & body
-       (match elt
-         [('define var val)
-          `(let ((,var . *unassigned*)
-                 ,@bindings)
-             ,@body
-             (set! ,var ,val)
-             )]
-         [_ `(let ,bindings ,@body ,elt)])))
-   '(let ()) ;; we start with a basic let expression
-   expr))
+  (define has-define (find (λ (e) (and (pair? e) (eq? (car e) 'define)))
+                           expr))
+  (if has-define
+      (list (fold
+             (λ (elt prev)
+               (let ([bindings (let-bindings prev)]
+                     [body     (let-body prev)])
+                 ;; merge our (new) bindings & body
+                 (match elt
+                   [('define var val)
+                    `(let ((,var '*unassigned*)
+                           ,@bindings)
+                       (set! ,var ,val)
+                       ,@body)]
+                   [_ `(let ,bindings ,@body ,elt)])))
+             '(let ()) ;; we start with a basic let expression
+             expr))
+      expr))
 
 ;; 3 -- I've selected make-procedure so that the conversion is done at
 ;; interpretation, rather than runtime.
 (define (make-procedure parameters body env)
-  (list 'procedure parameters (scan-out-defines body) env))
-
+  (list 'procedure
+        parameters
+        (scan-out-defines body)
+        env))
 
 #| Exercise 4.18
 Consider an alternative strategy for scanning out definitions that translates
 the example in the text to
 
+((lambda () (define a 1) (define b 2) (cons a b)))
 (lambda ⟨vars⟩
   (let ((u '*unassigned*)
         (v '*unassigned*))
