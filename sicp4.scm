@@ -1,8 +1,10 @@
 ;;; -*- mode: scheme; coding: utf-8; -*-
 (use-modules (ice-9 q))
 (use-modules (ice-9 format))
-(use-modules (oop goops))
 (use-modules (ice-9 pretty-print))
+(use-modules (ice-9 match))
+(use-modules (oop goops))
+(use-modules (srfi srfi-1))
 
 (define (inc a) (+ a 1))
 (define (curry fn . c-args)
@@ -928,6 +930,51 @@ Suppose it returns true -- `try' enters an endless loop, so it obviously doesn�
 Therefore there can be no solution to the problem |#
 
 
+#| Exercise 4.16
+In this exercise we implement the method just described for interpreting
+internal definitions. We assume that the evaluator supports let (see Exercise
+                                                                     4.6).
+
+1. Change `lookup-variable-value' (4.1.3) to signal an error if the value it finds
+is the symbol *unassigned*.
+2. Write a procedure `scan-out-defines' that takes a procedure body and returns an
+equivalent one that has no internal definitions, by making the transformation
+described above.
+3. Install `scan-out-defines' in the interpreter, either in make-procedure or in
+procedure-body (see 4.1.3). Which place is better? Why? |#
+
+;; 1. Solution
+(define (lookup-variable-value var env)
+  (var-process var env (λ (_f entry)
+                         (if (eq? (cdr entry) '*unassigned*)
+                             (error "Unassigned var: " var)
+                             (cdr entry)))))
+
+;; 2
+(define (scan-out-defines expr)
+  "Transform a procedure, returning an equivalent one with no internal
+definitions"
+  (fold
+   (λ (elt prev)
+     (let ([bindings (let-bindings prev)]
+           [body     (let-body prev)])
+       ;; merge our (new) bindings & body
+       (match elt
+         [('define var val)
+          `(let ((,var . *unassigned*)
+                 ,@bindings)
+             ,@body
+             (set! ,var ,val)
+             )]
+         [_ `(let ,bindings ,@body ,elt)])))
+   '(let ()) ;; we start with a basic let expression
+   expr))
+
+;; 3 -- I've selected make-procedure so that the conversion is done at
+;; interpretation, rather than runtime.
+(define (make-procedure parameters body env)
+  (list 'procedure parameters (scan-out-defines body) env))
+
 ;; Section 4.2
 
 
