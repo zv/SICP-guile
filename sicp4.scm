@@ -845,9 +845,6 @@ show how to implement them as derived expressions. |#
   traversing the environment structure. Define abstractions that capture the
   common patterns and redefine the three procedures in terms of these
   abstractions. |#
-(define (primitive-procedure-objects) ; redefine to maintain alist
-  (map (λ (proc) (cons 'primitive (cadr proc))) primitive-procedures))
-
 (define (make-frame variables values)
   (map cons variables values))
 
