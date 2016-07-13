@@ -60,9 +60,9 @@
          (zeval (cond->if exp) env)]
         [(application? exp)
          (zapply (zeval (operator exp) env)
-                (list-of-values
-                 (operands exp)
-                 env))]
+                 (list-of-values
+                  (operands exp)
+                  env))]
         (else
          (error "Unknown expression type: EVAL" exp))))
 
@@ -83,11 +83,11 @@ apply"
           arguments))
         ((compound-procedure? procedure)
          (eval-sequence
-           (procedure-body procedure)
-           (extend-environment
-             (procedure-parameters procedure)
-             arguments
-             (procedure-environment procedure))))
+          (procedure-body procedure)
+          (extend-environment
+           (procedure-parameters procedure)
+           arguments
+           (procedure-environment procedure))))
         (else
          (error "Unknown procedure
                  type: APPLY"
@@ -210,7 +210,9 @@ set-variable-value! to be installed in the designated environment."
 (define (make-lambda parameters body)
   (cons 'lambda (cons parameters body)))
 
-;; Conditionals begin with if and have a predicate, a consequent, and an (optional) alternative. If the expression has no alternative part, we provide false as the alternative.214
+;; Conditionals begin with if and have a predicate, a consequent, and an
+;; (optional) alternative. If the expression has no alternative part, we provide
+;; false as the alternative.214
 (define (if? exp) (tagged-list? exp 'if))
 (define (if-predicate exp) (cadr exp))
 (define (if-consequent exp) (caddr exp))
@@ -219,7 +221,8 @@ set-variable-value! to be installed in the designated environment."
       (cadddr exp)
       'false))
 
-;; We also provide a constructor for if expressions, to be used by cond->if to transform cond expressions into if expressions:
+;; We also provide a constructor for if expressions, to be used by cond->if to
+;; transform cond expressions into if expressions:
 (define (make-if predicate consequent alternative)
   (list 'if
         predicate
@@ -237,7 +240,8 @@ set-variable-value! to be installed in the designated environment."
 (define (first-exp seq) (car seq))
 (define (rest-exps seq) (cdr seq))
 
-;; We also include a constructor sequence->exp (for use by cond->if) that transforms a sequence into a single expression, using begin if necessary:
+;; We also include a constructor sequence->exp (for use by cond->if) that
+;; transforms a sequence into a single expression, using begin if necessary:
 (define (sequence->exp seq)
   (cond ((null? seq) seq)
         ((last-exp? seq) (first-exp seq))
@@ -245,7 +249,9 @@ set-variable-value! to be installed in the designated environment."
 
 (define (make-begin seq) (cons 'begin seq))
 
-;; A procedure application is any compound expression that is not one of the above expression types. The car of the expression is the operator, and the cdr is the list of operands:
+;; A procedure application is any compound expression that is not one of the
+;; above expression types. The car of the expression is the operator, and the cdr
+;; is the list of operands:
 (define (application? exp) (pair? exp))
 (define (operator exp) (car exp))
 (define (operands exp) (cdr exp))
@@ -313,9 +319,9 @@ set-variable-value! to be installed in the designated environment."
 |#
 (define (frame-variables frame) (car frame))
 (define (frame-values frame) (cdr frame))
-;; (define (add-binding-to-frame! var val frame)
-;;   (set-car! frame (cons var (car frame)))
-;;   (set-cdr! frame (cons val (cdr frame))))
+(define (add-binding-to-frame! var val frame)
+  (set-car! frame (cons var (car frame)))
+  (set-cdr! frame (cons val (cdr frame))))
 
 (define (extend-environment vars vals base-env)
   "To extend an environment by a new frame that associates variables with
@@ -453,7 +459,7 @@ to the arguments, using the underlying Lisp system"
   (let ((input (read)))
     (let ((output
            (zeval input
-                 the-global-environment)))
+                  the-global-environment)))
       (announce-output output-prompt)
       (user-print output)))
   (driver-loop))
@@ -523,7 +529,7 @@ cannot be made into a procedure because the arguments will be evaluated.
 Rewrite eval so that the dispatch is done in data-directed style. Compare this
 with the data-directed differentiation procedure of Exercise 2.73.
 (You may use the car of a compound expression as the type of the expression, as
-is appropriate for the syntax implemented in this section.) |#
+     is appropriate for the syntax implemented in this section.) |#
 (define-class <dispatch-table> ()
   (method-table #:init-value (make-hash-table)
                 #:getter method-table))
@@ -648,7 +654,7 @@ Modify the handling of cond so that it supports this extended syntax. |#
         (if (cond-is-pipe? first)
             (let ([test (cond-predicate first)])
               (make-if test
-                        (list (cond-recipient first) test)
+                       (list (cond-recipient first) test)
                        (expand-clauses rest)))
 
             ;; otherwise a normal cond applies
@@ -887,7 +893,6 @@ closest stack-frame to null. |#
   'ok)
 
 (install-procedure `(undefine ,eval-undefinition))
-
 
 #| Exercise 4.14
 Eva Lu Ator and Louis Reasoner are each experimenting with the metacircular
@@ -897,9 +902,10 @@ map as a primitive for the metacircular evaluator. When he tries it, things go
 terribly wrong. Explain why Louis’s map fails even though Eva’s works. |#
 
 #| - - - - - Solution:
-Louis is trying to use a variable defined inside the *interpreters* stack frame, not the *interpreTED* stack frame |#
-
+Louis is trying to use a variable defined inside the *interpreters* stack frame,
+not the *interpreTED* stack frame |#
 
+
 #| Exercise 4.15
 Given a one-argument procedure p and an object a, p is said to “halt” on a if
 evaluating the expression (p a) returns a value (as opposed to terminating with
