@@ -947,7 +947,7 @@ described above.
 procedure-body (see 4.1.3). Which place is better? Why? |#
 
 ;; 1. Solution
-(define (lookup-variable-value var env)
+(define (simultaneous/lookup-variable-value var env)
   (var-process var env (λ (_f entry)
                          (if (eq? (cdr entry) '*unassigned*)
                              (error "Unassigned var: " var)
@@ -970,6 +970,7 @@ definitions"
                     `(let ((,var '*unassigned*)
                            ,@bindings)
                        (set! ,var ,val)
+                       ;; we use ,@ to prevent recursive lists
                        ,@body)]
                    [_ `(let ,bindings ,@body ,elt)])))
              '(let ()) ;; we start with a basic let expression
@@ -978,7 +979,7 @@ definitions"
 
 ;; 3 -- I've selected make-procedure so that the conversion is done at
 ;; interpretation, rather than runtime.
-(define (make-procedure parameters body env)
+(define (simultaneous/make-procedure parameters body env)
   (list 'procedure
         parameters
         (scan-out-defines body)
