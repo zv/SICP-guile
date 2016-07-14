@@ -1020,12 +1020,12 @@ this exercise? What if they are scanned out as shown in the text? Explain. |#
 Ben Bitdiddle, Alyssa P. Hacker, and Eva Lu Ator are arguing about the desired
 result of evaluating the expression
 
-(let ((a 1))
-  (define (f x)
-    (define b (+ a x))
-    (define a 5)
-    (+ a b))
-  (f 10))
+  (let ((a 1))
+    (define (f x)
+      (define b (+ a x))
+      (define a 5)
+      (+ a b))
+    (f 10))
 
 Ben asserts that the result should be obtained using the sequential rule for
 define: `b' is defined to be 11, then `a' is defined to be 5, so the result is
@@ -1041,9 +1041,9 @@ should be 15, and the result should be 20. Which (if any) of these viewpoints do
 you support? Can you devise a way to implement internal definitions so that they
 behave as Eva prefers? |#
 
-; - - - - - Solution
-;; In practice I support personally support Alyssas's view, in principle I
-;; support Eva
+#| Solution
+I like Alyssas view, although Ben's dominates most thinking.
+|#
 
 ;; Eva's view can be easily supported by swapping the order within the `let'
 ;; quasiquote of `set!' and `@,body'
