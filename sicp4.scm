@@ -1048,6 +1048,85 @@ I like Alyssas view, although Ben's dominates most thinking.
 ;; Eva's view can be easily supported by swapping the order within the `let'
 ;; quasiquote of `set!' and `@,body'
 
+
+#| Exercise 4.20 (lol)
+Because internal definitions look sequential but are actually simultaneous, some
+people prefer to avoid them entirely, and use the special form letrec instead.
+Letrec looks like let, so it is not surprising that the variables it binds are
+bound simultaneously and have the same scope as each other. The sample procedure
+f above can be written without internal definitions, but with exactly the same
+meaning, as
+
+  (define (f x)
+    (letrec
+        ((even?
+          (lambda (n)
+            (if (= n 0)
+                true
+                (odd? (- n 1)))))
+        (odd?
+          (lambda (n)
+            (if (= n 0)
+                false
+                (even? (- n 1))))))
+      ⟨rest of body of f⟩))
+
+`letrec' expressions, which have the form
+
+  (letrec ((⟨var₁⟩ ⟨exp₁⟩) … (⟨varₙ⟩ ⟨expₙ⟩))
+    ⟨body⟩)
+
+are a variation on let in which the expressions ⟨expₖ⟩ that provide the initial
+values for the variables ⟨varₖ⟩ are evaluated in an environment that includes
+all the letrec bindings. This permits recursion in the bindings, such as the
+mutual recursion of even? and odd? in the example above, or the evaluation of 10
+factorial with
+
+  (letrec
+      ((fact
+        (lambda (n)
+          (if (= n 1)
+              1
+              (* n (fact (- n 1)))))))
+    (fact 10))
+
+1. Implement letrec as a derived expression, by transforming a letrec expression
+into a let expression as shown in the text above or in Exercise 4.18. That is,
+the letrec variables should be created with a let and then be assigned their
+values with set!.
+
+2. Louis Reasoner is confused by all this fuss about internal definitions. The
+way he sees it, if you don’t like to use define inside a procedure, you can just
+use let. Illustrate what is loose about his reasoning by drawing an environment
+diagram that shows the environment in which the ⟨rest of body of f⟩ is evaluated
+during evaluation of the expression (f 5), with f defined as in this exercise.
+Draw an environment diagram for the same evaluation, but with let in place of
+letrec in the definition of f. |#
+
+
+;; 1.
+(define (letrec->let expr)
+  (if (null? expr) 'false
+      (%as-syntax
+       (let
+           ,(map ; generate the (binding . '*unassigned) let binds
+             (λ (v) (list v '*unassigned))
+             (map car (cadr expr)))
+
+         ,@(map ; generate the `set!' expressions
+            (λ (bind) `(set! ,(car bind) ,(cadr bind)))
+            (let-bindings expr))
+
+         ;; and merge our existing body
+         ,@(let-body expr)))))
+
+;; 2.
+;; The main problem with Louis's reasoning is that the environment that `let' is
+;; being evaluating against is actually expressed in the form of a `lambda' whoses
+;; actual function bodies are being passed in as arguments (in the case of (f x)),
+;; this means that the lexical scope of `even?' cannot see that of `odd?' and
+;; versa.
+
 ;; Section 4.2
 
 
