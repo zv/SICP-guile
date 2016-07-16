@@ -1169,6 +1169,82 @@ letrec in the definition of f. |#
 ;; this means that the lexical scope of `even?' cannot see that of `odd?' and
 ;; versa.
 
+
+#| Exercise 4.21
+Amazingly, Louis’s intuition in Exercise 4.20 is correct. It is indeed possible
+to specify recursive procedures without using letrec (or even define), although
+the method for accomplishing this is much more subtle than Louis imagined. The
+following expression computes 10 factorial by applying a recursive factorial
+procedure:231
+
+  ((lambda (n)
+    ((lambda (fact) (fact fact n))
+      (lambda (ft k)
+        (if (= k 1)
+            1
+            (* k (ft ft (- k 1)))))))
+  10)
+
+1. Check (by evaluating the expression) that this really does compute
+factorials. Devise an analogous expression for computing Fibonacci numbers.
+
+Consider the following procedure, which includes mutually recursive internal
+definitions:
+
+    (define (f x)
+      (define (even? n)
+        (if (= n 0)
+            true
+            (odd? (- n 1))))
+      (define (odd? n)
+        (if (= n 0)
+            false
+            (even? (- n 1))))
+      (even? x))
+
+2. Fill in the missing expressions to complete an alternative definition of f,
+which uses neither internal definitions nor letrec:
+
+    (define (f x)
+      ((lambda (even? odd?)
+         (even? even? odd? x))
+       (lambda (ev? od? n)
+         (if (= n 0)
+             true
+             (od? ⟨??⟩ ⟨??⟩ ⟨??⟩)))
+       (lambda (ev? od? n)
+         (if (= n 0)
+             false
+             (ev? ⟨??⟩ ⟨??⟩ ⟨??⟩)))))
+|#
+
+;; 1.
+;; It does indeed produce Factorials
+(define funk-fibonacci
+  (λ (n) ;; (it's a fibonacci number)
+    ((λ (fib) (fib fib n))
+     (λ (fb k)
+       (match k
+         [0 1]
+         [1 1]
+         [_ (+ (fb fb (- k 1))
+               (fb fb (- k 2)))])))))
+
+;; 2.
+(define (feven-4.21 x)
+  ((λ (even? odd?)
+     (even? even? odd? x))
+   (λ (ev? od? n)
+     (if (= n 0)
+         #t
+         (od? ev? od? (- n 1))))
+   (λ (ev? od? n)
+     (if (= n 0)
+         #f
+         (ev? ev? od? (- n 1))))))
+
+(assert (= (funk-fibonacci 4) 5))
+(assert (feven-4.21 4))
 ;; Section 4.2
 
 
