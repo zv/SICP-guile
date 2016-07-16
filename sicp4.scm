@@ -592,6 +592,8 @@ with the data-directed differentiation procedure of Exercise 2.73.
               (list-of-values (operands expr) env))]
      [else (error "Bad Expression" expr)])))
 
+
+
 
 #| Exercise 4.4
 Recall the definitions of the special forms and and or from Chapter 1:
@@ -812,7 +814,7 @@ Modify let->combination of Exercise 4.6 to also support named let. |#
      (let ,bindings
        (begin
          (define ,fnname ,fn)
-         ,body)))))
+         ,@body)))))
 
 (define (let->combination exp)
   (if (null? exp) 'false
@@ -988,6 +990,7 @@ definitions"
        expr)
       expr))
 
+;; simulatanous test
 (test-equal
     (scan-out-defines '((define a 1)
                         (make-thing 1)
@@ -1015,7 +1018,6 @@ definitions"
 Consider an alternative strategy for scanning out definitions that translates
 the example in the text to
 
-((lambda () (define a 1) (define b 2) (cons a b)))
 (lambda ⟨vars⟩
   (let ((u '*unassigned*)
         (v '*unassigned*))
@@ -1132,36 +1134,36 @@ letrec in the definition of f. |#
 
 ;; 1.
 (define (letrec->let expr)
-  (if (null? expr) 'false
-      (%as-syntax
-       (let
-           ,(map ; generate the (binding . '*unassigned) let binds
-             (λ (v) (list v '*unassigned))
-             (map car (cadr expr)))
+  (%as-syntax
+   (let
+       ,(map ; generate the (binding . '*unassigned) let binds
+         (λ (v) (list v ''*unassigned))
+         (map car (cadr expr)))
 
-         ,@(map ; generate the `set!' expressions
-            (λ (bind) `(set! ,(car bind) ,(cadr bind)))
-            (let-bindings expr))
+     ,@(map ; generate the `set!' expressions
+        (λ (bind) `(set! ,(car bind) ,(cadr bind)))
+        (let-bindings expr))
 
-         ;; and merge our existing body
-         ,@(let-body expr)))))
+     ;; and merge our existing body
+     ,@(let-body expr))))
 
 (test-equal
     (letrec->let
-     `(let ((a (lambda () (b)))
-            (b (lambda () (a))))
+     `(letrec ((a (lambda () (b)))
+               (b (lambda () (a))))
         (x a)
         (x b)
         (x c)))
 
-  '(let ((a *unassigned)
-         (b *unassigned))
+  '(let ((a '*unassigned)
+         (b '*unassigned))
      (set! a (lambda () (b)))
      (set! b (lambda () (a)))
      (x a)
      (x b)
      (x c)))
 
+(install-procedure `(letrec ,(λ (exp env) (zeval (letrec->let exp) env))))
 ;; 2.
 ;; The main problem with Louis's reasoning is that the environment that `let' is
 ;; being evaluating against is actually expressed in the form of a `lambda' whoses
@@ -1245,8 +1247,64 @@ which uses neither internal definitions nor letrec:
 
 (assert (= (funk-fibonacci 4) 5))
 (assert (feven-4.21 4))
+
+
+
+
+
+
 ;; Section 4.2
 
+(define (eval-+ exp env)
+  (fold + 0 (map (λ (e) (zeval e env)) (operands exp))))
+
+(define (eval-- exp env)
+  (- (zeval (cadr exp) env)
+     (zeval (caddr exp) env)))
+
+(define (eval-= exp env)
+  (=
+   (zeval (car (operands exp)) env)
+   (zeval (cadr (operands exp)) env)))
+
+(install-procedure `(+ ,eval-+))
+(install-procedure `(- ,eval--))
+(install-procedure `(= ,eval-=))
 
 (define the-global-environment (setup-environment))
+
+(define-syntax test-eval
+  (syntax-rules (=> the-global-environment)
+    ((test-eval expr =>)
+     (syntax-error "no expect statement"))
+
+    ((test-eval expr => expect)
+     (assert (equal? (zeval 'expr the-global-environment) expect)))
+
+    ((test-eval expr expect)
+     (assert (equal? (zeval 'expr the-global-environment) expect)))))
+
+(test-eval (begin
+             (define a 1)
+             (define b 2)
+             (set! a 3)
+             (+ a b))
+           => 5)
+(test-eval ((lambda (a b) (+ a b)) 3 4) 7)
+(test-eval (begin 1 2) => 2)
+(test-eval (or 1 2)    => 1)
+(test-eval (and 1 2)   => 2)
+(test-eval (let ((a 1) (b 2)) a)        => 1)
+(test-eval (let* ((a 1) (b 2) (c a)) c) => 1)
+(test-eval (let fib-iter ((a 1) (b 0) (count 4))
+             (if (= count 0) b
+                 (fib-iter (+ a b) a (- count 1))))
+           => 3)
+(test-eval (letrec ((sum (lambda (n) (if (= n 1) 1
+                       (+ n (sum (- n 1)))))))
+             (sum 2))
+           => 3)
+
+
+
 (driver-loop)
