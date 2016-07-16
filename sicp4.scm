@@ -12,7 +12,7 @@
     (apply fn (append c-args args))))
 
 
-;; Custom Macros
+;; Custom Macros & Utils
 (define-syntax generate-accessors
   (syntax-rules (generate-accessors define exp)
     ((generate-accessors ()) #t)
@@ -24,6 +24,17 @@
 
     ((generate-accessors non-list)
      (syntax-error "not a list"))))
+
+(define-syntax assert
+	(syntax-rules ()
+    ((assert x y0 ...)
+     (if (not x) (error "Assertion failed" 'x y0 ...))) ))
+
+(define (test-equal x y)
+  (assert (equal? x y)))
+
+(define (test-eq x y)
+  (assert (eq? x y)))
 
 ;; Construct a piece of syntax (essentially just a quasiquote wrapper)
 (define-syntax %as-syntax
@@ -960,22 +971,37 @@ definitions"
   (define has-define (find (λ (e) (and (pair? e) (eq? (car e) 'define)))
                            expr))
   (if has-define
-      (list (fold
-             (λ (elt prev)
-               (let ([bindings (let-bindings prev)]
-                     [body     (let-body prev)])
-                 ;; merge our (new) bindings & body
-                 (match elt
-                   [('define var val)
-                    `(let ((,var '*unassigned*)
-                           ,@bindings)
-                       (set! ,var ,val)
-                       ;; we use ,@ to prevent recursive lists
-                       ,@body)]
-                   [_ `(let ,bindings ,@body ,elt)])))
-             '(let ()) ;; we start with a basic let expression
-             expr))
+      (fold
+       (λ (elt prev)
+         (let ([bindings (let-bindings prev)]
+               [body     (let-body prev)])
+           ;; merge our (new) bindings & body
+           (match elt
+             [('define var val)
+              `(let ((,var '*unassigned*)
+                     ,@bindings)
+                 (set! ,var ,val)
+                 ;; we use ,@ to prevent recursive lists
+                 ,@body)]
+             [_ `(let ,bindings ,@body ,elt)])))
+       '(let ()) ;; we start with a basic let expression
+       expr)
       expr))
+
+(test-equal
+    (scan-out-defines '((define a 1)
+                        (make-thing 1)
+                        (define b 2)
+                        (define c 3)
+                        (make-thing a 1)))
+  '(let ((c '*unassigned*)
+         (b '*unassigned*)
+         (a '*unassigned*))
+     (set! c 3)
+     (set! b 2)
+     (set! a 1)
+     (make-thing 1)
+     (make-thing a 1)))
 
 ;; 3 -- I've selected make-procedure so that the conversion is done at
 ;; interpretation, rather than runtime.
@@ -1119,6 +1145,22 @@ letrec in the definition of f. |#
 
          ;; and merge our existing body
          ,@(let-body expr)))))
+
+(test-equal
+    (letrec->let
+     `(let ((a (lambda () (b)))
+            (b (lambda () (a))))
+        (x a)
+        (x b)
+        (x c)))
+
+  '(let ((a *unassigned)
+         (b *unassigned))
+     (set! a (lambda () (b)))
+     (set! b (lambda () (a)))
+     (x a)
+     (x b)
+     (x c)))
 
 ;; 2.
 ;; The main problem with Louis's reasoning is that the environment that `let' is
