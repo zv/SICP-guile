@@ -1,4 +1,5 @@
 ;;; -*- mode: scheme; coding: utf-8; -*-
+#| Structure and Interpretation of Computer Programs - Chapter 4 |#
 (use-modules (ice-9 format))
 (use-modules (ice-9 match))
 (use-modules (ice-9 pretty-print))
@@ -9,6 +10,12 @@
 (define (curry fn . c-args)
   (λ args
     (apply fn (append c-args args))))
+
+
+(define inside-repl?
+  ;; current-source-location is formatted in a line, column, filename alist
+  ;; e.g ((line . INTEGER) (column . INTEGER) (filename . SYMBOL|FALSE))
+  (eq? #f (assq-ref (current-source-location) 'filename)))
 
 
 ;; Custom Macros & Utils
@@ -43,7 +50,6 @@
 
 
 ;; Section 4.1
-
 (define (zeval. exp env)
   (cond [(self-evaluating? exp)
          exp]
@@ -581,24 +587,6 @@ with the data-directed differentiation procedure of Exercise 2.73.
               (list-of-values (operands expr) env))]
      [else (error "Bad Expression" expr)])))
 
-
-                                        ; Utility fns
-(define (eval-+ exp env)
-  (fold + 0 (map (λ (e) (zeval e env)) (operands exp))))
-
-(define (eval-- exp env)
-  (- (zeval (cadr exp) env)
-     (zeval (caddr exp) env)))
-
-(define (eval-= exp env)
-  (=
-   (zeval (car (operands exp)) env)
-   (zeval (cadr (operands exp)) env)))
-
-(install-procedure `(+ ,eval-+))
-(install-procedure `(- ,eval--))
-(install-procedure `(= ,eval-=))
-
 
 #| Exercise 4.4
 Recall the definitions of the special forms and and or from Chapter 1:
@@ -963,9 +951,8 @@ equivalent one that has no internal definitions, by making the transformation
 described above.
 3. Install `scan-out-defines' in the interpreter, either in make-procedure or in
 procedure-body (see 4.1.3). Which place is better? Why? |#
-
 ;; 1. Solution
-(define (lookup-variable-value var env)
+(define (simultaneous/lookup-variable-value var env)
   (var-process var env (λ (_f entry)
                          (if (eq? (cdr entry) '*unassigned*)
                              (error "Unassigned var: " var)
@@ -1013,7 +1000,7 @@ definitions"
 
 ;; 3 -- I've selected make-procedure so that the conversion is done at
 ;; interpretation, rather than runtime.
-(define (make-procedure parameters body env)
+(define (simultaneous/make-procedure parameters body env)
   (list 'procedure
         parameters
         (scan-out-defines body)
@@ -1136,7 +1123,6 @@ during evaluation of the expression (f 5), with f defined as in this exercise.
 Draw an environment diagram for the same evaluation, but with let in place of
 letrec in the definition of f. |#
 
-
 ;; 1.
 (define (letrec->let expr)
   (%as-syntax
@@ -1254,7 +1240,7 @@ which uses neither internal definitions nor letrec:
 (assert (feven-4.21 4))
 
 
-                                        ; 4.1.3 - Separating Syntactic Analysis from Execution
+;; 4.1.3 - Separating Syntactic Analysis from Execution
 (define (analyze exp)
   "The procedure analyze takes only the expression. It performs the syntactic
 analysis and returns a new procedure, the execution procedure, that encapsulates
@@ -1398,51 +1384,40 @@ for the body on the extended environment."
                       EXECUTE-APPLICATION"
                      proc))))
 
+(define (install-analyze-procedure p)
+  (put dispatch-tt 'analyze (car p) (cadr p)))
+
+(map install-analyze-procedure
+     `([set!   ,analyze-assignment]
+       [define ,analyze-definition]
+       [if     ,analyze-if]
+       [lambda ,analyze-lambda]
+       [begin  ,(λ (exp) (analyze-sequence (begin-actions exp)))]
+       [cond   ,(λ (exp) (analyze (cond->if exp)))]))
+
+;; redefine analyze with data-driven variable exps
+(define (analyze exp)
+  (let ([dispatch-fn (get dispatch-tt 'analyze (list-tag exp))])
+    (cond
+     [(self-evaluating? exp)
+      (analyze-self-evaluating exp)]
+     [(quoted? exp)
+      (analyze-quoted exp)]
+     [(variable? exp)
+      (analyze-variable exp)]
+     [(procedure? dispatch-fn)
+      (dispatch-fn exp)]
+     [(application? exp)
+      (analyze-application exp)]
+     [else
+      (error "Unknown expression type: ANALYZE" exp)])))
+
 (define (aeval exp env) ((analyze exp) env))
 
-                                        ; Test
-(define test-environment (setup-environment))
-(define-syntax test-eval
-  (syntax-rules (=> test-environment)
-    ((test-eval expr =>)
-     (syntax-error "no expect statement"))
 
-    ((test-eval expr => expect)
-     (assert (equal? (zeval 'expr test-environment) expect)))
-
-    ((test-eval expr expect)
-     (assert (equal? (zeval 'expr test-environment) expect)))))
-
-(test-eval (or 1 2)                     => 1)
-(test-eval (and 1 2)                    => 2)
-(test-eval (begin 1 2)                  => 2)
-(test-eval ((lambda (a b) (+ a b)) 3 4) => 7)
-(test-eval (let ((a 1) (b 2)) a)        => 1)
-(test-eval (let* ((a 1) (b 2) (c a)) c) => 1)
-
-(test-eval (let fib-iter ((a 1) (b 0) (count 4))
-             (if (= count 0) b
-                 (fib-iter (+ a b) a (- count 1))))
-           => 3)
-
-(test-eval (letrec ((sum (lambda (n) (if (= n 1) 1
-                       (+ n (sum (- n 1)))))))
-             (sum 2))
-           => 3)
-
-(test-eval (begin
-             (define a 1)
-             (define b 2)
-             (set! a 3)
-             (+ a b))
-           => 5)
-
-(test-eval (begin
-             (define test (lambda (a) a))
-             (test 1)) => 1)
-
-(set! test-environment '())
-
+;; Various evaluator utils
+(define (current-evaluator) aeval)
+(load "4/eval-arithmetic.scm")
 
 (define the-global-environment (setup-environment))
 
@@ -1450,10 +1425,15 @@ for the body on the extended environment."
   (prompt-for-input input-prompt)
   (let ((input (read)))
     (let ((output
-           (evaluator input
-                  the-global-environment)))
+           (evaluator input the-global-environment)))
       (announce-output output-prompt)
       (user-print output)))
   (driver-loop evaluator))
 
-(driver-loop aeval)
+(if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
+    (begin
+      ;; load our tests
+      (load "test/sicp4.scm")
+      ;; start the REPL
+      (driver-loop
+       (current-evaluator))))
