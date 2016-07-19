@@ -1413,6 +1413,13 @@ for the body on the extended environment."
       (error "Unknown expression type: ANALYZE" exp)])))
 
 (define (aeval exp env) ((analyze exp) env))
+
+
+#| Exercise 4.22
+Extend the evaluator in this section to support the special form let. (See Exercise 4.6.) |#
+(install-analyze-procedure `(let ,(λ (exp) (analyze (let->combination exp)))))
+
+
 
 
 ;; Various evaluator utils
