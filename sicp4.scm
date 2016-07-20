@@ -1421,6 +1421,28 @@ Extend the evaluator in this section to support the special form let. (See Exerc
 
 
 
+;; ------------------------------------------------------------|
+;; Section 4.2 - Variations on a Scheme                        |
+;; ------------------------------------------------------------|
+
+;; 4.2.1 -- Normal Order and Applicative Order
+
+#| Exercise 4.25
+Suppose that (in ordinary applicative-order Scheme) we define unless as shown
+above and then define factorial in terms of unless as
+
+  (define (factorial n)
+    (unless (= n 1)
+      (* n (factorial (- n 1)))
+      1))
+What happens if we attempt to evaluate (factorial 5)? Will our definitions work
+in a normal-order language? |#
+
+;; Solution:
+
+;; Applicative order languages will cause an infinite loop with the definition
+;; of `unless' provided by SICP -- on the other hand a normal-order language will
+;; do just fine
 
 ;; Various evaluator utils
 (define (current-evaluator) aeval)
