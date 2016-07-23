@@ -386,3 +386,14 @@ If no such binding exists, we adjoin one to the first frame."
 to the arguments, using the underlying Lisp system"
   (apply
    (primitive-implementation proc) args))
+
+
+(define (setup-environment)
+  (let ((initial-env
+         (extend-environment
+          (primitive-procedure-names)
+          (primitive-procedure-objects)
+          the-empty-environment)))
+    (define-variable! 'true #t initial-env)
+    (define-variable! 'false #f initial-env)
+    initial-env))
