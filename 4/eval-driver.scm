@@ -60,3 +60,23 @@
 (install-analyze-procedure `(+ ,analyze-+))
 (install-analyze-procedure `(- ,analyze--))
 (install-analyze-procedure `(= ,analyze-=))
+
+
+                                        ; Lazy Utils
+(define (lazy-eval-+ exp env)
+  (delay-it
+   (+ (cadr exp) (caddr exp))
+   env))
+
+(define (lazy-eval-- exp env)
+  (delay-it
+   (- (cadr exp) (caddr exp))
+   env))
+
+(define (lazy-eval-= exp env)
+  (= (actual-value (cadr exp) env)
+     (actual-value (caddr exp) env)))
+
+(install-lazy-procedure `(+ ,lazy-eval-+))
+(install-lazy-procedure `(- ,lazy-eval--))
+(install-lazy-procedure `(= ,lazy-eval-=))

@@ -157,6 +157,33 @@
 
 (test-end "Analyzer")
 
+(test-begin "Lazy Evaluator")
+
+;; initialize
+(define test-environment (setup-environment))
+(define test-evaluator leval)
+
+;; analyzer tests
+(test-eval 1 => 1)
+(test-eval (define definet 1) => 'ok)
+(test-eval definet => 1)
+(test-eval (if (= 1 2) false true)
+           => #t)
+(test-eval
+ (define (try a b) (if (= a 0) 1 b))
+ => 'ok)
+
+(test-eval (try 0 (/ 1 0)) => 1)
+
+(test-eval
+ (cond
+  ((= 1 2) 0)
+  ((= (+ 1 1) 3) 0)
+  (else 1))
+ => 1)
+
+(test-end "Lazy Evaluator")
+
 (test-end "Evaluator")
 
 (test-end "Test")

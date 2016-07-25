@@ -936,16 +936,16 @@ form. |#
 ;; Various evaluator utils
 
 ;; Lazy Evaluator
-
+(include "/home/zv/z/practice/sicp/4/lazy-evaluator.scm")
 
 ;; Install our new driver-loop
 (define (lazy-driver-loop)
-  (prompt-for-input ";; Lazy (lazy-eval) input: ")
+  (prompt-for-input ";; Lazy (leval) input: ")
   (let* ((input (read))
          (output (actual-value input the-global-environment)))
       (announce-output output-prompt)
       (user-print output))
-  (driver-loop))
+  (lazy-driver-loop))
 
 (install-driver-loop 'leval lazy-driver-loop)
 
@@ -956,4 +956,4 @@ form. |#
       ;; load our tests
       (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop 'zeval)))
+      (driver-loop 'leval)))
