@@ -1,18 +1,52 @@
 (use-modules (srfi srfi-64))
 
-; Standard Evaluator Tests
+(define (my-simple-runner)
+  (let* ((runner (test-runner-null))
+         (num-passed 0)
+         (num-failed 0))
+    (test-runner-on-test-end! runner
+      (lambda (runner)
+        (case (test-result-kind runner)
+          ((pass xpass) (set! num-passed (+ num-passed 1)))
+          ((fail xfail)
+           (begin
+             (let
+                 ((rez (test-result-alist runner)))
+               (format #t
+                       "~a::~a\n Expected Value: ~a | Actual Value: ~a\n Error: ~a\n Form: ~a\n"
+                       (assoc-ref rez 'source-file)
+                       (assoc-ref rez 'source-line)
+                       (assoc-ref rez 'expected-value)
+                       (assoc-ref rez 'actual-value)
+                       (assoc-ref rez 'actual-error)
+                       (assoc-ref rez 'source-form))
+               (set! num-failed (+ num-failed 1)))))
+          (else #t))))
+    (test-runner-on-final! runner
+      (lambda (runner)
+        (format #t "Passed: ~d || Failed: ~d.~%"
+                num-passed num-failed)))
+    runner))
+
+(test-runner-factory
+ (lambda () (my-simple-runner)))
+
+                                        ; Standard Evaluator Tests
 (define-syntax test-eval
-  (syntax-rules (=> test-environment)
+  (syntax-rules (=> test-environment test-equal)
     ((test-eval expr =>)
      (syntax-error "no expect statement"))
     ((test-eval expr => expect)
-     (test-assert (equal? (test-evaluator 'expr test-environment) expect)))
+     (test-eqv  expect (test-evaluator 'expr test-environment)))
     ((test-eval expr expect)
-     (test-assert (equal? (test-evaluator 'expr test-environment) expect)))))
+     (test-eqv  expect (test-evaluator 'expr test-environment)))))
+
+(test-begin "Tests")
 
 
-(test-begin "test/4.0-evaluator")
+(test-begin "Evaluator")
 
+(test-begin "Basic")
 ;; initialize
 (define test-environment (setup-environment))
 (define test-evaluator zeval)
@@ -65,12 +99,14 @@
    (test 1))
  => 1)
 
+(test-eval (unless true 1 0) => 0)
+(test-eval (unless false 1 0) => 1)
+
 ;; cleanup
 (set! test-environment '())
-(test-end "test/4.0-evaluator")
-
+(test-end "Basic")
 
-(test-begin "test/4.1-analyzing-evaluator")
+(test-begin "Analyzer")
 
 ;; initialize
 (define test-environment (setup-environment))
@@ -116,4 +152,11 @@
    (test 1))
  => 1)
 
-(test-end "test/4.1-analyzing-evaluator")
+(test-eval (unless true 1 0) => 0)
+(test-eval (unless false 1 0) => 1)
+
+(test-end "Analyzer")
+
+(test-end "Evaluator")
+
+(test-end "Test")
