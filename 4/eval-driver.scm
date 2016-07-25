@@ -27,14 +27,7 @@
   (newline) (display string) (newline))
 
 (define (driver-loop evaluator)
-  (prompt-for-input input-prompt)
-  (let ((input (read)))
-    (let ((output
-           (evaluator input the-global-environment)))
-      (announce-output output-prompt)
-      (user-print output)))
-  (driver-loop evaluator))
-
+  ((get dispatch-tt 'driver-loop evaluator)))
 
                                         ; Utility fns
 (define (eval-+ exp env)

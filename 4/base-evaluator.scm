@@ -397,3 +397,13 @@ to the arguments, using the underlying Lisp system"
     (define-variable! 'true #t initial-env)
     (define-variable! 'false #f initial-env)
     initial-env))
+
+(define (base-driver-loop)
+  (prompt-for-input ";;; Base(zeval) input:")
+  (let ((input (read)))
+    (let ((output
+           (zeval input
+                 the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (base-driver-loop))

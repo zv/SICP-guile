@@ -6,6 +6,7 @@
 (use-modules (srfi srfi-1))
 (use-modules (oop goops))
 
+
 (define (inc a) (+ a 1))
 (define (curry fn . c-args)
   (λ args
@@ -49,7 +50,7 @@
 
 
 ;; Section 4.1
-(include "4/base-evaluator.scm")
+(include "/home/zv/z/practice/sicp/4/base-evaluator.scm")
 
 #| Exercise 4.1
 Notice that we cannot tell whether the metacircular evaluator evaluates operands
@@ -160,6 +161,10 @@ with the data-directed differentiation procedure of Exercise 2.73.
               (list-of-values (operands expr) env))]
      [else (error "Bad Expression" expr)])))
 
+(define (install-driver-loop evaluator fn)
+  (put dispatch-tt 'driver-loop evaluator fn))
+
+(install-driver-loop 'zeval base-driver-loop)
 
 #| Exercise 4.4
 Recall the definitions of the special forms and and or from Chapter 1:
@@ -813,7 +818,7 @@ which uses neither internal definitions nor letrec:
 
 
 ;; 4.1.3 - Separating Syntactic Analysis from Execution
-(include "4/evaluator-analyzer.scm")
+(include "/home/zv/z/practice/sicp/4/evaluator-analyzer.scm")
 
 (define (install-analyze-procedure p)
   (put dispatch-tt 'analyze (car p) (cadr p)))
@@ -845,6 +850,17 @@ which uses neither internal definitions nor letrec:
 
 (define (aeval exp env) ((analyze exp) env))
 
+(define (aeval-driver-loop)
+  (prompt-for-input ";;; Analyzing(aeval) input:")
+  (let ((input (read)))
+    (let ((output
+           (aeval input
+                  the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (aeval-driver-loop))
+
+(install-driver-loop 'aeval aeval-driver-loop)
 
 #| Exercise 4.22
 Extend the evaluator in this section to support the special form let. (See Exercise 4.6.) |#
@@ -904,17 +920,40 @@ form. |#
    (unless-consequent exp)
    (unless-alternative exp)))
 
+(define (analyze-unless exp)
+  (let ([pproc (analyze (unless-predicate exp))]
+        [cproc (analyze (unless-consequent exp))]
+        [aproc (analyze (unless-alternative exp))])
+    (lambda (env)
+      (if (true? (pproc env))
+          (cproc env)
+          (aproc env)))))
+
 (install-procedure `(unless ,(λ (exp env) (zeval (unless->if exp) env))))
-(install-analyze-procedure `(unless ,(λ (exp env) (aeval (unless->if exp) env))))
+(install-analyze-procedure `(unless ,analyze-unless))
 
 ;; this functions utility is for lazy bums who cant type `not'
 ;; Various evaluator utils
 
-(include "4/eval-driver.scm")
+;; Lazy Evaluator
+
+
+;; Install our new driver-loop
+(define (lazy-driver-loop)
+  (prompt-for-input ";; Lazy (lazy-eval) input: ")
+  (let* ((input (read))
+         (output (actual-value input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output))
+  (driver-loop))
+
+(install-driver-loop 'leval lazy-driver-loop)
+
+(include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
       ;; load our tests
-      (load "test/sicp4.scm")
+      (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop aeval)))
+      (driver-loop 'zeval)))
