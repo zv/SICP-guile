@@ -51,6 +51,12 @@
 
 ;; Section 4.1
 (include "/home/zv/z/practice/sicp/4/base-evaluator.scm")
+;; Add arithmetic
+(append! primitive-procedures
+         `((+ ,+)
+           (- ,-)
+           (* ,*)
+           (= ,=)))
 
 #| Exercise 4.1
 Notice that we cannot tell whether the metacircular evaluator evaluates operands
