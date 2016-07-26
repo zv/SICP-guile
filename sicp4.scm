@@ -442,7 +442,7 @@ show how to implement them as derived expressions. |#
 (define (var-process var environment fn)
   (define (var-search env)
     (if (eq? env the-empty-environment) (begin
-                                          (pretty-print environment)
+                                          ;;(pretty-print environment)
                                           (error "Unbound variable" var))
         (let* ([frame (first-frame env)]
                [entry (assoc var frame)])
@@ -1136,6 +1136,92 @@ actual-value: (p1 1) => (1 2); (p2 1) => (1 2)
 4. Side effects are a critical aspect of computer programming -- a lazy computer
 system needs to execute them in a manner consistent with our expectations of a
 basic interpreter -- Cy's approach is the winner. |#
+
+#| Exercise 4.31
+The approach taken in this section is somewhat unpleasant, because it makes an
+incompatible change to Scheme. It might be nicer to implement lazy evaluation as
+an upward-compatible extension, that is, so that ordinary Scheme programs will
+work as before. We can do this by extending the syntax of procedure declarations
+to let the user control whether or not arguments are to be delayed. While we’re
+at it, we may as well also give the user the choice between delaying with and
+without memoization. For example, the definition
+
+  (define (f a (b lazy) c (d lazy-memo))
+    …)
+
+would define f to be a procedure of four arguments, where the first and third
+arguments are evaluated when the procedure is called, the second argument is
+delayed, and the fourth argument is both delayed and memoized. Thus, ordinary
+procedure definitions will produce the same behavior as ordinary Scheme, while
+adding the lazy-memo declaration to each parameter of every compound procedure
+will produce the behavior of the lazy evaluator defined in this section. Design
+and implement the changes required to produce such an extension to Scheme. You
+will have to implement new syntax procedures to handle the new syntax for
+define. You must also arrange for eval or apply to determine when arguments are
+to be delayed, and to force or delay arguments accordingly, and you must arrange
+for forcing to memoize or not, as appropriate.
+|#
+(define (perpetual-thunk? obj) (tagged-list? obj 'always-thunk))
+(define (delay-it-perpetually exp env)
+  (list 'always-thunk exp env))
+
+(define (list-of-resolved-args parameters arguments env)
+  (map
+   (λ (p a)
+     (match p
+       [(_ 'lazy)       (delay-it-perpetually a env)]
+       [(_ 'lazy-memo)  (delay-it a env)]
+       [_               a]))
+   parameters
+   arguments))
+
+(define (force-it obj)
+  "This is just a memoizing version of `force-it'"
+  (define (fetch-result e)
+    (actual-value (thunk-exp e) (thunk-env e)))
+  (match obj
+    [thunk?
+     (let ([result (fetch-result obj)])
+       (set! obj `(evaluated-thunk ,result))
+       result)]
+    [evaluated-thunk? (thunk-value obj)]
+    [perpetual-thunk? (fetch-result obj)]
+    [_ obj]))
+
+(define (fetch-parameter p) (if (pair? p) (car p) p))
+(define (extract-parameters fn)
+  (map fetch-parameter (procedure-parameters fn)))
+
+(define (capply procedure arguments env)
+  "capply is a combined `apply' function -- determining which parameters are
+lazy, memoized or raw and supplying them to the function at hand"
+  ;;(format #t "procedure: ~a\narguments: ~a\nenv: ~a" procedure arguments env)
+  (cond ((primitive-procedure? procedure)
+         (apply-primitive-procedure
+          procedure
+          (list-of-arg-values arguments env)))  ; changed
+        ((compound-procedure? procedure)
+         (leval-sequence
+          (procedure-body procedure)
+          (extend-environment
+           (extract-parameters procedure)
+           (list-of-resolved-args (procedure-parameters procedure)
+                                  arguments
+                                  env) ; changed
+           (procedure-environment procedure))))
+        (else (error "Unknown procedure type: APPLY" procedure))))
+
+;; Install our new driver-loop
+(define (combined-driver-loop)
+  (prompt-for-input ";; Strict/Lazy (ceval) input: ")
+  (let* ((input (read))
+         (output (actual-value input the-global-environment)))
+    (announce-output output-prompt)
+    (user-print output))
+  (combined-driver-loop))
+
+(install-driver-loop 'ceval combined-driver-loop)
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
@@ -1143,4 +1229,4 @@ basic interpreter -- Cy's approach is the winner. |#
       ;; load our tests
       (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop 'leval)))
+      (driver-loop 'ceval)))

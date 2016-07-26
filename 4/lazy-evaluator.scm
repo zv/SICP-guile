@@ -7,7 +7,8 @@
      [(procedure? dispatch-fn)
       (dispatch-fn expr env)]
      [(application? expr)
-      (lapply (actual-value (operator expr) env) (operands expr) env)]
+      (lapply (actual-value (operator expr) env)
+              (operands expr) env)]
      [else (error "Bad Expression" expr)])))
 
 (define (lapply procedure arguments env)
@@ -42,14 +43,9 @@ evaluating them, and list-of-arg-values uses actual-value instead of eval:
              env))))
 
 (define (list-of-delayed-args exps env)
-  (if (no-operands? exps)
-      '()
-      (cons (delay-it
-             (first-operand exps)
-             env)
-            (list-of-delayed-args
-             (rest-operands exps)
-             env))))
+  (if (no-operands? exps) '()
+      (cons (delay-it (first-operand exps) env)
+            (list-of-delayed-args (rest-operands exps) env))))
 
 ;; Laziness Datastfuctures
 (define (actual-value exp env)
@@ -77,6 +73,7 @@ thunk and evaluate the expression in the environment."
   (cadr evaluated-thunk))
 
 (define (force-it obj)
+  "This is just a memoizing version of `force-it'"
   (cond ((thunk? obj)
          (let ((result
                 (actual-value
