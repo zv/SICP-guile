@@ -985,6 +985,15 @@ your answers.
   ;;; L-Eval value:
   2
 |#
+
+#| Exercise 4.28
+lazy-eval uses actual-value rather than leval to evaluate the operator before passing
+it to apply, in order to force the value of the operator. Give an example that
+demonstrates the need for this forcing.
+|#
+
+;; Solution
+;; Any function using a lambda as an argument will fail -- the operands are not forced and when trying to apply them you will attempt to apply a thunk instead of a "real" value.
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
