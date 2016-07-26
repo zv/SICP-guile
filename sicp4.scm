@@ -956,6 +956,35 @@ form. |#
 
 (install-driver-loop 'leval lazy-driver-loop)
 
+#| Exercise 4.27
+Suppose we type in the following definitions to the lazy evaluator:
+
+  (define count 0)
+  (define (id x) (set! count (+ count 1)) x)
+  (define w (id (id 10)))
+
+Give the missing values in the following sequence of interactions, and explain
+your answers.
+
+
+  ;;; L-Eval input:
+  count
+
+  ;;; L-Eval value:
+  1
+
+  ;;; L-Eval input:
+  w
+
+  ;;; L-Eval value:
+  10
+
+  ;;; L-Eval input:
+  count
+
+  ;;; L-Eval value:
+  2
+|#
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
