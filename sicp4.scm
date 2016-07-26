@@ -56,7 +56,8 @@
          `((+ ,+)
            (- ,-)
            (* ,*)
-           (= ,=)))
+           (= ,=)
+           (display ,display)))
 
 #| Exercise 4.1
 Notice that we cannot tell whether the metacircular evaluator evaluates operands
