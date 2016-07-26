@@ -994,6 +994,64 @@ demonstrates the need for this forcing.
 
 ;; Solution
 ;; Any function using a lambda as an argument will fail -- the operands are not forced and when trying to apply them you will attempt to apply a thunk instead of a "real" value.
+
+#| Exercise 4.29
+Exhibit a program that you would expect to run much more slowly without
+memoization than with memoization. Also, consider the following interaction,
+where the id procedure is defined as in Exercise 4.27 and count starts at 0:
+
+  (define (square x) (* x x))
+
+;;; L-Eval input:
+  (square (id 10))
+
+;;; L-Eval value:
+  ⟨response⟩
+
+;;; L-Eval input:
+  count
+
+;;; L-Eval value:
+  ⟨response⟩
+
+Give the responses both when the evaluator memoizes and when it does not.
+|#
+
+;; Solutions
+
+;; The canonical example of a function sped up by memoization is factorial --
+;; each of the components can be reused n^2 times
+
+
+#| Memoized:
+;;; L-Eval input:
+(square (id 10))
+
+;;; L-Eval value:
+100
+
+;;; L-Eval input:
+count
+
+;;; L-Eval value:
+1
+|#
+
+#| Raw:
+
+;;; L-Eval input:
+  (square (id 10))
+
+;;; L-Eval value:
+  100
+
+;;; L-Eval input:
+  count
+
+;;; L-Eval value:
+  2
+
+|#
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
