@@ -1052,6 +1052,90 @@ count
   2
 
 |#
+
+#| Exercise 4.30
+Cy D. Fect, a reformed C programmer, is worried that some side effects may never
+take place, because the lazy evaluator doesn’t force the expressions in a
+sequence. Since the value of an expression in a sequence other than the last one
+is not used (the expression is there only for its effect, such as assigning to a
+variable or printing), there can be no subsequent use of this value (e.g., as an
+argument to a primitive procedure) that will cause it to be forced. Cy thus
+thinks that when evaluating sequences, we must force all expressions in the
+sequence except the final one. He proposes to modify eval-sequence from 4.1.1 to
+use actual-value rather than eval:
+
+  (define (eval-sequence exps env)
+    (cond ((last-exp? exps)
+          (eval (first-exp exps) env))
+          (else
+          (actual-value (first-exp exps)
+                        env)
+          (eval-sequence (rest-exps exps)
+                          env))))
+
+1. Ben Bitdiddle thinks Cy is wrong. He shows Cy the for-each procedure
+described in Exercise 2.23, which gives an important example of a sequence with
+side effects:
+
+    (define (for-each proc items)
+      (if (null? items)
+          'done
+          (begin (proc (car items))
+                 (for-each proc
+                           (cdr items)))))
+
+He claims that the evaluator in the text (with the original eval-sequence)
+handles this correctly:
+
+    ;;; L-Eval input:
+    (for-each
+     (lambda (x) (newline) (display x))
+     '(57 321 88))
+    57
+    321
+    88
+
+    ;;; L-Eval value:
+    done
+
+Explain why Ben is right about the behavior of for-each.
+
+2. Cy agrees that Ben is right about the for-each example, but says that that’s
+not the kind of program he was thinking about when he proposed his change to
+eval-sequence. He defines the following two procedures in the lazy evaluator:
+
+    (define (p1 x)
+      (set! x (cons x '(2)))
+      x)
+
+    (define (p2 x)
+      (define (p e) e x)
+      (p (set! x (cons x '(2)))))
+
+What are the values of (p1 1) and (p2 1) with the original eval-sequence?
+What would the values be with Cy’s proposed change to eval-sequence?
+
+3. Cy also points out that changing eval-sequence as he proposes does not affect
+the behavior of the example in part a. Explain why this is true.
+
+4. How do you think sequences ought to be treated in the lazy evaluator? Do you
+like Cy’s approach, the approach in the text, or some other approach?
+|#
+
+#| Solutions
+1. In `for-each's case, the procedure is called every time, all primitive
+procedures are called -- even if they are the last.
+
+2.
+leval: (p1 1) => (1 2); (p2 1) => 1
+(`e' is never evaluated -- it's a compound procedure)
+actual-value: (p1 1) => (1 2); (p2 1) => (1 2)
+
+3. There is no difference -- primitive procedures are called either way
+
+4. Side effects are a critical aspect of computer programming -- a lazy computer
+system needs to execute them in a manner consistent with our expectations of a
+basic interpreter -- Cy's approach is the winner. |#
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
