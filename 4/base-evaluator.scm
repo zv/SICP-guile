@@ -406,4 +406,4 @@ to the arguments, using the underlying Lisp system"
                  the-global-environment)))
       (announce-output output-prompt)
       (user-print output)))
-  (driver-loop))
+  (base-driver-loop))
