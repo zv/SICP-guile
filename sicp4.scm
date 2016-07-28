@@ -1222,6 +1222,22 @@ lazy, memoized or raw and supplying them to the function at hand"
 
 (install-driver-loop 'ceval combined-driver-loop)
 
+                                        ; Section 4.3 - Nondeterministic Computing
+(include "/home/zv/z/practice/sicp/4/amb-evaluator.scm")
+
+(define (install-amb-procedure p)
+  (put dispatch-tt 'amb (car p) (cadr p)))
+
+(map install-amb-procedure
+     `([amb    ,analyze-amb]
+       [set!   ,amb-assignment]
+       [define ,amb-definition]
+       [if     ,amb-if]
+       [lambda ,amb-lambda]
+       [begin  ,(λ (exp) (amb-sequence (begin-actions exp)))]
+       [cond   ,(λ (exp) (analyze (cond->if exp)))]))
+
+(install-driver-loop 'amb amb-driver-loop)
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
@@ -1229,4 +1245,4 @@ lazy, memoized or raw and supplying them to the function at hand"
       ;; load our tests
       (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop 'ceval)))
+      (driver-loop 'amb)))
