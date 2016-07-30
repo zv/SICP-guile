@@ -17,6 +17,7 @@
   ;; e.g ((line . INTEGER) (column . INTEGER) (filename . SYMBOL|FALSE))
   (eq? #f (assq-ref (current-source-location) 'filename)))
 
+
 
 ;; Custom Macros & Utils
 (define-syntax generate-accessors
@@ -53,10 +54,11 @@
 (include "/home/zv/z/practice/sicp/4/base-evaluator.scm")
 ;; Add arithmetic
 (append! primitive-procedures
-         `((+ ,+)
-           (- ,-)
-           (* ,*)
-           (= ,=)
+         `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
+           (= ,=) (< ,<) (<= ,<=) (> ,>) (> ,>=)
+           (not ,not)
+           (list ,list)
+           (member ,member)
            (display ,display)))
 
 #| Exercise 4.1
@@ -1225,19 +1227,55 @@ lazy, memoized or raw and supplying them to the function at hand"
                                         ; Section 4.3 - Nondeterministic Computing
 (include "/home/zv/z/practice/sicp/4/amb-evaluator.scm")
 
-(define (install-amb-procedure p)
+(define (amb/install-procedure p)
   (put dispatch-tt 'amb (car p) (cadr p)))
 
-(map install-amb-procedure
-     `([amb    ,analyze-amb]
-       [set!   ,amb-assignment]
-       [define ,amb-definition]
-       [if     ,amb-if]
-       [lambda ,amb-lambda]
-       [begin  ,(λ (exp) (amb-sequence (begin-actions exp)))]
-       [cond   ,(λ (exp) (analyze (cond->if exp)))]))
+(map amb/install-procedure
+     `([amb    ,amb/analyze-amb]
+       [set!   ,amb/analyze-assignment]
+       [define ,amb/analyze-definition]
+       [if     ,amb/analyze-if]
+       [lambda ,amb/analyze-lambda]
+       [begin  ,(λ (exp) (amb/analyze-sequence (begin-actions exp)))]
+       [cond   ,(λ (exp) (amb/analyze (cond->if exp)))]))
 
-(install-driver-loop 'amb amb-driver-loop)
+(install-driver-loop 'amb amb/driver-loop)
+
+(amb/install-procedure `(let ,(λ (exp) (amb/analyze (let->combination exp)))))
+
+(define amb/infuse-exprs '())
+(define (amb/infuse exp)
+  "This runs an expression to be 'infused' (e.g: define) into the environment at
+a later callsite"
+  (set! amb/infuse-exprs (cons exp amb/infuse-exprs)))
+
+(define (amb/execute-infuse-expressions env)
+  "Actually begin evaluating the expressionss added to `infuse-exprs'"
+  (map (λ (e)
+         (ambeval e env
+                  ;; success
+                  (λ (_value _next-alternative) #t)
+                  ;; failure
+                  (λ () (error "INFUSE: " env))))
+       amb/infuse-exprs))
+
+;; A logic programming 'requirement'
+(amb/infuse
+ '(define (require p) (if (not p) (amb))))
+
+(amb/infuse
+ '(define (an-integer-starting-from n)
+    (amb n (an-integer-starting-from (+ n 1)))))
+
+
+;; Required to implement several
+(amb/infuse
+ '(define (distinct? items)
+    (cond ((null? items) true)
+          ((null? (cdr items)) true)
+          ((member (car items) (cdr items)) false)
+          (else (distinct? (cdr items))))))
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
