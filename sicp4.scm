@@ -1376,6 +1376,18 @@ modified puzzle? |#
          (list 'smith smith))))
 
 
+#| Exercise 4.39
+Does the order of the restrictions in the multiple-dwelling procedure affect the
+answer? Does it affect the time to find an answer? If you think it matters,
+demonstrate a faster program obtained from the given one by reordering the
+restrictions. If you think it does not matter, argue your case. |#
+
+#| Solution:
+The order of the restrictions can matter regarding runtime invoking the
+'failure' continuation through a `require' statement or otherwise can prevent a
+great deal of work from being performed.
+|#
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
