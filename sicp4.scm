@@ -1388,6 +1388,18 @@ The order of the restrictions can matter regarding runtime invoking the
 great deal of work from being performed.
 |#
 
+#| TODO: Exercise 4.40
+In the multiple dwelling problem, how many sets of assignments are there of
+people to floors, both before and after the requirement that floor assignments
+be distinct? It is very inefficient to generate all possible assignments of
+people to floors and then leave it to backtracking to eliminate them. For
+example, most of the restrictions depend on only one or two of the person-floor
+variables, and can thus be imposed before floors have been selected for all the
+people. Write and demonstrate a much more efficient nondeterministic procedure
+that solves this problem based upon generating only those possibilities that are
+not already ruled out by previous restrictions. (Hint: This will require a nest
+of `let' expressions.) |#
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
