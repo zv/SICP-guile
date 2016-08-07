@@ -1341,6 +1341,41 @@ Consider the number of possibilities that must be explored.)
 ;; It seems to be -- Ben's method only uses N^2 space, while the .35 method uses
 ;; N^3 space, while also throwing away tons of 'impossible' results.
 
+
+#| Exercise 4.38
+Modify the multiple-dwelling procedure to omit the requirement that Smith and
+Fletcher do not live on adjacent floors. How many solutions are there to this
+modified puzzle? |#
+
+#| Solution
+
+;; There are 5 distinct solutions
+
+|#
+(amb/infuse
+ '(define (multiple-dwelling)
+   (define baker (amb 1 2 3 4 5))
+   (define cooper (amb 1 2 3 4 5))
+   (define fletcher (amb 1 2 3 4 5))
+   (define miller (amb 1 2 3 4 5))
+   (define smith (amb 1 2 3 4 5))
+   (require
+    (distinct? (list baker cooper fletcher
+                     miller smith)))
+   (require (not (= baker 5)))
+   (require (not (= cooper 1)))
+   (require (not (= fletcher 5)))
+   (require (not (= fletcher 1)))
+   (require (> miller cooper))
+   (require
+    (not (= (abs (- fletcher cooper)) 1)))
+   (list (list 'baker baker)
+         (list 'cooper cooper)
+         (list 'fletcher fletcher)
+         (list 'miller miller)
+         (list 'smith smith))))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
