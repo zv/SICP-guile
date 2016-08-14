@@ -1523,6 +1523,81 @@ evaluator"
      (list 'mary mary))))
 
 
+#| Exercise 4.43
+Use the `amb' evaluator to solve the following puzzle
+
+Mary Ann Moore's father has a yacht and so has each of his four friends: Colonel
+Downing, Mr. Hall, Sir Barnacle Hood, and Dr. Parker. Each of the five also has
+one daughter and each has named his yacht after a daughter of one of the others.
+Sir Barnacle's yacht is the Gabrielle, Mr. Moore owns the Lorna; Mr. Hall the
+Rosalind. The Melissa, owned by Colonel Downing, is named after Sir Barnacle's
+daughter. Gabrielle's father owns the yacht that is named after Dr. Parker's
+daughter. Who is Lorna's father?
+
+Try to write the program so that it runs efficiently. Also determine how many
+solutions there are if we are not told that Mary Ann's last name is Moore. |#
+
+
+#| ╔═════════════╦════════════╗
+   ║ Individual  ║ Yacht      ║
+   ╠═════════════╬════════════╣
+   ║ Downing     ║ Melissa    ║
+   ╠═════════════╬════════════╣
+   ║ Hall        ║ Rosalind   ║
+   ╠═════════════╬════════════╣
+   ║ Moore       ║ Lorna      ║
+   ╠═════════════╬════════════╣
+   ║ Hood        ║ Gabrielle  ║
+   ╚═════════════╩════════════╝
+Gabrielle's father owns the yacht that is named after Dr. Parker's daughter
+   ╔════════════════════════╦═══════════════════════════╗
+   ║ Parker's Daughter      ║ Gabrielle's Father's Ship ║
+   ╚════════════════════════╩═══════════════════════════╝
+The Melissa, owned by Colonel Downing, is named after Sir Barnacle's daughter.
+   ╔═════════════╦═══════════════════════════╗
+   ║ Barnacle    ║ (Daughter: Melissa)       ║
+   ╚═════════════╩═══════════════════════════╝
+|#
+
+;; i have ripped this answer (with great shame).
+(append! primitive-procedures `((eq? ,eq?)))
+(append! primitive-procedures `((cadr ,cadr)))
+(append! primitive-procedures `((caddr ,caddr)))
+(amb/infuse
+ '(define (sailors)
+    (define father car)
+    (define daughter cadr)
+    (define yacht caddr)
+    (define (different-names father)
+      (not (eq? (daughter father)
+                (yacht father))))
+
+    (let ((moore   (list 'moore
+                         'mary-ann
+                         'lorna))
+          (hood    (list 'hood
+                         'melissa
+                         'gabrielle))
+          (hall    (list 'hall
+                         (amb 'gabrielle 'lorna)
+                         'rosalind))
+          (downing (list 'downing
+                         (amb 'gabrielle 'lorna 'rosalind)
+                         'melissa))
+          (parker (list 'parker
+                        (amb 'gabrielle 'lorna 'rosalind)
+                        'mary-anne)))
+
+      (let ((gabrielle-father (amb hall downing parker))
+            (lorna-father     (amb hall downing parker)))
+        (require (eq? (daughter gabrielle-father) 'gabrielle))
+        (require (eq? (daughter lorna-father) 'lorna))
+        (require (different-names lorna-father))
+        (require (different-names gabrielle-father))
+        (require (eq? (daughter parker)
+                      (yacht gabrielle-father)))
+        lorna-father))))
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
