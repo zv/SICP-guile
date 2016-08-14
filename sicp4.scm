@@ -1400,6 +1400,49 @@ that solves this problem based upon generating only those possibilities that are
 not already ruled out by previous restrictions. (Hint: This will require a nest
 of `let' expressions.) |#
 
+#| Exercise 4.41
+Write an ordinary Scheme program to solve the multiple dwelling puzzle. |#
+
+(define possible-floors '([baker (1 2 3 4)]
+                          [cooper (2 3 4 5)]
+                          [fletcher (2 3 4)]
+                          [miller (3 4 5)]
+                          [smith (1 2 3 4 5)]))
+
+
+
+(define (solve-it floors)
+  (define (valid? lst)
+    (define (distinct? lst)
+      (cond
+       ((null? lst) #t)
+       ((null? (cdr lst)) #t)
+       (else
+        (and (not (member (car lst) (cdr lst)))
+             (distinct? (cdr lst))))))
+    (and (distinct? (map cdr lst))
+         (> (assoc-ref lst 'miller)
+            (assoc-ref lst 'cooper))
+         ;; check that smith and fletcher are not adjacent
+         (not (= 1 (abs (- (assoc-ref lst 'smith)
+                           (assoc-ref lst 'fletcher)))))
+         (not (= 1 (abs (- (assoc-ref lst 'cooper)
+                           (assoc-ref lst 'fletcher)))))))
+
+  (define (recursive-level lst acc)
+    (if (null? lst) (if (valid? acc) (display acc))
+        (let* ((top (car lst))
+               (name (car top))
+               (pfloors (cadr top)))
+          (map
+           (λ (elt)
+             (recursive-level (cdr lst)
+                              (cons (cons name elt) acc)))
+           pfloors))))
+
+  (recursive-level floors '()))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
