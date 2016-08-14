@@ -1443,6 +1443,86 @@ Write an ordinary Scheme program to solve the multiple dwelling puzzle. |#
   (recursive-level floors '()))
 
 
+#| Exercise 4.42
+Solve the following "Liars" puzzle (from Phillips 1934):
+
+Five schoolgirls sat for an examination.  Their parents--so they
+thought--showed an undue degree of interest in the result.  They
+therefore agreed that, in writing home about the examination, each
+girl should make one true statement and one untrue one.  The
+following are the relevant passages from their letters:
+
+* Betty: "Kitty was second in the examination.  I was only
+third."
+
+* Ethel: "You'll be glad to hear that I was on top.  Joan was
+second."
+
+* Joan: "I was third, and poor old Ethel was bottom."
+
+* Kitty: "I came out second.  Mary was only fourth."
+
+* Mary: "I was fourth.  Top place was taken by Betty."
+
+
+What in fact was the order in which the five girls were placed? |#
+(append! primitive-procedures `((and ,(λ (a b) (and a b)))))
+
+;;(append! primitive-procedures `((or ,(λ (a b) (or a b)))))
+(define (amb/eval-or expr)
+  "Both `or' and `and' can be implemented as primitive procedures without
+significant issue, `amb/eval-or' exists to advance my knowledge of the
+evaluator"
+  (let ([disjunction (amb/analyze (disjunct expr))]
+        [rest-disjunctions (rest-disjunctions expr)])
+    (λ (env succeed fail)
+      (disjunction
+       env
+       (λ (value fail2)
+             (if (true? value) (succeed value fail2)
+                 (if (null? rest-disjunctions) (succeed #f fail2)
+                     ((amb/eval-or (cons 'or rest-disjunctions)) env succeed fail))))
+       fail))))
+(amb/install-procedure `(or ,amb/eval-or))
+
+(amb/infuse
+ '(define (xor a b)
+    (and (or a b)
+         (not (and a b)))))
+
+(amb/infuse
+ '(define (require-or p1 p2)
+    (require (xor p1 p2))))
+
+(amb/infuse
+ '(define (solve-liars)
+    (define betty (amb 1 2 3 4 5))
+    (define ethel (amb 1 2 3 4 5))
+    (define joan  (amb 1 2 3 4 5))
+    (define kitty (amb 1 2 3 4 5))
+    (define mary  (amb 1 2 3 4 5))
+
+    (require
+     (distinct? (list betty ethel joan kitty mary)))
+
+    ;; betty
+    (require-or (= kitty 2) (= betty 3))
+    ;; ethel
+    (require-or (= ethel 1) (= joan 2))
+    ;; joan
+    (require-or (= joan 3) (= ethel 5))
+    ;; kitty
+    (require-or (= kitty 2) (= mary 4))
+    ;; mary
+    (require-or (= mary 4) (= 1 betty))
+    (list
+     (list 'betty betty)
+     (list 'ethel ethel)
+     (list 'joan joan)
+     (list 'kitty kitty)
+     (list 'mary mary))))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
