@@ -1,0 +1,196 @@
+* A SICP Study Guide and Exercise Solutions in Guile and PLT Scheme 
+With a few exceptions[fn:1], this repo contains solutions to every SICP exercise
+up to Chapter 4 (I am working on 5 now) as well as some helpful tips, tricks and
+boilerplate code to make your SICP experience maximally satisfying.
+
+I wrote this guide because I feel SICP is one of the best guides to computers
+every published and yet omits something essential. The most visible problem is
+the exercises asking for details of code and concepts concerning the that it has
+defined but not /specified/. This study guide will collate the skeleton code
+required for you to get hacking as well as any pitfalls I personally
+experienced.
+
+If you are someone who is truly looking for the minimal help experience, I still
+recommend you check out my advice (and others) on Chapter 4, where you can save
+substantial time by taking a few early steps.
+
+Also, if you are interested in exploit writing, assembly or reverse engineering
+"proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
+Windows Kernel]]" study guide and solutions as well.
+
+** Chapter 1
+I'm assuming you are already a programmer and as such you can probably sail
+through this one. It's a good chapter but it's also skippable if you aren't
+rusty on any of the following.
+
+- Implementing loops with recursive functions
+- car/cdr/cons and other lisp list manipulation functions
+- The 'highlight' results from Computability theory (Ackermann's function et al)
+- The features of the language you plan to use for SICP
+- You could implement change counting & pascals triangle without recursively
+** Chapter 2
+The chapter covers a lot of ground. I remember the following. If you aren't a
+specialist in computer science and also a prodigious Lisp programmer, you simply
+cannot skip this chapter.
+
+Some things covered include
+
+- Lambda calculus
+- Symbolic Computation & computer algebra systems with automatic integration & differentiation
+- Encoding, Decoding and all around learning everything about Huffman Trees from the ground up
+- The universality of the ~(list)~ datastructure in Lisp
+- Dynamic Programming and hierarchical data structures
+- Different ways to achieve language features like type-dispatch, message passing and inheritance
+
+This book starts to give you a few nuggets of profound realization that the book
+is known for. It gets even better.
+*** 2.4 - Multiple Representation of Abstract Data
+This chapter is unusual. It's the least and the *most* important for practice of
+programming at large. The chapter justifies and presents simplified summaries of
+the implementation details of important programming language features and why they
+are useful.
+
+There are only 4 exercises, so you can mostly relax and focus on the content,
+although both /2.73/ and /2.75/ show up later.
+
+** Chapter 3
+This chapter is the beginning of the end of "Computing Textbook" and the
+beginning of "the SICP", although it you will only come into it's full reality
+at Chapter 4.
+
+This one contains some really zingers and with the possible exception of the
+first two subchapters starts exploring some really interesting territory. 
+
+If you are working with languages without convienent mutable data, I'd
+personally switch it out: I started out with Racket but was forced to rewrite my
+work after realizing that Racket's ~mlists~ were not going to cut it for a
+chapter focused on the use and danger of mutable structures.
+
+Another important consideration is your concurrency environment, the book
+demands a true concurrency environemtn in order for some exercises and examples
+to work right.
+
+Although these limit you, I recommend Guile without hesitation anyway.
+
+*** 3.34
+The center of 3.34 is the constraint solver. Although you can follow the books
+implementation, I'd recommend you write your own. This has some real timesaving
+benefits here and in addition you can review your language's reuse
+facilities (OOP, interfaces, etc).
+Chapter 3 contains a lot of material you will want to skip. I highly recommend
+you don't.
+
+** Chapter 4
+This chapter is the first where preparation *really* pays off.
+
+As with Chapter 3, Chapter 4 extensively uses destructive operations to maintain
+it's variables-only stack.
+
+This means it is *possible* to do Chapter 4 in a language without
+first-class mutable datastructs but it's a huge hassle: I can't recommend it.
+
+*** The Test Runner
+The book will regularly ask you to rewrite, add or otherwise modify the
+internals of an interpreter many times over. Having a testing strategy from
+day 1 is absolutely essential to preserving sanity.
+
+It doesn't have to be complex. Even if the only functional tests you write are
+copied from the REPL-dialogue presented in the book itself - you are saving
+yourself down the road.
+
+*** Code reuse
+The evaluators you will implement are the following
+
+- base evaluator
+- lazy evaluator
+- analyzing evaluator
+- amb evaluator
+
+The base and lazy evaluator share many implementation details, as do the
+analyzing interpreter and amb evaluator.
+
+I benefitted greatly from simply reusing the results of Exercise 4.3 on all my
+evaluators - allowing me to add a new function with a single call.
+
+I personally used the code provided by the book directly and made no
+substantiative changes to it's structure. This doesn't preclude you from doing
+so, but I would estimate you are adding another 25 hours onto your
+time-to-completion of SICP without getting a *whole* lot in return.
+
+*** Arithmetic, Predicates and other "missing" functions.
+As I said before, the book has a preponderance of questions that cannot be
+plugged into your evaluator, which yields some suboptimal groping in the dark.
+
+No, you did not miss anything, arithmetic, predicates and more were never
+mentioned in the book - you can safely add them to the list of primitive
+functions.
+
+To make your life easier, just add these.
+#+BEGIN_SRC lisp
+(append! primitive-procedures
+         `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
+           (= ,=) (< ,<) (<= ,<=) (> ,>) (> ,>=)
+           (not ,not)
+           (list ,list)
+           (member ,member)
+           (display ,display)))
+#+END_SRC
+
+Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
+one used by the ~analyze~ evaluator.
+
+
+* If I could do it all again...
+Everyone has regrets, let's hope you have fewer by reading mine.
+
+** TODO Turns out SICP doesn't include stupid material
+So many books have irrelevant exercises, SICP doesnt.
+I sped through the end of SICP Chapter 3 - I won't do it again.
+** TODO Pay more attention to Lazy evaluator
+** DONE A case of the or-bores
+CLOSED: [2016-08-01 Mon 13:34]
+Implementing ~or~, ~and~ and other other connective logical statements in the
+=amb= evaluator would really be neat -- I just installed a primitive procedure.
+
+** TODO Permutations and the Floor Puzzle
+Permutations and the generation thereof are one of those strange backwaters of
+computer programming that never really manages to fit into the broader scheme
+(ha) of knowledge. I've come up with no less than 3 ways to do them over the
+years, including counting in base-N (where N is the number of permuted items),
+the traditional map-n-slap and other mundane methods.
+
+I always feel guilty not giving an honest effort before looking up an algorithm
+online and I always feel somewhat stumped on permutation problems. Sure, I know
+the "classic" swap algorithm, I've (obviously) implemented the method for
+permuting a list in Chapter 2, but something essential feels like it's getting
+left out.
+
+Take Exercise 4.39, which (loosely) is to solve the floor puzzle without using
+~amb~ *AND* take advantage of knowledge about the puzzle to make it perform
+better than 'depth first'.
+
+** 4.43 (The boat puzzle)
+I ended up looking at someone elses solution here - This one is hard to solve
+ *without* resorting "tricks", such as applying eliminative logic beforehand to
+ solve the problem. This mixes all sorts of different kinds of representations
+ of data and many solutions are incorrect.
+** ~parse_words~
+The parse words exercises give you the feeling that something really essential
+is being left out. I completed the exercises but I started to get to a really
+uncomfortable point, especially in Exercise 4.49 that this was some deep
+metaphor for parsing fully-specified grammars.
+
+* TODO Exercises
+This is a list of exercises I *haven't* completed for some reason or another.
+** Chapter 4
+- 4.32
+- 4.33
+- 4.34
+- 4.44
+- 4.47 (started to get unbelievably bored of these exercises)
+- 4.48 (started to get unbelievably bored of these exercises)
+- 4.49 (started to get unbelievably bored of these exercises)
+
+* Footnotes
+
+[fn:1] Including all exercises asking you to draw with pen and paper as well as those specified above.
