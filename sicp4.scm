@@ -1278,6 +1278,9 @@ a later callsite"
 
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
+(amb/execute-infuse-expressions the-global-environment)
+
+
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
       ;; load our tests
