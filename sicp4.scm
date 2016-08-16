@@ -1598,6 +1598,12 @@ The Melissa, owned by Colonel Downing, is named after Sir Barnacle's daughter.
                       (yacht gabrielle-father)))
         lorna-father))))
 
+#| TODO: Exercise 4.44
+Exercise 2.42 described the “eight-queens puzzle” of placing queens on a
+chessboard so that no two attack each other. Write a nondeterministic program to
+solve this puzzle. |#
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
