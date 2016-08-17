@@ -1604,6 +1604,62 @@ chessboard so that no two attack each other. Write a nondeterministic program to
 solve this puzzle. |#
 
 
+#| Parsing Natural Language Utils|#
+
+#| Programs designed to accept natural language as input usually start by
+attempting to "parse" the input, that is, to match the input against some
+grammatical structure. For example, we might try to recognize simple sentences
+consisting of an article followed by a noun followed by a verb, such as "The cat
+eats." To accomplish such an analysis, we must be able to identify the parts of
+speech of individual words. We could start with some lists that classify various
+words: |#
+(append! primitive-procedures `((set! ,(λ (x y) (set! x y)))))
+(append! primitive-procedures `((memq ,memq)))
+(map amb/infuse
+          '((define nouns '(noun student professor cat class))
+            (define verbs '(verb studies lectures eats sleeps))
+            (define articles '(article the a))
+            (define prepositions '(prep for to in by with))
+            (define *unparsed* '())
+            (define (parse-sentence)
+              (list 'sentence
+                    (parse-noun-phrase)
+                    (parse-verb-phrase)))
+            (define (parse-word word-list)
+              (require (not (null? *unparsed*)))
+              (require (memq (car *unparsed*) (cdr word-list)))
+              (let ((found-word (car *unparsed*)))
+                (set! *unparsed* (cdr *unparsed*))
+                (list (car word-list) found-word)))
+            (define (parse input)
+              (set! *unparsed* input)
+              (let ((sent (parse-sentence)))
+                (require (null? *unparsed*))
+                sent))
+            (define (parse-prepositional-phrase)
+              (list 'prep-phrase
+                    (parse-word prepositions)
+                    (parse-noun-phrase)))
+            (define (parse-verb-phrase)
+              (define (maybe-extend verb-phrase)
+                (amb verb-phrase
+                     (maybe-extend (list 'verb-phrase
+                                         verb-phrase
+                                         (parse-prepositional-phrase)))))
+              (maybe-extend (parse-word verbs)))
+            (define (parse-simple-noun-phrase)
+              (list 'simple-noun-phrase
+                    (parse-word articles)
+                    (parse-word nouns)))
+            (define (parse-noun-phrase)
+              (define (maybe-extend noun-phrase)
+                (amb noun-phrase
+                     (maybe-extend (list 'noun-phrase
+                                         noun-phrase
+                                         (parse-prepositional-phrase)))))
+              (maybe-extend (parse-simple-noun-phrase)))))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
