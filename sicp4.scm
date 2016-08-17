@@ -1792,6 +1792,23 @@ sentences generated. |#
          (maybe-extend (generate-simple-noun-phrase)))))
 
 
+#| Exercise 4.50
+Implement a new special form ramb that is like amb except
+that it searches alternatives in a random order, rather than
+from left to right. Show how this can help with Alyssa’s
+problem in Exercise 4.49. |#
+(define (shuffle lst)
+  "Returns a randomly re-ordered copy of `lst'"
+  (if (< (length lst) 1) lst
+      (let ([item (list-ref lst (random (length lst)))])
+        (cons item (shuffle (delete item lst))))))
+
+(define (amb/analyze-ramb exp)
+  (amb/analyze-amb (cons
+                    (car exp)
+                    (shuffle (amb/choices exp)))))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
