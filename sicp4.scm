@@ -1809,6 +1809,60 @@ problem in Exercise 4.49. |#
                     (shuffle (amb/choices exp)))))
 
 
+#| Exercise 4.51
+Implement a new kind of assignment called permanent-set!
+that is not undone upon failure. For example, we can choose
+two distinct elements from a list and count the number of
+trials required to make a successful choice as follows:
+
+  (define count 0)
+  (let ((x (an-element-of '(a b c)))
+        (y (an-element-of '(a b c))))
+    (permanent-set! count (+ count 1))
+    (require (not (eq? x y)))
+    (list x y count))
+
+;;; Starting a new problem
+;;; Amb-Eval value:
+  (a b 2)
+
+;;; Amb-Eval input:
+  try-again
+
+;;; Amb-Eval value:
+  (a c 3)
+
+What values would have been displayed if we had used set!
+here rather than permanent-set!? |#
+(append! primitive-procedures `((shuffle ,shuffle)))
+
+(define (amb/analyze-permanent-assignment exp)
+  "The execution procedure for permanent assignment is essentially a redaction of the components of `analyze-assignment' that restore the value of the old variable proceeding from a failed assignment"
+  (let ([var (definition-variable exp)]
+        (vproc (amb/analyze (definition-value exp))))
+    (lambda (env succeed fail)
+      (vproc
+       env
+       (λ (val fail2)
+         (set-variable-value! var val env)
+         (succeed
+          'ok
+          ;; a failure continues without restoring the old value
+          (λ () (fail2))))
+       fail))))
+
+(amb/install-procedure `(permanent-set! ,amb/analyze-permanent-assignment))
+
+(amb/infuse
+ '(define (cps)
+    (define count 0)
+    (let ((x (car (amb '(a b c))))
+          (y (car (amb '(z b c)))))
+      (permanent-set! count (+ count 1))
+      (require (not (eq? x y)))
+      (list x y count))))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
