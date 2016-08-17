@@ -1741,6 +1741,17 @@ among them. |#
          (simple-noun-phrase (article the) (noun cat))))))))) |#
 
 
+#| Exercise 4.46
+The evaluators in sections *Note and do not determine what order operands are
+evaluated in. We will see that the `amb' evaluator evaluates them from left to
+right. Explain why our parsing program wouldn't work if the operands were
+evaluated in some other order. |#
+
+#| parse-word advances the *unparsed* list from left to right, because it knows
+that the parser works this way. Without being sure of the order, we couldn’t
+implement parse-word. |#
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
