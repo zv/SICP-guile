@@ -1752,6 +1752,46 @@ that the parser works this way. Without being sure of the order, we couldn’t
 implement parse-word. |#
 
 
+#| Exercise 4.49
+Alyssa P. Hacker is more interested in generating interesting sentences than in
+parsing them. She reasons that by simply changing the procedure `parse-word' so
+that it ignores the "input sentence" and instead always succeeds and generates
+an appropriate word, we can use the programs we had built for parsing to do
+generation instead. Implement Alyssa's idea, and show the first half-dozen or so
+sentences generated. |#
+(map amb/infuse
+     '(
+       (define (generate) (generate-sentence))
+       (define (generate-sentence)
+         (list 'sentence
+               (generate-noun-phrase)
+               (generate-verb-phrase)))
+       (define (generate-word word-list)
+         (list (car word-list) (amb word-list)))
+       (define (generate-prepositional-phrase)
+         (list 'prep-phrase
+               (generate-word prepositions)
+               (generate-noun-phrase)))
+       (define (generate-verb-phrase)
+         (define (maybe-extend verb-phrase)
+           (amb verb-phrase
+                (maybe-extend (list 'verb-phrase
+                                    verb-phrase
+                                    (generate-prepositional-phrase)))))
+         (maybe-extend (generate-word verbs)))
+       (define (generate-simple-noun-phrase)
+         (list 'simple-noun-phrase
+               (generate-word articles)
+               (generate-word nouns)))
+       (define (generate-noun-phrase)
+         (define (maybe-extend noun-phrase)
+           (amb noun-phrase
+                (maybe-extend (list 'noun-phrase
+                                    noun-phrase
+                                    (generate-prepositional-phrase)))))
+         (maybe-extend (generate-simple-noun-phrase)))))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
