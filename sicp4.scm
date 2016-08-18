@@ -1863,6 +1863,48 @@ here rather than permanent-set!? |#
       (list x y count))))
 
 
+#| Exercise 4.52
+Implement a new construct called `if-fail' that permits the
+user to catch the failure of an expression. `if-fail' takes
+two expressions. It evaluates the first expression as usual
+and returns as usual if the evaluation succeeds. If the
+evaluation fails, however, the value of the second
+expression is returned, as in the following example:
+
+;;; Amb-Eval input:
+  (if-fail
+  (let ((x (an-element-of '(1 3 5))))
+    (require (even? x))
+    x)
+  'all-odd)
+
+;;; Starting a new problem
+;;; Amb-Eval value:
+all-odd
+
+;;; Amb-Eval input:
+  (if-fail
+  (let ((x (an-element-of '(1 3 5 8))))
+    (require (even? x))
+    x)
+  'all-odd)
+
+;;; Starting a new problem
+;;; Amb-Eval value:
+  8                 |#
+(define (amb/analyze-if-fail exp)
+  (let ((clause      (amb/analyze (cadr exp)))
+        (alternative (caddr exp)))
+    (λ (env succeed fail)
+      (clause env
+              ;; success, just suplly the result
+              (λ (value fail2) (succeed value fail2))
+              ;; fail, send our alternative
+              (λ () (succeed alternative fail))))))
+
+(amb/install-procedure `(if-fail ,amb/analyze-if-fail))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
