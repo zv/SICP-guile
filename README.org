@@ -1,22 +1,41 @@
-* A SICP Study Guide and Exercise Solutions in Guile and PLT Scheme 
-With a few exceptions[fn:1], this repo contains solutions to every SICP exercise
+* SICP in 150 Days. 
+With a few exceptions¹, these files contain solutions to every SICP exercise
 up to Chapter 4 (I am working on 5 now) as well as some helpful tips, tricks and
 boilerplate code to make your SICP experience maximally satisfying.
 
-I wrote this guide because I feel SICP is one of the best guides to computers
-ever published and yet omits so many essential details. The most visible problem
-is the exercises asking for details of code and concepts concerning the that it
-has defined but not /specified/. This study guide will collate the skeleton code
-required for you to get hacking as well as any pitfalls I personally
-experienced.
-
-If you are someone who is truly looking for the minimal help experience, I still
-recommend you check out my advice (and others) on Chapter 4, where you can save
-substantial time by taking a few early steps.
+Despite SICP's reputation as /the/ book on computer programming is tempered by a
+few habits which can wear on the reader. One mentioned frequently is exercises
+asking for details of code and concepts concerning the that it has defined but
+not /specified/. This study guide will collate the skeleton code required for
+you to get hacking as well as any pitfalls I personally experienced.
 
 Also, if you are interested in exploit writing, assembly or reverse engineering
 "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
 Windows Kernel]]" study guide and solutions as well.
+* I'm already a hacker, what does SICP bring me?
+All great thoughts come 2-7 easy, alliterative steps.
+** Techniques
+The book covers the following theorectical issues in serious depth, usually
+building an application using them.
+
+- Huffman Trees 
+- Message Passing and Actor Theory
+- Type Dispatch
+
+** Technology
+You will build an implementation of everything on this list if you complete SICP.
+
+- Promises
+- Lazy Lists
+- Symbolic Computer
+- JIT Interpreter (without optimization)
+- Constraint Solver
+- Generic Methods in OOP 
+
+** Tricks
+** Taste
+
+
 
 ** Chapter 1
 I'm assuming you are already a programmer and as such you can probably sail
@@ -80,6 +99,69 @@ facilities (OOP, interfaces, etc).
 Chapter 3 contains a lot of material you will want to skip. I highly recommend
 you don't.
 
+**** A Skeleton Constraint Solver Class
+The book implements the primary classes of the constraint-solver as
+straitforward Lisp functions with closures. Classes will permit you to solve
+exercises quicker, write less code and be more satisfied with your final result.
+
+The following are example base-classes for the primary classes, which allow
+method introduced later later in the chapter such as ~process-new-value~ and
+~process-forget-value~ to share implementation details regardless of if they are
+operating on an ~adder~ or ~multiplier~.
+
+***** Constraint
+[[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L823-L925][Implementation]]
+
+#+BEGIN_SRC scheme
+(define-class <constraint> ()
+  (lhs #:getter lhs
+       #:init-keyword #:lhs)
+  (rhs #:getter rhs
+       #:init-keyword #:rhs)
+  (total #:getter total
+         #:init-keyword #:total)
+  (operator #:getter constraint-operator)
+  (inverse-operator #:getter constraint-inv-operator))
+#+END_SRC
+
+***** Connector
+[[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L777-L821][Implementation]]
+
+#+BEGIN_SRC scheme
+(define-class <connector> ()
+  (value #:init-value #f
+         #:accessor connector-value
+         #:setter set-connector-value)
+
+  (informant #:init-value #f
+             #:accessor informant
+             #:setter set-informant)
+
+  (constraints #:accessor constraints
+               #:setter set-constraints
+               #:init-form '()))
+
+(define (make-connector)
+  (make <connector>))
+#+END_SRC
+
+***** Probe
+[[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L918-L933][Implementation]]
+
+#+BEGIN_SRC scheme
+(define-class <probe> (<constraint>)
+  (name #:getter name
+        #:setter set-name
+        #:init-keyword #:name)
+  (connector #:getter connector
+             #:setter set-connector
+             #:init-keyword #:connector))
+
+(define (probe name connector)
+  (let ((cs (make <probe> #:name name #:connector connector)))
+    (connect connector cs) cs))
+#+END_SRC
+
 ** Chapter 4
 This chapter is the first where preparation *really* pays off.
 
@@ -139,6 +221,9 @@ To make your life easier, just add these.
 Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
 one used by the ~analyze~ evaluator.
 
+*** 4.3 - Variations on a Scheme
+The `amb` evaluator presented in 4.3 is far from simple and requires patience and
+an eye for detail to work out whats really going on.
 
 * If I could do it all again...
 Everyone has regrets, let's hope you have fewer by reading mine.

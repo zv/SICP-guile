@@ -775,9 +775,17 @@ procedures only at the front (last in, first out).
   (loop list))
 
 (define-class <connector> ()
-  (value #:init-value #f #:accessor connector-value #:setter set-connector-value)
-  (informant #:init-value #f #:accessor informant #:setter set-informant)
-  (constraints #:accessor constraints #:setter set-constraints #:init-form '()))
+  (value #:init-value #f
+         #:accessor connector-value
+         #:setter set-connector-value)
+
+  (informant #:init-value #f
+             #:accessor informant
+             #:setter set-informant)
+
+  (constraints #:accessor constraints
+               #:setter set-constraints
+               #:init-form '()))
 
 (define (make-connector)
   (make <connector>))
@@ -788,7 +796,6 @@ procedures only at the front (last in, first out).
 
 (define-method (set-value! (connxn <connector>) newval setter)
   ;; (format #t "\nhas-value: ~a\n" (not (has-value? connxn) ))
-
   (cond [(not (has-value? connxn))
          (set-connector-value  connxn newval)
          (set-informant        connxn setter)
@@ -852,23 +859,6 @@ procedures only at the front (last in, first out).
     (connect a1 cs) (connect a2 cs) (connect sum cs)
     cs))
 
-;; a probe is a special connector that prints a message about the setting or unsetting of the designated connector
-(define-class <probe> (<constraint>)
-  (name #:getter name
-        #:setter set-name
-        #:init-keyword #:name)
-  (connector #:getter connector
-             #:setter set-connector
-             #:init-keyword #:connector))
-(define (probe name connector)
-  (let ((cs (make <probe> #:name name #:connector connector)))
-    (connect connector cs) cs))
-
-;; Probe internal methods
-(define-method (print-probe (c <probe>) pval) (format #t "~%Probe: ~a = ~a" (name c) pval))
-(define-method (process-new-value (c <probe>)) (print-probe c (connector-value (connector c))))
-(define-method (process-forget-value (c <probe>)) (print-probe c "?"))
-
 ;; Processed whenever a new connection exists
 (define-method (process-new-value (c <constraint>))
   (let* ([lhs-conn (lhs c)]
@@ -924,6 +914,24 @@ procedures only at the front (last in, first out).
   (forget-value! (lhs c) c)
   (forget-value! (total c) c)
   (process-new-value c))
+
+;; a probe is a special connector that prints a message about the setting or unsetting of the designated connector
+(define-class <probe> (<constraint>)
+  (name #:getter name
+        #:setter set-name
+        #:init-keyword #:name)
+  (connector #:getter connector
+             #:setter set-connector
+             #:init-keyword #:connector))
+(define (probe name connector)
+  (let ((cs (make <probe> #:name name #:connector connector)))
+    (connect connector cs) cs))
+
+;; Probe internal methods
+(define-method (print-probe (c <probe>) pval) (format #t "~%Probe: ~a = ~a" (name c) pval))
+(define-method (process-new-value (c <probe>)) (print-probe c (connector-value (connector c))))
+(define-method (process-forget-value (c <probe>)) (print-probe c "?"))
+
 
 ;;; driver fns
 ;; Function tha
