@@ -1905,6 +1905,29 @@ all-odd
 (amb/install-procedure `(if-fail ,amb/analyze-if-fail))
 
 
+#| Exercise 4.53
+With `permanent-set!' as described in *Note4.51 and
+`if-fail' as in *Note Exercise 4.52, what will be the result
+of evaluating
+
+  (let ((pairs '()))
+    (if-fail (let ((p (prime-sum-pair '(1 3 5 8) '(20 35 110))))
+              (permanent-set! pairs (cons p pairs))
+              (amb))
+            pairs))
+|#
+
+#| Solution:
+It prints:
+
+  ((8 35) (3 110) (3 20))
+
+Although the let form always fails (it calls (amb) as its
+last statement), the pairs get added into pairs, because
+permanent-set! doesn’t roll assignments back from failed
+paths. |#
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
