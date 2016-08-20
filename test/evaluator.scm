@@ -183,6 +183,103 @@
 
 (test-end "Lazy Evaluator")
 
+(test-begin "amb Evaluator")
+(define test-environment (setup-environment))
+(amb/execute-infuse-expressions test-environment)
+
+(define (amb/test-amb expr)
+  (ambeval expr test-environment
+           ;; success
+           (λ (value next-alternative)
+             (cons value (next-alternative)))
+           ;; failure
+           (λ ()
+             ;; no more values
+             '())))
+
+(define (amb/test-evaluator expr)
+  (ambeval expr test-environment
+           (λ (value _next-alternative) value)
+           (λ () (error "no values"))))
+
+(define-syntax test-amb
+  (syntax-rules (=> test-environment test-equal)
+    ((test-eval expr =>)
+     (syntax-error "no expect statement"))
+    ((test-eval expr => expect)
+     (test-assert
+         (equal?
+          (amb/test-evaluator 'expr)
+          expect)))
+    ((test-eval expr expect)
+     (test-eqv expect (amb/test-evaluator 'expr)))
+    ((test-eval expr &~> expect)
+     (test-assert
+         (equal?
+          (amb/test-amb 'expr)
+          expect)))))
+
+
+(test-amb (if (< 1 2) true false) => #t)
+(test-amb (amb 1 2 3) &~> '(1 2 3))
+
+(test-begin "Sentence Puzzles")
+;; These are test cases from SICP proper
+(test-amb (parse '(the cat eats))
+          => '(sentence (simple-noun-phrase (article the) (noun cat)) (verb eats)))
+
+(test-amb (parse '(the student with the cat sleeps in the class))
+          => '(sentence
+               (noun-phrase
+                (simple-noun-phrase (article the) (noun student))
+                (prep-phrase
+                 (prep with)
+                 (simple-noun-phrase
+                  (article the)
+                  (noun cat))))
+               (verb-phrase
+                (verb sleeps)
+                (prep-phrase
+                 (prep in)
+                 (simple-noun-phrase (article the) (noun class))))))
+
+(test-amb (parse '(the professor lectures to the student with the cat))
+          &~> '(
+                (sentence
+                 (simple-noun-phrase (article the) (noun professor))
+                 (verb-phrase
+                  (verb-phrase
+                   (verb lectures)
+                   (prep-phrase (prep to)
+                                (simple-noun-phrase
+                                 (article the)
+                                 (noun student))))
+                  (prep-phrase (prep with)
+                               (simple-noun-phrase
+                                (article the)
+                                (noun cat)))))
+                ;; next
+                (sentence
+                 (simple-noun-phrase (article the) (noun professor))
+                 (verb-phrase
+                  (verb lectures)
+                  (prep-phrase (prep to)
+                               (noun-phrase
+                                (simple-noun-phrase
+                                 (article the) (noun student))
+                                (prep-phrase (prep with)
+                                             (simple-noun-phrase
+                                              (article the)
+                                              (noun cat)))))))
+                ))
+
+(test-end "Sentence Puzzles")
+
+
+
+(test-end "amb Evaluator")
+
+
 (test-end "Evaluator")
 
-(test-end "Test")
+(test-end "Tests")
