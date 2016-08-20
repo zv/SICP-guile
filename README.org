@@ -73,41 +73,41 @@ There are only 4 exercises, so you can mostly relax and focus on the content,
 although both /2.73/ and /2.75/ show up later.
 
 ** Chapter 3
-This chapter is the beginning of the end of "Computing Textbook" and the
-beginning of "the SICP", although it you will only come into it's full reality
-at Chapter 4.
+This chapter is the beginning of the end of standard computing textbook and the
+beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
+temptations to skip content, the first paragraphs of some chapters give the impression
+of covering what seems like already well-worn ground as a programmer - the content of the 
+chapters differ wildly from whats "on the tin".
 
-This one contains some really zingers and with the possible exception of the
-first two subchapters starts exploring some really interesting territory. 
+Even if you are familiar, SICP has something of a reputation for taking the
+well-worn concepts and turning them inside out to expose their "true" structure [fn:2]. 
 
-If you are working with languages without convienent mutable data, I'd
-personally switch it out: I started out with Racket but was forced to rewrite my
-work after realizing that Racket's ~mlists~ were not going to cut it for a
-chapter focused on the use and danger of mutable structures.
+An important tip for chapter 3 is *DO NOT USE A LANGUAGE WITHOUT MUTABLE LISTS*:
+If you are working with languages without convienent mutable data: I started out
+with Racket but was forced to rewrite my work after realizing that Racket's
+~mlists~ were not going to cut it for a chapter focused on the use and danger of
+mutable structures.
 
-Another important consideration is your concurrency environment, the book
-demands a true concurrency environemtn in order for some exercises and examples
-to work right.
+Another important consideration is the parallel programming facilities of your
+language, the book demands a true concurrency environemtn in order for some
+exercises and examples to work right.
 
 Although these limit you, I recommend Guile without hesitation anyway.
 
 *** 3.34
-The center of 3.34 is the constraint solver. Although you can follow the books
-implementation, I'd recommend you write your own. This has some real timesaving
-benefits here and in addition you can review your language's reuse
-facilities (OOP, interfaces, etc).
-Chapter 3 contains a lot of material you will want to skip. I highly recommend
-you don't.
+The center of 3.34 is the constraint solver. Following the books implementation
+is slower but does remove any function-to-function mapping confusion. On the other hand,
+writing your own saves you some time but requires a bit more non-SICP effort.
 
 **** A Skeleton Constraint Solver Class
 The book implements the primary classes of the constraint-solver as
-straitforward Lisp functions with closures. Classes will permit you to solve
-exercises quicker, write less code and be more satisfied with your final result.
+straitforward Lisp functions with closures. Classes let you solve exercises
+faster, write fewer lines and be more satisfied with your final result.
 
-The following are example base-classes for the primary classes, which allow
-method introduced later later in the chapter such as ~process-new-value~ and
-~process-forget-value~ to share implementation details regardless of if they are
-operating on an ~adder~ or ~multiplier~.
+The following are example base-classes for the primary classes along with their
+entire implementation, which allow method introduced later later in the chapter
+such as ~process-new-value~ and ~process-forget-value~ to share implementation
+details regardless of if they are operating on an ~adder~ or ~multiplier~.
 
 ***** Constraint
 [[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L823-L925][Implementation]]
@@ -277,5 +277,8 @@ This is a list of exercises I *haven't* completed for some reason or another.
 - 4.49 (started to get unbelievably bored of these exercises)
 
 * Footnotes
-
 [fn:1] Including all exercises asking you to draw with pen and paper as well as those specified above.
+[fn:2] Ever wonder how people make calculators and webservers using ONLY
+type-inference without ANY instructions specified? Turns out thats actually
+fairly simple and you are just going to have to read the whole thing to find
+out.
