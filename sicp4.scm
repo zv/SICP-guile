@@ -1928,6 +1928,49 @@ permanent-set! doesn’t roll assignments back from failed
 paths. |#
 
 
+#| Exercise 4.54
+
+If we had not realized that require could be implemented as an ordinary
+procedure that uses `amb', to be defined by the user as part of a
+nondeterministic program, we would have had to implement it as a special
+form. This would require syntax procedures
+
+  (define (require? exp)
+    (tagged-list? exp 'require))
+
+  (define (require-predicate exp)
+    (cadr exp))
+
+and a new clause in the dispatch in analyze
+
+  ((require? exp) (analyze-require exp))
+
+as well the procedure analyze-require that handles require expressions.
+Complete the following definition of analyze-require.
+
+  (define (analyze-require exp)
+    (let ((pproc (analyze
+                  (require-predicate exp))))
+      (lambda (env succeed fail)
+        (pproc env
+              (lambda (pred-value fail2)
+                (if ⟨??⟩
+                    ⟨??⟩
+                    (succeed 'ok fail2)))
+              fail)))) |#
+
+(define (amb/analyze-require exp)
+  (let ([pproc (analyze (require-predicate exp))])
+    (λ (env succeed fail)
+      (pproc
+       env
+       (λ (value fail2)
+         (if (not (true? value))
+             (fail)
+             (succeed 'ok fail2))))
+      fail)))
+
+
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
