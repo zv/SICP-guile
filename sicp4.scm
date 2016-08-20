@@ -1,4 +1,5 @@
-;;; -*- mode: scheme; coding: utf-8; -*-
+;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; -*-
+
 #| Structure and Interpretation of Computer Programs - Chapter 4 |#
 (use-modules (ice-9 format))
 (use-modules (ice-9 match))
@@ -1974,7 +1975,6 @@ Complete the following definition of analyze-require.
 (include "/home/zv/z/practice/sicp/4/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
-
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin

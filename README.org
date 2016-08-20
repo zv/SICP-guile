@@ -4,9 +4,9 @@ up to Chapter 4 (I am working on 5 now) as well as some helpful tips, tricks and
 boilerplate code to make your SICP experience maximally satisfying.
 
 I wrote this guide because I feel SICP is one of the best guides to computers
-every published and yet omits something essential. The most visible problem is
-the exercises asking for details of code and concepts concerning the that it has
-defined but not /specified/. This study guide will collate the skeleton code
+ever published and yet omits so many essential details. The most visible problem
+is the exercises asking for details of code and concepts concerning the that it
+has defined but not /specified/. This study guide will collate the skeleton code
 required for you to get hacking as well as any pitfalls I personally
 experienced.
 

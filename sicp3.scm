@@ -1,4 +1,4 @@
-;;; -*- mode: scheme; coding: utf-8; -*-
+;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; -*-
 ;; TODO: DEADLOCK
 ;; TODO: 3.4
 ;; Chapter 3 of SICP

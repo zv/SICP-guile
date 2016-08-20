@@ -1,3 +1,4 @@
+;; -*- mode: racket; fill-column: 75; comment-column: 50; coding: utf-8; -*-
 #lang racket
 (require (lib "trace.ss"))
 
