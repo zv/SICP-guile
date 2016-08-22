@@ -202,11 +202,15 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 #+END_SRC
 
 *** Chapter 4
-Chapter 4 is widely regarded as the most substantial and all centers around
-writing interpreters. 
+This chapter centers around the creation of a number of Scheme evaluators and is
+widely recognized as the most substantial chapter. The regularity with which it
+revises it's own ideas make a testing framework and a few utility functions a
+profitable use of your time.
+ 
+If you've chosen a language that stresses immutability (like Racket or Clojure)
+you'll have a fair amount of extra work.
 
-In order to get a better idea of the process, here's a quick description of what
-you will actually implement.
+You'll accomplish the following here:
 
 - Simple Evaluator
   - Implement a variable-only '/stack/' without stored function pointers. 
@@ -238,18 +242,11 @@ you will actually implement.
     - ...and then writing something that emits all possible sentences
   - Use a random evaluator to explore choices in a truly nondeterministic fashion
  
-Moreso than any other, preparation pays off fast in this chapter. I try to cover
-several means of simplifying your work on the evaluators without complete spaghetti.
-
-If you've chosen a language that stresses immutability (like Racket or Clojure),
-you will have to do a fair amount of extra work (but less than Chapter 3).
-
 **** Testing
-The book will regularly ask you to rewrite, add or otherwise modify the
-evaluator internals. Starting with a testing strategy is essential to preserving
-sanity; even if the only functional tests you write are copied from the
-REPL-dialogue presented in the book itself - you are saving yourself down the
-road.
+Starting with a testing strategy is essential to preserving sanity here; I
+recommend using the input → result REPL 'dialogues' listed in the text to ensure
+that you are conforming to the features that the authors expect you to use in the 
+coming exercises.
 
 ***** The Test Runner
 The default Guile test runner will output a =.log= file to your current directory
@@ -291,10 +288,8 @@ for more immediate testing.
 #+END_SRC
 
 ***** ~test-eval~ Macro
-A simple macro allows you to directly copy code as if you were running it inside
-the evaluator. It also allows for a ~=>~ to more clearly indicate what the
-expected result is.
-
+This simple macro allows you to directly extract the expected/result pairs from
+the REPL excerpts.
 #+BEGIN_SRC scheme
  ;; Standard Evaluator Tests
 (define-syntax test-eval
@@ -308,8 +303,8 @@ expected result is.
 #+END_SRC
 
 ***** Unit Tests
-The macro and test-runner permits you to simply run code as if you were inside
-of the loop.
+Now just add tests! The next section of this guide will show you how to
+automatically run tests at sensible points as part of the ~driver-loop~.
 
 #+BEGIN_SRC scheme
 (test-begin "Tests") ; Begin our tests
@@ -340,9 +335,10 @@ of the loop.
 ***** Evaluator
 
 ****** Type-dispatch for the core evaluator switch statement
-Exercise 4.3 is a great example of how small changes in the /syntax/ can
-radically benefit the programmer -  I ended up reusing the idea in all
-of the evaluators.
+[[http://sarabander.github.io/sicp/html/4_002e1.xhtml#Exercise-4_002e3][Exercise 4.3]] asks you to implement a type-dispatch scheme for the base
+evaluator, allowing you to incrementally introduce functionality rather than
+rewrite ~eval~ with each new feature. This turns out to be very useful
+and I wrote all my evaluators in this style.
 
 The concept is demonstrated here:
 
@@ -372,7 +368,6 @@ The concept is demonstrated here:
                    (car p) 
                    (cadr p))
 
-;; Now install each procedure individually
 ...
 
 (install-procedure `(and ,eval-and))
@@ -382,22 +377,18 @@ The concept is demonstrated here:
 (install-procedure `(undefine ,eval-undefinition))
 
 (install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
-
-...
 #+END_SRC
 
 ****** Driver Loops
 Just as you dispatched a procedure specific to an evaluator above, you can do
-the same with the ~driver-loop~ implementation used by each evaluator to spawn a
-REPL and you may want to do so for a number of reasons. 
+the same with the ~driver-loop~ implementation provided to each evaluator.
 
 1. You'll want to be able to quickly switch the evaluator invoked by ~driver-loop~ as you progress through the chapter and later chapters have a radically different loop.
 2. [[http://www.nongnu.org/geiser/][Geiser]] is a very popular scheme integration module for Emacs Lisp that you will probably use. Like many IDE-integrated IDE's it doesn't deal well with a program that requests user input on =stdin=.
 3. You can share more code, even between radically different implementations.
 
-
-The following code is my own approach: adding an entry to a table of
-~driver-loop~ implementations which is chosen at runtime.
+My approach is simple - add an entry to a table of ~driver-loop~ implementations
+which are chosen at runtime.
 
 #+BEGIN_SRC scheme
 ;; This function is what actually gets called to invoke your evaluator's REPL
@@ -425,6 +416,8 @@ The following code is my own approach: adding an entry to a table of
 (define inside-repl?
   "A method to determine if we are inside a REPL or being executed directly"
   (eq? #f (assq-ref (current-source-location) 'filename)))
+
+...
 
 ;; at the end of the file, you can specify which loop you want to invoke when
 ;; you run.
