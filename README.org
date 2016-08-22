@@ -12,8 +12,48 @@ you to get hacking as well as any pitfalls I personally experienced.
 Also, if you are interested in exploit writing, assembly or reverse engineering
 "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
 Windows Kernel]]" study guide and solutions as well.
-* I'm already a hacker, what does SICP bring me?
-All great thoughts come 2-7 easy, alliterative steps.
+
+* How To Do It
+*** Getting It
+Although the original is [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you strip down to the
+texinfo basics or gear up to a fully-featured experience on the web.
+- [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
+- [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
+
+*** Tools
+I'll shortcircuit my own verbose tendencies just demand Emacs. [[http://spacemacs.org/][I use vim
+keybindings /in/ Emacs and you should too.]]
+
+*** Language
+The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]], a solid if unimpressive language.
+Many readers since have used various Schemes, Lisps and languages pretending to
+be either.
+
+| Language   | Convenience | Utilities | Availability                                    |   |
+|------------+-------------+-----------+-------------------------------------------------+---|
+| Guile      | 5/5         | 2/5       | 1/5: Extending FSF/GNU programs like GDB        |   |
+| Racket     | 3/5         | 4/5       | 3/5: SAT Solvers & Language Research            |   |
+| MIT Scheme | 5/5         | 1/5       | 0/5                                             |   |
+| LFErlang   | 2/5         | 3/5       | 2/5: Does allow you to use the BEAM 'ecosystem' |   |
+| Clojure    | 1/5         | 5/5       | 5/5: Widely used and in demand                  |   |
+
+I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]]. One more
+choice that strikes me as a little wild but indeed doable is Javascript.
+
+**** Using a Non-Lisp?
+Some online commentators have laid out SICP as having deep homoiconic roots - if
+they exist I couldn't detect any (in addition, macros are only referenced obliquely). 
+
+Chapter 4's implementation would no doubt contain appreciable difference however
+others have used information gleaned from an earlier chapters to write Sexp
+parsers which paints over the most glaring inadeluacies of a Unlisp.
+
+You also risk getting a *completely* different message than the book intended to
+convey. 
+
+Caveat Emptor.
+
+* The Core of SICP
 ** Techniques
 The book covers the following theorectical issues in serious depth, usually
 building an application using them.
@@ -31,10 +71,6 @@ You will build an implementation of everything on this list if you complete SICP
 - JIT Interpreter (without optimization)
 - Constraint Solver
 - Generic Methods in OOP 
-
-** Tricks
-** Taste
-
 
 
 ** Chapter 1
@@ -163,6 +199,11 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 #+END_SRC
 
 ** Chapter 4
+*** What You'll Do
+- Write An Evaluator
+- write a universally 'lazy' structure
+- Create Facilities for "Pattern Matching" ala Erlang.
+
 This chapter is the first where preparation *really* pays off.
 
 As with Chapter 3, Chapter 4 extensively uses destructive operations to maintain
