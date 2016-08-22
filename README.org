@@ -149,7 +149,7 @@ such as ~process-new-value~ and ~process-forget-value~ to share implementation
 details regardless of if they are operating on an ~adder~ or ~multiplier~.
 
 ****** Constraint
-[[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L823-L925][Implementation]]
+[[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L823-L925][Implementation]]
 
 #+BEGIN_SRC scheme
 (define-class <constraint> ()
@@ -164,7 +164,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 #+END_SRC
 
 ****** Connector
-[[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L777-L821][Implementation]]
+[[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L777-L821][Implementation]]
 
 #+BEGIN_SRC scheme
 (define-class <connector> ()
@@ -185,7 +185,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 #+END_SRC
 
 ****** Probe
-[[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L918-L933][Implementation]]
+[[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L918-L933][Implementation]]
 
 #+BEGIN_SRC scheme
 (define-class <probe> (<constraint>)
