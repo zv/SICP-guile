@@ -13,34 +13,37 @@ Also, if you are interested in exploit writing, assembly or reverse engineering
 "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
 Windows Kernel]]" study guide and solutions as well.
 
-* How To Do It
-*** Getting It
+** How To Do It
+**** Getting It
 Although the original is [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you strip down to the
 texinfo basics or gear up to a fully-featured experience on the web.
 - [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
 - [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
 
-*** Tools
-I'll shortcircuit my own verbose tendencies just demand Emacs. [[http://spacemacs.org/][I use vim
-keybindings /in/ Emacs and you should too.]]
+**** Tools
+I'll shortcircuit my own verbose tendencies I'll demand Emacs. [[http://spacemacs.org/][I use vim
+keybindings /in/ Emacs and you can too.]]
 
-*** Language
-The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]], a solid if unimpressive language.
+**** Language
+The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] an efficient if unimpressive language.
 Many readers since have used various Schemes, Lisps and languages pretending to
 be either.
 
-| Language   | Convenience | Utilities | Availability                                    |   |
-|------------+-------------+-----------+-------------------------------------------------+---|
-| Guile      | 5/5         | 2/5       | 1/5: Extending FSF/GNU programs like GDB        |   |
-| Racket     | 3/5         | 4/5       | 3/5: SAT Solvers & Language Research            |   |
-| MIT Scheme | 5/5         | 1/5       | 0/5                                             |   |
-| LFErlang   | 2/5         | 3/5       | 2/5: Does allow you to use the BEAM 'ecosystem' |   |
-| Clojure    | 1/5         | 5/5       | 5/5: Widely used and in demand                  |   |
+Although SICP's exercises have been written for dozens of platforms, the
+following are the only ones I've personally confirmed.
+
+| Language  | Convenience | Utilities | Wildness | Popularity | Vanilla Threads | ~set!~ | Notes                                                                               |
+|-----------+-------------+-----------+----------+------------+-----------------+--------+-------------------------------------------------------------------------------------|
+| Guile     | 5/5         | 2/5       | 1/5      | 1/5        | ✓               | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
+| Racket    | 3/5         | 4/5       | 4/5      | 3/5        | ✓               |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
+| MITScheme | 5/5         | 1/5       | 0/5      | 0/5        | ✓               | ✓      | The Default SICP Choice                                                             |
+| LFErlang  | 2/5         | 3/5       | 5/5      | 2/5        |                 |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
+| Clojure   | 1/5         | 5/5       | 5/5      | 5/5        | ✓               |        | Needs no introduction                                                               |
 
 I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]]. One more
 choice that strikes me as a little wild but indeed doable is Javascript.
 
-**** Using a Non-Lisp?
+***** Using a Non-Lisp?
 Some online commentators have laid out SICP as having deep homoiconic roots - if
 they exist I couldn't detect any (in addition, macros are only referenced obliquely). 
 
@@ -53,8 +56,8 @@ convey.
 
 Caveat Emptor.
 
-* The Core of SICP
-** Techniques
+** The Core of SICP
+*** Techniques
 The book covers the following theorectical issues in serious depth, usually
 building an application using them.
 
@@ -62,7 +65,7 @@ building an application using them.
 - Message Passing and Actor Theory
 - Type Dispatch
 
-** Technology
+*** Technology
 You will build an implementation of everything on this list if you complete SICP.
 
 - Promises
@@ -73,7 +76,7 @@ You will build an implementation of everything on this list if you complete SICP
 - Generic Methods in OOP 
 
 
-** Chapter 1
+*** Chapter 1
 I'm assuming you are already a programmer and as such you can probably sail
 through this one. It's a good chapter but it's also skippable if you aren't
 rusty on any of the following.
@@ -83,7 +86,7 @@ rusty on any of the following.
 - The 'highlight' results from Computability theory (Ackermann's function et al)
 - The features of the language you plan to use for SICP
 - You could implement change counting & pascals triangle without recursively
-** Chapter 2
+*** Chapter 2
 The chapter covers a lot of ground. I remember the following. If you aren't a
 specialist in computer science and also a prodigious Lisp programmer, you simply
 cannot skip this chapter.
@@ -99,7 +102,7 @@ Some things covered include
 
 This book starts to give you a few nuggets of profound realization that the book
 is known for. It gets even better.
-*** 2.4 - Multiple Representation of Abstract Data
+**** 2.4 - Multiple Representation of Abstract Data
 This chapter is unusual. It's the least and the *most* important for practice of
 programming at large. The chapter justifies and presents simplified summaries of
 the implementation details of important programming language features and why they
@@ -108,7 +111,7 @@ are useful.
 There are only 4 exercises, so you can mostly relax and focus on the content,
 although both /2.73/ and /2.75/ show up later.
 
-** Chapter 3
+*** Chapter 3
 This chapter is the beginning of the end of standard computing textbook and the
 beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
 temptations to skip content, the first paragraphs of some chapters give the impression
@@ -130,12 +133,12 @@ exercises and examples to work right.
 
 Although these limit you, I recommend Guile without hesitation anyway.
 
-*** 3.34
+**** 3.34
 The center of 3.34 is the constraint solver. Following the books implementation
 is slower but does remove any function-to-function mapping confusion. On the other hand,
 writing your own saves you some time but requires a bit more non-SICP effort.
 
-**** A Skeleton Constraint Solver Class
+***** A Skeleton Constraint Solver Class
 The book implements the primary classes of the constraint-solver as
 straitforward Lisp functions with closures. Classes let you solve exercises
 faster, write fewer lines and be more satisfied with your final result.
@@ -145,7 +148,7 @@ entire implementation, which allow method introduced later later in the chapter
 such as ~process-new-value~ and ~process-forget-value~ to share implementation
 details regardless of if they are operating on an ~adder~ or ~multiplier~.
 
-***** Constraint
+****** Constraint
 [[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L823-L925][Implementation]]
 
 #+BEGIN_SRC scheme
@@ -160,7 +163,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
   (inverse-operator #:getter constraint-inv-operator))
 #+END_SRC
 
-***** Connector
+****** Connector
 [[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L777-L821][Implementation]]
 
 #+BEGIN_SRC scheme
@@ -181,7 +184,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
   (make <connector>))
 #+END_SRC
 
-***** Probe
+****** Probe
 [[https://github.com/zv/SICP-guile/blob/master/sicp3.scm#L918-L933][Implementation]]
 
 #+BEGIN_SRC scheme
@@ -198,8 +201,8 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
     (connect connector cs) cs))
 #+END_SRC
 
-** Chapter 4
-*** What You'll Do
+*** Chapter 4
+**** What You'll Do
 - Write An Evaluator
 - write a universally 'lazy' structure
 - Create Facilities for "Pattern Matching" ala Erlang.
@@ -212,7 +215,7 @@ it's variables-only stack.
 This means it is *possible* to do Chapter 4 in a language without
 first-class mutable datastructs but it's a huge hassle: I can't recommend it.
 
-*** The Test Runner
+**** The Test Runner
 The book will regularly ask you to rewrite, add or otherwise modify the
 internals of an interpreter many times over. Having a testing strategy from
 day 1 is absolutely essential to preserving sanity.
@@ -221,7 +224,7 @@ It doesn't have to be complex. Even if the only functional tests you write are
 copied from the REPL-dialogue presented in the book itself - you are saving
 yourself down the road.
 
-*** Code reuse
+**** Code reuse
 The evaluators you will implement are the following
 
 - base evaluator
@@ -240,7 +243,7 @@ substantiative changes to it's structure. This doesn't preclude you from doing
 so, but I would estimate you are adding another 25 hours onto your
 time-to-completion of SICP without getting a *whole* lot in return.
 
-*** Arithmetic, Predicates and other "missing" functions.
+**** Arithmetic, Predicates and other "missing" functions.
 As I said before, the book has a preponderance of questions that cannot be
 plugged into your evaluator, which yields some suboptimal groping in the dark.
 
@@ -262,23 +265,23 @@ To make your life easier, just add these.
 Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
 one used by the ~analyze~ evaluator.
 
-*** 4.3 - Variations on a Scheme
+**** 4.3 - Variations on a Scheme
 The `amb` evaluator presented in 4.3 is far from simple and requires patience and
 an eye for detail to work out whats really going on.
 
-* If I could do it all again...
+** If I could do it all again...
 Everyone has regrets, let's hope you have fewer by reading mine.
 
-** TODO Turns out SICP doesn't include stupid material
+*** TODO Turns out SICP doesn't include stupid material
 So many books have irrelevant exercises, SICP doesnt.
 I sped through the end of SICP Chapter 3 - I won't do it again.
-** TODO Pay more attention to Lazy evaluator
-** DONE A case of the or-bores
+*** TODO Pay more attention to Lazy evaluator
+*** DONE A case of the or-bores
 CLOSED: [2016-08-01 Mon 13:34]
 Implementing ~or~, ~and~ and other other connective logical statements in the
 =amb= evaluator would really be neat -- I just installed a primitive procedure.
 
-** TODO Permutations and the Floor Puzzle
+*** TODO Permutations and the Floor Puzzle
 Permutations and the generation thereof are one of those strange backwaters of
 computer programming that never really manages to fit into the broader scheme
 (ha) of knowledge. I've come up with no less than 3 ways to do them over the
@@ -295,20 +298,20 @@ Take Exercise 4.39, which (loosely) is to solve the floor puzzle without using
 ~amb~ *AND* take advantage of knowledge about the puzzle to make it perform
 better than 'depth first'.
 
-** 4.43 (The boat puzzle)
+*** 4.43 (The boat puzzle)
 I ended up looking at someone elses solution here - This one is hard to solve
  *without* resorting "tricks", such as applying eliminative logic beforehand to
  solve the problem. This mixes all sorts of different kinds of representations
  of data and many solutions are incorrect.
-** ~parse_words~
+*** ~parse_words~
 The parse words exercises give you the feeling that something really essential
 is being left out. I completed the exercises but I started to get to a really
 uncomfortable point, especially in Exercise 4.49 that this was some deep
 metaphor for parsing fully-specified grammars.
 
-* TODO Exercises
+** TODO Exercises
 This is a list of exercises I *haven't* completed for some reason or another.
-** Chapter 4
+*** Chapter 4
 - 4.32
 - 4.33
 - 4.34
