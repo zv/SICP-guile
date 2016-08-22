@@ -151,7 +151,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 ****** Constraint
 [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L823-L925][Implementation]]
 
-#+BEGIN_SRC racket
+#+BEGIN_SRC scheme
 (define-class <constraint> ()
   (lhs #:getter lhs
        #:init-keyword #:lhs)
@@ -166,7 +166,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 ****** Connector
 [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L777-L821][Implementation]]
 
-#+BEGIN_SRC racket
+#+BEGIN_SRC scheme
 (define-class <connector> ()
   (value #:init-value #f
          #:accessor connector-value
@@ -187,7 +187,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 ****** Probe
 [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L918-L933][Implementation]]
 
-#+BEGIN_SRC racket
+#+BEGIN_SRC scheme
 (define-class <probe> (<constraint>)
   (name #:getter name
         #:setter set-name
@@ -202,27 +202,136 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 #+END_SRC
 
 *** Chapter 4
-**** What You'll Do
-- Write An Evaluator
-- write a universally 'lazy' structure
-- Create Facilities for "Pattern Matching" ala Erlang.
+Chapter 4 is widely regarded as the most substantial and all centers around
+writing interpreters. 
 
-This chapter is the first where preparation *really* pays off.
+In order to get a better idea of the process, here's a quick description of what
+you will actually implement.
 
-As with Chapter 3, Chapter 4 extensively uses destructive operations to maintain
-it's variables-only stack.
+- Simple Evaluator
+  - Implement a variable-only '/stack/' without stored function pointers. 
+  - Implement Type-Dispatching Evaluator
+  - Implement all major features of scheme used thus far
+    - Various forms of ~let~
+    - ~letrec~
+    - ~cond~
+    - Predicates
+    - etc.
+  - Simultaneous vs. Ordered ~define~
+  - The Implementation of Closures
+- Just-in-Time Interpreter/Compiler (the 'analyzer')
+  - Challenges of a JIT
+- Lazy Evaluator
+  - Differences between lazy variables and a lazy interpreter
+  - Relationship to the promise functions ~force~ and ~delay~
+  - Build a model of side-effects in lazy (or otherwise) evaluators
+  - Implementation and use of '[[https://en.wikipedia.org/wiki/Thunk][thunks]]'
+  - Permitting choice by adding lazy features to basic eval
+- "Nondeterministic" Logic Evaluator
+  - Apply our earlier DFS with backtracking knowledge to build logic solvers
+  - Implement a system of closures for tracking logic unification state
+  - Understanding rule-oriented (as opposed to procedure-oriented) computing
+  - Simplify problems to their essential logical form (and solve them)
+  - Implementation of 'Pattern Matching' ala Erlang
+  - A "true" parser
+    - Specify a grammar for natural language
+    - ...and then writing something that emits all possible sentences
+  - Use a random evaluator to explore choices in a truly nondeterministic fashion
+ 
+Moreso than any other, preparation pays off fast in this chapter. I try to cover
+several means of simplifying your work on the evaluators without complete spaghetti.
 
-This means it is *possible* to do Chapter 4 in a language without
-first-class mutable datastructs but it's a huge hassle: I can't recommend it.
+If you've chosen a language that stresses immutability (like Racket or Clojure),
+you will have to do a fair amount of extra work (but less than Chapter 3).
 
-**** The Test Runner
+**** Testing
 The book will regularly ask you to rewrite, add or otherwise modify the
-internals of an interpreter many times over. Having a testing strategy from
-day 1 is absolutely essential to preserving sanity.
+evaluator internals. Starting with a testing strategy is essential to preserving
+sanity; even if the only functional tests you write are copied from the
+REPL-dialogue presented in the book itself - you are saving yourself down the
+road.
 
-It doesn't have to be complex. Even if the only functional tests you write are
-copied from the REPL-dialogue presented in the book itself - you are saving
-yourself down the road.
+***** The Test Runner
+The default Guile test runner will output a =.log= file to your current directory
+instead of printing errors to =stdout=. This is an example test-runner that allows
+for more immediate testing.
+
+#+BEGIN_SRC scheme
+(use-modules (srfi srfi-64))
+(define (sicp-evaluator-runner)
+  (let* ((runner (test-runner-null))
+         (num-passed 0)
+         (num-failed 0))
+    (test-runner-on-test-end! runner
+      (lambda (runner)
+        (case (test-result-kind runner)
+          ((pass xpass) (set! num-passed (+ num-passed 1)))
+          ((fail xfail)
+           (begin
+             (let
+                 ((rez (test-result-alist runner)))
+               (format #t
+                       "~a::~a\n Expected Value: ~a | Actual Value: ~a\n Error: ~a\n Form: ~a\n"
+                       (assoc-ref rez 'source-file)
+                       (assoc-ref rez 'source-line)
+                       (assoc-ref rez 'expected-value)
+                       (assoc-ref rez 'actual-value)
+                       (assoc-ref rez 'actual-error)
+                       (assoc-ref rez 'source-form))
+               (set! num-failed (+ num-failed 1)))))
+          (else #t))))
+    (test-runner-on-final! runner
+      (lambda (runner)
+        (format #t "Passed: ~d || Failed: ~d.~%"
+                num-passed num-failed)))
+    runner))
+
+(test-runner-factory
+ (lambda () (sicp-evaluator-runner)))
+#+END_SRC
+
+***** ~test-eval~ Macro
+A simple macro allows you to directly copy code as if you were running it inside
+the evaluator. It also allows for a ~=>~ to more clearly indicate what the
+expected result is.
+#+BEGIN_SRC scheme
+ ;; Standard Evaluator Tests
+(define-syntax test-eval
+  (syntax-rules (=> test-environment test-equal)
+    ((test-eval expr =>)
+     (syntax-error "no expect statement"))
+    ((test-eval expr => expect)
+     (test-eqv  expect (test-evaluator 'expr test-environment)))
+    ((test-eval expr expect)
+     (test-eqv  expect (test-evaluator 'expr test-environment)))))
+#+END_SRC
+
+***** Unit Tests
+The macro and test-runner permits you to simply run code as if you were inside
+of the loop.
+#+BEGIN_SRC scheme
+(test-begin "Tests") ; Begin our tests
+(test-begin "Evaluator") ; Begin evaluator tests
+(test-begin "Basic") ; The basic (4.1) evaluator
+(define test-environment (setup-environment)) ; Initialize the test environment
+(define test-evaluator eval) ; Set the evaluator you wish to use
+
+;; You can choose to use `=>' or not
+(test-eval (and 1 2) => 2)
+
+(test-eval
+ (let fib-iter ((a 1) (b 0) (count 4))
+   (if (= count 0) b
+       (fib-iter (+ a b) a (- count 1))))
+ => 3)
+
+;; cleanup
+(set! test-environment '())
+
+(test-end "Basic")
+(test-end "Evaluator")
+(test-end "Tests")
+#+END_SRC
 
 **** Code reuse
 The evaluators you will implement are the following
