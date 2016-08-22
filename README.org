@@ -1,15 +1,35 @@
 * SICP in 150 Days. 
-With a few exceptions¹, these files contain solutions to every SICP exercise
-up to Chapter 4 (I am working on 5 now) as well as some helpful tips, tricks and
-boilerplate code to make your SICP experience maximally satisfying.
+SICP has been one of the great classics of computer science for more than two
+decades and is likely to remain so for some time. It's reputation grew
+throughout the 90s but has been said to have been born posthumously, the
+inaugural 6.001 course now uses a Python oriented text to accommodate shifting
+computing trends, but it's broad strokes remain as vibrant as the day it was
+written. Strangely, the instructional material itself is un-extraordinary, some
+suggest a bit haughty. The real soul of this book is locked in it's
+exercises: a powerful graphics language, a computer algebra system, a Scheme and
+"JIT" evaluator, a Prolog-like langauge and so much more. This feature of the
+bover ook has spawned a long tradition of hackers to comprehensively study it and
+it's exercises.
 
-Despite SICP's reputation as /the/ book on computer programming is tempered by a
-few habits which can wear on the reader. One mentioned frequently is exercises
-asking for details of code and concepts concerning the that it has defined but
-not /specified/. This study guide will collate the skeleton code required for
-you to get hacking as well as any pitfalls I personally experienced.
+Exhaustive readings of the book were unlikely for the audience which it was
+written for. Even such a tremendous book contains statements and source code
+that are redundant or ambiguous. SICP asks readers to consider code and
+structures whose details are described in principle, only later introducing
+their implementation. This pedagogical approach is maybe more sensible in the
+lecture hall, it is inefficient for the enthusiast.
 
-Also, if you are interested in exploit writing, assembly or reverse engineering
+This means SICP makes it your responsibility to learn what the book has
+to teach, that toesn't have to entail dredging it's contents trying to clarify
+some remark or realizing in hindsight that a few minutes when starting a chapter
+could've saved hours down the road.
+
+This repository is intended to help remove the roadblocks a modern programmer's
+reading without compromising the integrity of the book's content.
+
+If you get *absolutely* stuck, this repository also contains my own unique
+solutions to virtually all of the exercises in Guile & PLT Scheme. 
+
+If you are interested in exploit writing, assembly or reverse engineering
 "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
 Windows Kernel]]" study guide and solutions as well.
 
