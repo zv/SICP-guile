@@ -151,7 +151,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 ****** Constraint
 [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L823-L925][Implementation]]
 
-#+BEGIN_SRC scheme
+#+BEGIN_SRC racket
 (define-class <constraint> ()
   (lhs #:getter lhs
        #:init-keyword #:lhs)
@@ -166,7 +166,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 ****** Connector
 [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L777-L821][Implementation]]
 
-#+BEGIN_SRC scheme
+#+BEGIN_SRC racket
 (define-class <connector> ()
   (value #:init-value #f
          #:accessor connector-value
@@ -187,7 +187,7 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 ****** Probe
 [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L918-L933][Implementation]]
 
-#+BEGIN_SRC scheme
+#+BEGIN_SRC racket
 (define-class <probe> (<constraint>)
   (name #:getter name
         #:setter set-name
