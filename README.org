@@ -294,6 +294,7 @@ for more immediate testing.
 A simple macro allows you to directly copy code as if you were running it inside
 the evaluator. It also allows for a ~=>~ to more clearly indicate what the
 expected result is.
+
 #+BEGIN_SRC scheme
  ;; Standard Evaluator Tests
 (define-syntax test-eval
@@ -309,6 +310,7 @@ expected result is.
 ***** Unit Tests
 The macro and test-runner permits you to simply run code as if you were inside
 of the loop.
+
 #+BEGIN_SRC scheme
 (test-begin "Tests") ; Begin our tests
 (test-begin "Evaluator") ; Begin evaluator tests
@@ -333,34 +335,113 @@ of the loop.
 (test-end "Tests")
 #+END_SRC
 
-**** Code reuse
-The evaluators you will implement are the following
+**** Code Reuse
 
-- base evaluator
-- lazy evaluator
-- analyzing evaluator
-- amb evaluator
+***** Evaluator
 
-The base and lazy evaluator share many implementation details, as do the
-analyzing interpreter and amb evaluator.
+****** Type-dispatch for the core evaluator switch statement
+Exercise 4.3 is a great example of how small changes in the /syntax/ can
+radically benefit the programmer -  I ended up reusing the idea in all
+of the evaluators.
 
-I benefitted greatly from simply reusing the results of Exercise 4.3 on all my
-evaluators - allowing me to add a new function with a single call.
+The concept is demonstrated here:
 
-I personally used the code provided by the book directly and made no
-substantiative changes to it's structure. This doesn't preclude you from doing
-so, but I would estimate you are adding another 25 hours onto your
-time-to-completion of SICP without getting a *whole* lot in return.
+#+BEGIN_SRC scheme
+(define-class <dispatch-table> ()
+  (method-table #:init-value  (make-hash-table)
+                #:getter      method-table))
 
-**** Arithmetic, Predicates and other "missing" functions.
-As I said before, the book has a preponderance of questions that cannot be
-plugged into your evaluator, which yields some suboptimal groping in the dark.
+(define (table-ordinal op type)
+  (let ((opstr  (symbol->string op))
+        (typestr (symbol->string type)))
+    (string-append opstr "/" typestr)))
 
-No, you did not miss anything, arithmetic, predicates and more were never
-mentioned in the book - you can safely add them to the list of primitive
-functions.
+(define-method (get (dt <dispatch-table>) op type)
+  (if (and (symbol? op) (symbol? type))
+      (hash-ref (method-table dt) (table-ordinal op type))
+      #f))
 
-To make your life easier, just add these.
+(define-method (put (dt <dispatch-table>) op type item)
+  (hash-set! (method-table dt) (table-ordinal op type) item))
+
+(define dispatch-tt (make <dispatch-table>))
+
+(define (install-procedure p)
+  "Install a procedure to the base evaluator"
+  (put dispatch-tt 'eval ; instead of 'eval
+                   (car p) 
+                   (cadr p))
+
+;; Now install each procedure individually
+...
+
+(install-procedure `(and ,eval-and))
+
+(install-procedure `(let* ,(λ (exp env) (zeval (let*->nested-lets exp) env))))
+
+(install-procedure `(undefine ,eval-undefinition))
+
+(install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
+
+...
+#+END_SRC
+
+****** Driver Loops
+Just as you dispatched a procedure specific to an evaluator above, you can do
+the same with the ~driver-loop~ implementation used by each evaluator to spawn a
+REPL and you may want to do so for a number of reasons. 
+
+1. You'll want to be able to quickly switch the evaluator invoked by ~driver-loop~ as you progress through the chapter and later chapters have a radically different loop.
+2. [[http://www.nongnu.org/geiser/][Geiser]] is a very popular scheme integration module for Emacs Lisp that you will probably use. Like many IDE-integrated IDE's it doesn't deal well with a program that requests user input on =stdin=.
+3. You can share more code, even between radically different implementations.
+
+
+The following code is my own approach: adding an entry to a table of
+~driver-loop~ implementations which is chosen at runtime.
+
+#+BEGIN_SRC scheme
+;; This function is what actually gets called to invoke your evaluator's REPL
+(define (driver-loop evaluator)
+  ((get dispatch-tt 'driver-loop evaluator)))
+
+(define (install-driver-loop evaluator fn)
+  "Install a new `driver-loop' REPL"
+  (put dispatch-tt 'driver-loop evaluator fn))
+
+; base evaluator implementation from 4.14
+(define (base-driver-loop)
+  (prompt-for-input ";;; Base(zeval) input:")
+  (let ((input (read)))
+    (let ((output
+           (zeval input
+                 the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (base-driver-loop))
+
+;; install the base driver loop
+(install-driver-loop 'eval base-driver-loop)
+
+(define inside-repl?
+  "A method to determine if we are inside a REPL or being executed directly"
+  (eq? #f (assq-ref (current-source-location) 'filename)))
+
+;; at the end of the file, you can specify which loop you want to invoke when
+;; you run.
+(if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
+    (begin
+      ;; load our tests
+      (load "test/evaluator.scm")
+      ;; start the REPL
+      (driver-loop 'amb)))
+;;; EOF
+#+END_SRC
+
+**** Missing Functions
+Many code excerpts from the text cannot be directly used in the evaluator
+/provided/ by the book itself. Before you initialize your evaluators environment,
+be sure to add the following to your ~primitive-procedures~
+
 #+BEGIN_SRC lisp
 (append! primitive-procedures
          `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
@@ -407,7 +488,7 @@ Take Exercise 4.39, which (loosely) is to solve the floor puzzle without using
 ~amb~ *AND* take advantage of knowledge about the puzzle to make it perform
 better than 'depth first'.
 
-*** 4.43 (The boat puzzle)
+*** Exercise 4.43
 I ended up looking at someone elses solution here - This one is hard to solve
  *without* resorting "tricks", such as applying eliminative logic beforehand to
  solve the problem. This mixes all sorts of different kinds of representations
