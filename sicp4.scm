@@ -1964,7 +1964,8 @@ Complete the following definition of analyze-require.
                     ⟨??⟩
                     (succeed 'ok fail2)))
               fail)))) |#
-
+(define (require-predicate exp)
+  (cadr exp))
 (define (amb/analyze-require exp)
   (let ([pproc (analyze (require-predicate exp))])
     (λ (env succeed fail)
