@@ -1,12 +1,11 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; -*-
-
 #| Structure and Interpretation of Computer Programs - Chapter 4 |#
 (use-modules (ice-9 format))
 (use-modules (ice-9 match))
 (use-modules (ice-9 pretty-print))
 (use-modules (srfi srfi-1))
+(use-modules (srfi srfi-41))
 (use-modules (oop goops))
-
 
 (define (inc a) (+ a 1))
 (define (curry fn . c-args)
@@ -18,6 +17,12 @@
   ;; e.g ((line . INTEGER) (column . INTEGER) (filename . SYMBOL|FALSE))
   (eq? #f (assq-ref (current-source-location) 'filename)))
 
+(define do-debug? #t)
+(define (debug format-string . format-args)
+  (if do-debug?
+      (apply format `(#t
+                      ,(string-append format-string "~%")
+                      ,@format-args))))
 
 
 ;; Custom Macros & Utils
@@ -52,7 +57,7 @@
 
 
 ;; Section 4.1
-(include "/home/zv/z/practice/sicp/4/base-evaluator.scm")
+(include "/home/zv/z/practice/sicp/evaluator/base-evaluator.scm")
 ;; Add arithmetic
 (append! primitive-procedures
          `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
@@ -828,7 +833,7 @@ which uses neither internal definitions nor letrec:
 
 
 ;; 4.1.3 - Separating Syntactic Analysis from Execution
-(include "/home/zv/z/practice/sicp/4/evaluator-analyzer.scm")
+(include "/home/zv/z/practice/sicp/evaluator/evaluator-analyzer.scm")
 
 (define (install-analyze-procedure p)
   (put dispatch-tt 'analyze (car p) (cadr p)))
@@ -946,7 +951,7 @@ form. |#
 ;; Various evaluator utils
 
 ;; Lazy Evaluator
-(include "/home/zv/z/practice/sicp/4/lazy-evaluator.scm")
+(include "/home/zv/z/practice/sicp/evaluator/lazy-evaluator.scm")
 
 ;; Install our new driver-loop
 (define (lazy-driver-loop)
@@ -1226,7 +1231,7 @@ lazy, memoized or raw and supplying them to the function at hand"
 (install-driver-loop 'ceval combined-driver-loop)
 
                                         ; Section 4.3 - Nondeterministic Computing
-(include "/home/zv/z/practice/sicp/4/amb-evaluator.scm")
+(include "/home/zv/z/practice/sicp/evaluator/amb-evaluator.scm")
 
 (define (amb/install-procedure p)
   (put dispatch-tt 'amb (car p) (cadr p)))
@@ -1409,7 +1414,6 @@ Write an ordinary Scheme program to solve the multiple dwelling puzzle. |#
                           [fletcher (2 3 4)]
                           [miller (3 4 5)]
                           [smith (1 2 3 4 5)]))
-
 
 
 (define (solve-it floors)
@@ -1838,7 +1842,9 @@ here rather than permanent-set!? |#
 (append! primitive-procedures `((shuffle ,shuffle)))
 
 (define (amb/analyze-permanent-assignment exp)
-  "The execution procedure for permanent assignment is essentially a redaction of the components of `analyze-assignment' that restore the value of the old variable proceeding from a failed assignment"
+  "The execution procedure for permanent assignment is essentially a
+redaction of the components of `analyze-assignment' that restore the value
+of the old variable proceeding from a failed assignment"
   (let ([var (definition-variable exp)]
         (vproc (amb/analyze (definition-value exp))))
     (lambda (env succeed fail)
@@ -1904,7 +1910,6 @@ all-odd
               (λ () (succeed alternative fail))))))
 
 (amb/install-procedure `(if-fail ,amb/analyze-if-fail))
-
 
 #| Exercise 4.53
 With `permanent-set!' as described in *Note4.51 and
@@ -1972,7 +1977,7 @@ Complete the following definition of analyze-require.
       fail)))
 
 
-(include "/home/zv/z/practice/sicp/4/eval-driver.scm")
+(include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
 
