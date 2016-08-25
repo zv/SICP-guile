@@ -2105,6 +2105,20 @@ Using your rule, give queries that find the following:
 
 |#
 
+#| Exercise 4.58
+Define a rule that says that a person is a "big shot" in a division if the
+person works in the division but does not have a supervisor who works in
+the division. |#
+(query/infuse
+ '(rule (big-shot ?p1)
+        (and
+         (job ?p1 (?dept . ?job))
+         (or
+          (not (supervisor ?p1 ?p2))
+          (and (supervisor ?p1 ?p2)
+               (not (job ?p2 (?dept . ?job2))))))))
+
+
 
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
