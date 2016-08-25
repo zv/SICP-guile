@@ -21,7 +21,9 @@
                        (assoc-ref rez 'actual-error)
                        (assoc-ref rez 'source-form))
                (set! num-failed (+ num-failed 1)))))
-          (else #t))))
+          (else
+           (format #t "something happened here\n")
+           ))))
     (test-runner-on-final! runner
       (lambda (runner)
         (format #t "Passed: ~d || Failed: ~d.~%"
@@ -37,9 +39,9 @@
     ((test-eval expr =>)
      (syntax-error "no expect statement"))
     ((test-eval expr => expect)
-     (test-eqv  expect (test-evaluator 'expr test-environment)))
+     (test-eval expr expect))
     ((test-eval expr expect)
-     (test-eqv  expect (test-evaluator 'expr test-environment)))))
+     (test-eqv expect (test-evaluator 'expr test-environment)))))
 
 (test-begin "Tests")
 
@@ -163,11 +165,14 @@
 (define test-environment (setup-environment))
 (define test-evaluator leval)
 
-;; ;; analyzer tests
+;; ;; ;; analyzer tests
 ;; (test-eval 1 => 1)
 ;; (test-eval (define definet 1) => 'ok)
 ;; (test-eval definet => 1)
-;; (test-eval (if (= 1 2) false true) => #t)
+;; (test-eval (if (> 5 10) 1) => #f)
+;; (test-eval (if (< 5 10) 1) => 1)
+;; (test-eval (if (= 1 2) true
+;;                false) => #f)
 ;; (test-eval
 ;;  (define (try a b) (if (= a 0) 1 b))
 ;;  => 'ok)
@@ -275,10 +280,28 @@
 
 (test-end "Sentence Puzzles")
 
-
-
 (test-end "amb Evaluator")
+
+(test-begin "Query")
 
+(define-syntax test-quote
+  (syntax-rules (=>)
+    ((test-quote expr => expect)
+     (test-quote expr expect))
+    ((test-quote name expr => expect)
+     (test-assert name (equal? (query/eval 'expr) expect)))
+    ((test-quote expr expect)
+     (test-assert (equal? (query/eval 'expr) expect)))))
+
+(test-quote (job ?x (computer programmer))
+             => '((job (Fect Cy D) (computer programmer))
+                  (job (Hacker Alyssa P) (computer programmer))))
+
+(test-quote (job (Fect Cy D) ?)
+            '((job (Fect Cy D) (computer programmer))))
+
+
+(test-end "Query")
 
 (test-end "Evaluator")
 

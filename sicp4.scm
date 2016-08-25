@@ -1976,6 +1976,62 @@ Complete the following definition of analyze-require.
              (fail)
              (succeed 'ok fail2))))
       fail)))
+
+#| 4.4 Logic Programming |#
+
+;; Install our logical evaluator
+(include "/home/zv/z/practice/sicp/evaluator/query-evaluator.scm")
+(define (query/initialize-with rules-and-assertions)
+  (define (deal-out r-and-a rules assertions)
+    (cond [(null? r-and-a)
+           (set! THE-ASSERTIONS (list->stream assertions))
+           (set! THE-RULES (list->stream rules))
+           'done]
+          [else
+           (let ((s (query-syntax-process (car r-and-a))))
+             (cond ((rule? s)
+                    (store-rule-in-index s)
+                    (deal-out (cdr r-and-a)
+                              (cons s rules)
+                              assertions))
+                   (else
+                    (store-assertion-in-index s)
+                    (deal-out (cdr r-and-a)
+                              rules
+                              (cons s assertions)))))]))
+    (deal-out rules-and-assertions '() '()))
+
+(define (query/infuse expr)
+  (let ((s (query-syntax-process expr)))
+    (cond [(rule? s)
+           (store-rule-in-index s)
+           (set! THE-RULES (stream-cons s THE-RULES))]
+          [else
+           (store-assertion-in-index s)
+           (set! THE-ASSERTIONS
+                 (stream-cons s THE-ASSERTIONS))])))
+
+(define (query/eval expr)
+  "A wrapper around the details of the 'real' evaluator so we can directly
+grab results"
+  (let ((q (query-syntax-process expr)))
+    (stream->list
+     (stream-map
+      (lambda (frame)
+        (instantiate
+         q
+         frame
+         (λ (v f) (contract-question-mark v))))
+      (qeval q (singleton-stream '()))))))
+
+;; Include & initialize our query database with microshaft employees
+(include "/home/zv/z/practice/sicp/vendor/microshaft.scm")
+(query/initialize-with microshaft-data-base)
+
+;; And install our driver for the query loop
+
+(install-driver-loop 'qeval query-driver-loop)
+
 
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
@@ -1987,4 +2043,4 @@ Complete the following definition of analyze-require.
       ;; load our tests
       (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop 'amb)))
+      (driver-loop 'qeval)))
