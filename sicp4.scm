@@ -2075,6 +2075,36 @@ c. (and (supervisor ?supervisor ?supervisee)
 |#
 
 
+#| Exercise 4.57
+Define a rule that says that person 1 can replace person 2 if either person
+1 does the same job as person 2 or someone who does person 1’s job can also
+do person 2’s job, and if person 1 and person 2 are not the same person.
+Using your rule, give queries that find the following:
+
+- all people who can replace Cy D. Fect;
+- all people who can replace someone who is being paid more than they are,
+   together with the two salaries. |#
+(query/infuse
+ '(rule (replaceable ?p1 ?p2)
+        (and (or (and (job ?p1 ?p1post)
+                      (job ?p2 ?p1post))
+                 (and (job ?p1 ?p1post)
+                      (job ?p2 ?p2post)
+                      (can-do-job ?p1post ?p2post)))
+             (not (same ?p1 ?p2)))))
+
+#| Solution:
+- all people who can replace Cy D. Fect
+      => (replaceable ?t (Fect Cy D))
+- all people who can replace someone who is being paid more than they are,
+  together with the two salaries.
+      => (and (replaceable ?p1 ?p2)
+              (salary ?p1 ?s1)
+              (salary ?p2 ?s2)
+              (lisp-value > ?s2 ?s1))
+
+|#
+
 
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
