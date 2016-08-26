@@ -300,6 +300,10 @@
 (test-quote (job (Fect Cy D) ?)
             '((job (Fect Cy D) (computer programmer))))
 
+(test-quote "Exercise 4.61"
+            (next-to ?x ?y in (1 (2 3) 4))
+            => '((next-to (2 3) 4 in (1 (2 3) 4))
+                 (next-to 8 (2 3) in (1 (2 3) 4))))
 
 (test-end "Query")
 

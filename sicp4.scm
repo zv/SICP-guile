@@ -2210,6 +2210,33 @@ the query analyzer searches through valid responses.
                                   (symbol->string (car y)))) ?person-1 ?person-2))))
 
 
+#| Exercise 4.61
+The following rules implement a `next-to' relation that finds adjacent
+elements of a list:
+
+    (rule (?x next-to ?y in (?x ?y . ?u)))
+
+    (rule (?x next-to ?y in (?v . ?z))
+          (?x next-to ?y in ?z))
+
+What will the response be to the following queries?
+
+    (?x next-to ?y in (1 (2 3) 4))
+
+    (?x next-to 1 in (2 1 3 1))
+|#
+
+;; Solution:
+;; The rules written as-is are incompatible with the existing system, a s, I've resolved them in the following way:
+
+(query/infuse '(rule (next-to ?x ?y in (?x ?y . ?u))))
+(query/infuse '(rule (next-to ?x ?y in (?v . ?z))
+                     (next-to ?x ?y in ?z)))
+
+;; (next-to ?x ?y in (1 (2 3) 4)) => ((1 (2 3) 4) ((2 3) 4))
+;; (next-to ?x 1 in (2 1 3 1)) => ((3 1)  (2 1))
+
+
 
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
