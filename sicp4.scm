@@ -2328,6 +2328,32 @@ proceeds to evaluate the next rule: `(outranked-by ?middle-manager
 evaluators the `outranked-by' rule body which is equivalent to
 `(outranked-by ?middle-manager ?who)' |#
 
+#| Exercise 4.65
+Cy D. Fect, looking forward to the day when he will rise in the
+organization, gives a query to find all the wheels
+(using the `wheel'rule of section *Note 4-4-1)
+
+    (wheel ?who)
+
+To his surprise, the system responds
+
+    ;;; Query results:
+    (wheel (Warbucks Oliver))
+    (wheel (Bitdiddle Ben))
+    (wheel (Warbucks Oliver))
+    (wheel (Warbucks Oliver))
+    (wheel (Warbucks Oliver))
+
+Why is Oliver Warbucks listed four times? |#
+
+#| Solution:
+
+The body of `wheel' contains a query pattern
+`(supervisor ?x ?middle-manager)' that can be satisfied by a
+variety of different values, each of those values contributes
+a match to the rule |#
+
+
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
 (define the-global-environment (setup-environment))
