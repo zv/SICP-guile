@@ -2290,8 +2290,45 @@ deduce more complicated relationships.)
         (and (wife ?m ?w) (son ?w ?s))))
 
 
+#| Exercise 4.64
+Louis Reasoner mistakenly deletes the `outranked-by' rule
+(section *Note 4.4.1) from the data base. When he realizes this,
+he quickly reinstalls it. Unfortunately, he makes a slight change
+in the rule, and types it in as
 
+    (rule (outranked-by ?staff-person ?boss)
+          (or (supervisor ?staff-person ?boss)
+              (and (outranked-by ?middle-manager ?boss)
+                  (supervisor ?staff-person ?middle-manager))))
+
+Just after Louis types this information into the system, DeWitt
+Aull comes by to find out who outranks Ben Bitdiddle. He issues
+the query
+
+    (outranked-by (Bitdiddle Ben) ?who)
+
+After answering, the system goes into an infinite loop.  Explain
+why. |#
+
+#| Solution:
+
+The problem with this query is the order in which applicable rules are
+specified.
+
+* After finding the previous `supervisor' rule applied; that is, the
+rule conclusion `(supervisor (Bitdiddle Ben) ?boss)' successfully
+unifies with the query pattern `(supervisor ?staff-person ?boss)' to
+produce a frame in which `?boss' is bound to `?who'. The interpreter
+proceeds to evaluate the next rule: `(outranked-by ?middle-manager
+?boss)' in the same frame.
+
+* One answer appears in the database.
+
+* The `outranked-by' rule is also applicable, so the evaluator again
+evaluators the `outranked-by' rule body which is equivalent to
+`(outranked-by ?middle-manager ?who)' |#
 
+
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
 (define the-global-environment (setup-environment))
 (amb/execute-infuse-expressions the-global-environment)
