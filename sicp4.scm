@@ -2237,6 +2237,21 @@ What will the response be to the following queries?
 ;; (next-to ?x 1 in (2 1 3 1)) => ((3 1)  (2 1))
 
 
+#| Exercise 4.62
+Define rules to implement the `last-pair' operation of *Note Exercise 2-17,
+which returns a list containing the last element of a nonempty list. Check
+your rules on queries such as `(last-pair (3) ?x)', `(last-pair (1 2 3)
+?x)', and `(last-pair (2 ?x) (3))'. Do your rules work correctly on queries
+such as `(last-pair ?x (3))' ? |#
+
+;; Solution, it does not work correctly on results that yield an infinite
+;; nubmer of answers;
+(map query/infuse
+     '((rule (last-pair (?h) (?h)))
+       (rule (last-pair (?h . ?t) ?last)
+             (last-pair ?t ?last))))
+
+
 
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
