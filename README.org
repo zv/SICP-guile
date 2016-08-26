@@ -1,33 +1,33 @@
-* SICP in 150 Days. 
-SICP has been one of the great classics of computer science for more than two
-decades and is likely to remain so for some time. It's reputation grew
-throughout the 90s but has been said to have been born posthumously, the
-inaugural 6.001 course now uses a Python oriented text to accommodate shifting
-computing trends, but it's broad strokes remain as vibrant as the day it was
-written. Strangely, the instructional material itself is un-extraordinary, some
-suggest a bit haughty. The real soul of this book is locked in it's
-exercises: a powerful graphics language, a computer algebra system, a Scheme and
-"JIT" evaluator, a Prolog-like langauge and so much more. This feature of the
-bover ook has spawned a long tradition of hackers to comprehensively study it and
-it's exercises.
+* SICP Study Notes
+** What?
 
-Exhaustive readings of the book were unlikely for the audience which it was
-written for. Even such a tremendous book contains statements and source code
-that are redundant or ambiguous. SICP asks readers to consider code and
-structures whose details are described in principle, only later introducing
-their implementation. This pedagogical approach is maybe more sensible in the
-lecture hall, it is inefficient for the enthusiast.
+** Why?
+SICP has been a great classic of computer science for more than two decades and
+is likely to remain so for some time. It's reputation grew throughout the 90s
+but even continued posthumously - the 6.001 course is now a Python oriented
+course to accommodate shifting computing trends, it's broad strokes however
+remain as vibrant as the day it was written. Strangely, the instructional
+material itself is un-extraordinary, maybe a bit haughty. The real soul of this
+book is in it's exercises: a powerful graphics language, a computer algebra
+system, a Scheme and "JIT" evaluator, a Prolog-like langauge and *much* more.
+This has spawned a long tradition of hackers comprehensively studying it and
+writing solutions to it's exercises.
 
-This means SICP makes it your responsibility to learn what the book has
-to teach, that toesn't have to entail dredging it's contents trying to clarify
-some remark or realizing in hindsight that a few minutes when starting a chapter
-could've saved hours down the road.
+Unfortunately, exhaustive readings of the book were unlikely for it's target
+audience. SICP contains statements and source code that are redundant or
+ambiguous. SICP asks readers to consider code and structures whose details are
+described in principle, only later introducing their implementation. This
+pedagogical approach is maybe more sensible in the lecture hall, it is
+inefficient for the enthusiast.
 
-This repository is intended to help remove the roadblocks a modern programmer's
-reading without compromising the integrity of the book's content.
+SICP makes it your responsibility to learn what the book has to teach, and part
+of that duty is ensuring you'll actually finish it by eliminating the
+details like dredging it's contents to clarify a remark or realizing
+in hindsight that a few minutes when starting a chapter could've saved hours
+down the road.
 
-If you get *absolutely* stuck, this repository also contains my own unique
-solutions to virtually all of the exercises in Guile & PLT Scheme. 
+If you get *absolutely* stuck, this repository also contains unique solutions to
+almost all of the exercises in Guile & PLT Scheme.
 
 If you are interested in exploit writing, assembly or reverse engineering
 "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
@@ -40,17 +40,14 @@ texinfo basics or gear up to a fully-featured experience on the web.
 - [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
 - [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
 
-**** Tools
-I'll shortcircuit my own verbose tendencies I'll demand Emacs. [[http://spacemacs.org/][I use vim
-keybindings /in/ Emacs and you can too.]]
+**** Environment
+I recommend Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at home /in/ Emacs too.]]
 
 **** Language
 The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] an efficient if unimpressive language.
 Many readers since have used various Schemes, Lisps and languages pretending to
-be either.
-
-Although SICP's exercises have been written for dozens of platforms, the
-following are the only ones I've personally confirmed.
+be either. I've seen the following used and have tried to approximate their fitness
+for the task:
 
 | Language  | Convenience | Utilities | Wildness | Popularity | Vanilla Threads | ~set!~ | Notes                                                                               |
 |-----------+-------------+-----------+----------+------------+-----------------+--------+-------------------------------------------------------------------------------------|
@@ -60,19 +57,26 @@ following are the only ones I've personally confirmed.
 | LFErlang  | 2/5         | 3/5       | 5/5      | 2/5        |                 |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
 | Clojure   | 1/5         | 5/5       | 5/5      | 5/5        | ✓               |        | Needs no introduction                                                               |
 
-I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]]. One more
-choice that strikes me as a little wild but indeed doable is Javascript.
+I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]], I
+imagine both are servicable. 
 
 ***** Using a Non-Lisp?
-Some online commentators have laid out SICP as having deep homoiconic roots - if
-they exist I couldn't detect any (in addition, macros are only referenced obliquely). 
+Some online commentators have described SICP as stressing homoiconicicity, if
+such implicit emphasis exists I couldn't detect any (although the concept
+/itself/ is referenced obliquely).
 
-Chapter 4's implementation would no doubt contain appreciable difference however
-others have used information gleaned from an earlier chapters to write Sexp
-parsers which paints over the most glaring inadeluacies of a Unlisp.
+It is completely possible, if unhinged, to entirely do SICP in a language like
+Javascript or Ruby. I personally have reimplemented several challenges in JS and
+did get a dash of enlightenment that is usually very remote in Javascript (as
+well as learning something /about/ JS that few JS textbooks teach).
 
-You also risk getting a *completely* different message than the book intended to
-convey. 
+Chapter 4's implementation would be the first major hurdle for an nonlisp
+effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
+accommodate Javascript.]] Others have used techniques solely from an earlier
+chapters to write Sexp parsers to write a Scheme interpreter inside JS. 
+
+All of this carries the risk of getting *completely* different message than the
+book intended to convey.
 
 Caveat Emptor.
 
@@ -94,7 +98,6 @@ You will build an implementation of everything on this list if you complete SICP
 - JIT Interpreter (without optimization)
 - Constraint Solver
 - Generic Methods in OOP 
-
 
 *** Chapter 1
 I'm assuming you are already a programmer and as such you can probably sail
@@ -224,11 +227,34 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 *** Chapter 4
 This chapter centers around the creation of a number of Scheme evaluators and is
 widely recognized as the most substantial chapter. The regularity with which it
-revises it's own ideas make a testing framework and a few utility functions a
-profitable use of your time.
+revises it's own ideas make a testing framework and toolbelt a profitable use
+of your time.
  
 If you've chosen a language that stresses immutability (like Racket or Clojure)
-you'll have a fair amount of extra work.
+you'll have a fair amount of extra work ahead of you - The default evaluator uses
+a stack that is manipulated with the use of ~set!~. 
+
+Don't take my word on it though:
+
+#+BEGIN_QUOTE
+I'm close the finishing the last major chunk of the book. Working with two
+colleagues for around two hours a week, its taken us nearly a year to get this
+far. Of course, we did every exercise, and lost a lot of time trying to work
+around incompatibilities between standard Scheme and the interesting corners of
+DrScheme [now DrRacket - ~mcons~, I'm looking at you]. Now we use mit-scheme and
+I wish we had done so from the very beginning.
+
+I don't think the book is perfect. I found the structure of Chapter 4, where a
+Scheme interpreter is built, confusing and irritating. The exercises are
+interspersed with the text in a way that doesn't allow you to test any of your
+solutions unless you read ahead to get more infrastructure. This seems deeply
+unREPLy to me. Once I had typed in enough of the supporting code to actually run
+my proposed solutions, and pulled some hair out debugging my broken code, I had
+some marvellous moments of epiphany. That Ahah! is what maks [sic] the book's
+reputation, and what makes the effort worthwhile. But it could have been better.
+#+END_QUOTE
+
+
 
 You'll accomplish the following here:
 
@@ -251,7 +277,7 @@ You'll accomplish the following here:
   - Build a model of side-effects in lazy (or otherwise) evaluators
   - Implementation and use of '[[https://en.wikipedia.org/wiki/Thunk][thunks]]'
   - Permitting choice by adding lazy features to basic eval
-- "Nondeterministic" Logic Evaluator
+- "Nondeterministic" & Logic Evaluator
   - Apply our earlier DFS with backtracking knowledge to build logic solvers
   - Implement a system of closures for tracking logic unification state
   - Understanding rule-oriented (as opposed to procedure-oriented) computing
@@ -261,7 +287,8 @@ You'll accomplish the following here:
     - Specify a grammar for natural language
     - ...and then writing something that emits all possible sentences
   - Use a random evaluator to explore choices in a truly nondeterministic fashion
- 
+
+
 **** Testing
 Starting with a testing strategy is essential to preserving sanity here; I
 recommend using the input → result REPL 'dialogues' listed in the text to ensure
@@ -353,6 +380,10 @@ automatically run tests at sensible points as part of the ~driver-loop~.
 **** Code Reuse
 
 ***** Evaluator
+Features common to 
+- An evaluator function driven by a switch statement
+- An application function that extends the frame
+- A driver loop that makes both accessible in the form of a REPL
 
 ****** Type-dispatch for the core evaluator switch statement
 [[http://sarabander.github.io/sicp/html/4_002e1.xhtml#Exercise-4_002e3][Exercise 4.3]] asks you to implement a type-dispatch scheme for the base
@@ -471,6 +502,20 @@ one used by the ~analyze~ evaluator.
 **** 4.3 - Variations on a Scheme
 The `amb` evaluator presented in 4.3 is far from simple and requires patience and
 an eye for detail to work out whats really going on.
+
+**** 4.4 - Query Evaluator
+***** Missing Stuff
+****** Stack Overflows on Exercises
+The query evaluator presented as is cannot compute rules of the form ~(?x rule
+?y)~ as many questions ask to, simply translate them to the postfix form and you
+will be fine.
+
+#+BEGIN_EXAMPLE
+(rule (?x next-to ?y in (?x ?y . ?u)))
+                ⇩
+(rule (next-to ?x ?y in (?x ?y . ?u)))
+#+END_EXAMPLE
+
 
 ** If I could do it all again...
 Everyone has regrets, let's hope you have fewer by reading mine.
