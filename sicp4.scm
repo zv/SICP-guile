@@ -2395,6 +2395,53 @@ Although the query supplied doesn't demonstrate it, it is possible to
 have multiple frames returns. |#
 
 
+#| Exercise 4.67
+Devise a way to install a loop detector in the query system so as to
+avoid the kinds of simple loops illustrated in the text and in *NoteExercise 4.64.
+
+The general idea is that the system should maintain some sort of
+history of its current chain of deductions and should not begin
+processing a query that it is already working on. Describe what kind
+of information (patterns and frames) is included in this history, and
+how the check should be made. (After you study the details of the
+query-system implementation in section *Note 4.4.4, you may want to
+modify the system to include your loop detector.) |#
+(define (query-driver-loop-reset)
+  (set! executed-rules '())
+  (query-driver-loop))
+
+(define (query/eval expr)
+  (set! executed-rules '())
+  (let ((q (query-syntax-process expr)))
+    (stream->list
+     (stream-map
+      (λ (frame)
+        (instantiate q frame (λ (v f) (contract-question-mark v))))
+      (qeval q (singleton-stream '()))))))
+
+;; Because the rule variable contains the execution information, we can
+;; lookup if a rule with the exact same parameters has been called before.
+(define executed-rules '())
+(define (previously-executed? rule)
+  (member rule executed-rules))
+(define (add-executed-rule! rule)
+  (set! executed-rules (cons rule executed-rules)))
+
+(define (apply-a-rule rule query-pattern query-frame)
+  (if (previously-executed? rule) stream-null
+      (let* ([clean-rule (rename-variables-in rule)] ; alpha-conversion
+             [unify-result (unify-match query-pattern
+                                        (conclusion clean-rule)
+                                        query-frame)])
+        (if (eq? unify-result 'failed) stream-null
+            (begin
+                (add-executed-rule! rule)
+                (qeval (rule-body clean-rule)
+                       (singleton-stream
+                        unify-result)))))))
+
+(install-driver-loop 'qeval-noloop query-driver-loop-reset)
+
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
 (define the-global-environment (setup-environment))
@@ -2406,4 +2453,4 @@ have multiple frames returns. |#
       ;; load our tests
       (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop 'qeval)))
+      (driver-loop 'qeval-noloop)))
