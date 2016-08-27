@@ -2029,6 +2029,11 @@ grab results"
 (include "/home/zv/z/practice/sicp/vendor/microshaft.scm")
 (query/initialize-with microshaft-data-base)
 
+;; Fulfill an infinite loop (married Mickey ?who)
+(query/infuse '(married Minnie Mickey))
+(query/infuse '(rule (married ?x ?y) (married ?y ?x)))
+
+
 ;; And install our driver for the query loop
 
 (install-driver-loop 'qeval query-driver-loop)
@@ -2296,11 +2301,12 @@ Louis Reasoner mistakenly deletes the `outranked-by' rule
 (section *Note 4.4.1) from the data base. When he realizes this,
 he quickly reinstalls it. Unfortunately, he makes a slight change
 in the rule, and types it in as
-
-    (rule (outranked-by ?staff-person ?boss)
-          (or (supervisor ?staff-person ?boss)
-              (and (outranked-by ?middle-manager ?boss)
-                  (supervisor ?staff-person ?middle-manager))))
+|#
+(query/infuse '(rule (loop-outranked-by ?staff-person ?boss)
+                     (or (supervisor ?staff-person ?boss)
+                         (and (outranked-by ?middle-manager ?boss)
+                              (supervisor ?staff-person ?middle-manager)))))
+#|
 
 Just after Louis types this information into the system, DeWitt
 Aull comes by to find out who outranks Ben Bitdiddle. He issues
@@ -2332,7 +2338,7 @@ evaluators the `outranked-by' rule body which is equivalent to
 #| Exercise 4.65
 Cy D. Fect, looking forward to the day when he will rise in the
 organization, gives a query to find all the wheels
-(using the `wheel'rule of section *Note 4-4-1)
+(using the `wheel' rule of section *Note 4-4-1)
 
     (wheel ?who)
 
