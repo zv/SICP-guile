@@ -43,10 +43,10 @@
     ((assert x y0 ...)
      (if (not x) (error "Assertion failed" 'x y0 ...))) ))
 
-(define (test-equal x y)
+(define (assert-equal x y)
   (assert (equal? x y)))
 
-(define (test-eq x y)
+(define (assert-eq x y)
   (assert (eq? x y)))
 
 ;; Construct a piece of syntax (essentially just a quasiquote wrapper)
@@ -576,7 +576,7 @@ definitions"
       expr))
 
 ;; simulatanous test
-(test-equal
+(assert-equal
     (scan-out-defines '((define a 1)
                         (make-thing 1)
                         (define b 2)
@@ -731,7 +731,7 @@ letrec in the definition of f. |#
      ;; and merge our existing body
      ,@(let-body expr))))
 
-(test-equal
+(assert-equal
     (letrec->let
      `(letrec ((a (lambda () (b)))
                (b (lambda () (a))))

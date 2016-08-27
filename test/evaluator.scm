@@ -43,12 +43,9 @@
     ((test-eval expr expect)
      (test-eqv expect (test-evaluator 'expr test-environment)))))
 
-(test-begin "Tests")
-
-
-(test-begin "Evaluator")
-
-(test-begin "Basic")
+(test-begin "tests")
+(test-begin "evaluator")
+(test-begin "basic")
 ;; initialize
 (define test-environment (setup-environment))
 (define test-evaluator zeval)
@@ -106,9 +103,8 @@
 
 ;; cleanup
 (set! test-environment '())
-(test-end "Basic")
-
-(test-begin "Analyzer")
+(test-end "basic")
+(test-begin "analyzer")
 
 ;; initialize
 (define test-environment (setup-environment))
@@ -157,9 +153,8 @@
 (test-eval (unless true 1 0) => 0)
 (test-eval (unless false 1 0) => 1)
 
-(test-end "Analyzer")
-
-(test-begin "Lazy Evaluator")
+(test-end "analyzer")
+(test-begin "lazy evaluator")
 
 ;; initialize
 (define test-environment (setup-environment))
@@ -186,9 +181,9 @@
 ;;   (else 1))
 ;;  => 1)
 
-(test-end "Lazy Evaluator")
+(test-end "lazy evaluator")
 
-(test-begin "amb Evaluator")
+(test-begin "amb evaluator")
 (define test-environment (setup-environment))
 (amb/execute-infuse-expressions test-environment)
 
@@ -228,8 +223,8 @@
 (test-amb (if (< 1 2) true false) => #t)
 (test-amb (amb 1 2 3) &~> '(1 2 3))
 
-(test-begin "Sentence Puzzles")
-;; These are test cases from SICP proper
+(test-begin "sentence puzzles")
+;; these are test cases from sicp proper
 (test-amb (parse '(the cat eats))
           => '(sentence (simple-noun-phrase (article the) (noun cat)) (verb eats)))
 
@@ -278,20 +273,20 @@
                                               (noun cat)))))))
                 ))
 
-(test-end "Sentence Puzzles")
+(test-end "sentence puzzles")
 
-(test-end "amb Evaluator")
+(test-end "amb evaluator")
+
 
-(test-begin "Query")
-
+(test-begin "query")
 (define-syntax test-quote
   (syntax-rules (=>)
     ((test-quote expr => expect)
      (test-quote expr expect))
     ((test-quote name expr => expect)
-     (test-assert name (equal? (query/eval 'expr) expect)))
+     (test-quote expr expect))
     ((test-quote expr expect)
-     (test-assert (equal? (query/eval 'expr) expect)))))
+     (test-equal expect (query/eval 'expr)))))
 
 (test-quote (job ?x (computer programmer))
              => '((job (Fect Cy D) (computer programmer))
@@ -303,10 +298,18 @@
 (test-quote "Exercise 4.61"
             (next-to ?x ?y in (1 (2 3) 4))
             => '((next-to (2 3) 4 in (1 (2 3) 4))
-                 (next-to 8 (2 3) in (1 (2 3) 4))))
+                 (next-to 1 (2 3) in (1 (2 3) 4))))
 
-(test-end "Query")
-
-(test-end "Evaluator")
+(test-quote "Exercise 4.63 (grandparent)"
+            (grandparent Adam ?x ?y) => '((grandparent Adam Cain Enoch)))
 
-(test-end "Tests")
+(test-quote "Exercise 4.64 (son-of)"
+            (son-of Ada ?x ?y)
+            => '((son-of Ada Lamech Jubal)
+                 (son-of Ada Lamech Jabal)))
+
+(test-end "query")
+
+(test-end "evaluator")
+
+(test-end "tests")
