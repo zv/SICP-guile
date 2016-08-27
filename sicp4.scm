@@ -1,4 +1,5 @@
-;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; -*-
+;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
+
 #| Structure and Interpretation of Computer Programs - Chapter 4 |#
 (use-modules (ice-9 format))
 (use-modules (ice-9 match))
