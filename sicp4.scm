@@ -5,13 +5,9 @@
 (use-modules (ice-9 match))
 (use-modules (ice-9 pretty-print))
 (use-modules (srfi srfi-1))
+(use-modules (srfi srfi-26))
 (use-modules (srfi srfi-41))
 (use-modules (oop goops))
-
-(define (inc a) (+ a 1))
-(define (curry fn . c-args)
-  (λ args
-    (apply fn (append c-args args))))
 
 (define inside-repl?
   ;; current-source-location is formatted in a line, column, filename alist
@@ -286,8 +282,8 @@ appropriate clause to eval to handle let expressions. |#
 (generate-accessors
  ([let-bindings       cadr]
   [let-body           cddr]
-  [let-binding-vars   (curry map car)]
-  [let-binding-exprs  (curry map cadr)]
+  [let-binding-vars   (cut map car <...>)]
+  [let-binding-exprs  (cut map cadr <...>)]
   [let-vars           (compose let-binding-vars let-bindings)]
   [let-exprs          (compose let-binding-exprs let-bindings)]))
 
