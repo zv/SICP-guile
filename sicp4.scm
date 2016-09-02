@@ -2029,6 +2029,10 @@ grab results"
 (query/infuse '(married Minnie Mickey))
 (query/infuse '(rule (married ?x ?y) (married ?y ?x)))
 
+(map query/infuse
+     '((rule (append-to-form () ?y ?y))
+       (rule (append-to-form (?u . ?v) ?y (?u . ?z))
+             (append-to-form ?v ?y ?z))))
 
 ;; And install our driver for the query loop
 
@@ -2423,7 +2427,7 @@ modify the system to include your loop detector.) |#
 (define (add-executed-rule! rule)
   (set! executed-rules (cons rule executed-rules)))
 
-(define (apply-a-rule rule query-pattern query-frame)
+(define (noloop/apply-a-rule rule query-pattern query-frame)
   (if (previously-executed? rule) stream-null
       (let* ([clean-rule (rename-variables-in rule)] ; alpha-conversion
              [unify-result (unify-match query-pattern
@@ -2437,6 +2441,27 @@ modify the system to include your loop detector.) |#
                         unify-result)))))))
 
 (install-driver-loop 'qeval-noloop query-driver-loop-reset)
+
+#| Exercise 4.68
+Define rules to implement the `reverse' operation of *Note Exercise 2-18,
+which returns a list containing the same elements as a given list in
+reverse order. (Hint: Use `append-to-form'.) Can your rules answer both
+`(reverse (1 2 3) ?x)' and `(reverse ?x (1 2 3))' ? |#
+
+;; This is one solution that doesn't use append-to-form, but doesn't
+;; generate proper lists
+(map query/infuse
+     '((rule (bad-reverse () ()))
+       (rule (bad-reverse (?car . ?cdr) (?cdr1 . ?car))
+             (bad-reverse ?cdr ?cdr1))))
+
+(map query/infuse
+     '((rule (reverse () ()))
+       (rule (reverse ?x ?y)
+             (and
+              (append-to-form (?car) ?rest ?x)
+              (append-to-form ?rev (?car) ?y)
+              (reverse ?rest ?rev)))))
 
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
