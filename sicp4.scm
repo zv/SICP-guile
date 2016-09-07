@@ -2479,6 +2479,17 @@ infinite stream of ones in section *Note 3.5.2: `(define ones (cons-stream 1 one
 #| Solution is non-indexable |#
 
 
+#| Exercise 4.72
+Why do disjoin and stream-flatmap interleave the streams rather than simply
+append them? Give examples that illustrate why interleaving works better.
+(Hint: Why did we use interleave in 3.5.3?) |#
+
+#| Solution:
+`interleave' provides a way to achieve 'diagonalization', that is to say so
+that every element in an infinite list can be reached, rather than focusing
+on either an input stream or a database |#
+
+
 
 (include "/home/zv/z/practice/sicp/evaluator/eval-driver.scm")
 (define the-global-environment (setup-environment))
