@@ -117,10 +117,10 @@ the rest of the queries."
 (install-query-procedure `(and ,conjoin))
 
 (define (disjoin disjuncts frame-stream)
-  "Or queries are handled similarly, as shown in Figure 4.6. The
-output streams for the various disjuncts of the or are computed
-separately and merged using the interleave-delayed procedure from
-4.4.4.6. (See Exercise 4.71 and Exercise 4.72.)"
+  "Disjoin handles `or' queries, which are handled similarly, as shown in Figure
+4.6. The output streams for the various disjuncts of the or are computed
+separately and merged using the interleave-delayed procedure from 4.4.4.6. (See
+Exercise 4.71 and Exercise 4.72.)"
   (if (empty-disjunction? disjuncts)
       stream-null
       (interleave-delayed
@@ -524,6 +524,13 @@ if the pattern starts with a constant symbol."
       (stream-cons (stream-car s1)
                    (interleave s2 (stream-cdr s1)))))
 
+#| Streams:
+
+Stream-append-delayed and interleave-delayed are just like stream-append and
+interleave (3.5.3), except that they take a delayed argument (like the integral
+procedure in 3.5.4). This postpones looping in some cases
+|#
+
 (define (stream-append-delayed s1 delayed-s2)
   (if (stream-null? s1)
       (force delayed-s2)
@@ -543,13 +550,19 @@ if the pattern starts with a constant symbol."
   (flatten-stream (stream-map proc s)))
 
 (define (flatten-stream stream)
-  (if (stream-null? stream)
-      stream-null
+  (if (stream-null? stream) stream-null
       (interleave-delayed
        (stream-car stream)
        (delay (flatten-stream (stream-cdr stream))))))
 
 (define (singleton-stream x)
+  "Stream-flatmap, which is used throughout the query evaluator to map a
+procedure over a stream of frames and combine the resulting streams of frames,
+is the stream analog of the flatmap procedure introduced for ordinary lists in
+As long as `old-assertions' is being copied (and isn't simply a new
+reference), this creates an infinite loop when referncing an assertion that
+2.2.3. Unlike ordinary flatmap, however, we accumulate the streams with an
+interleaving process, rather than simply appending them"
   (stream-cons x stream-null))
 
 ;; The following three procedures define the syntax of rules:
