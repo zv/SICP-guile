@@ -1,17 +1,14 @@
 * SICP Study Notes
-** What?
-
 ** Why?
 SICP has been a great classic of computer science for more than two decades and
-is likely to remain so for some time. It's reputation grew throughout the 90s
-but even continued posthumously - the 6.001 course is now a Python oriented
-course to accommodate shifting computing trends, it's broad strokes however
-remain as vibrant as the day it was written. Strangely, the instructional
-material itself is un-extraordinary, maybe a bit haughty. The real soul of this
-book is in it's exercises: a powerful graphics language, a computer algebra
-system, a Scheme and "JIT" evaluator, a Prolog-like langauge and *much* more.
-This has spawned a long tradition of hackers comprehensively studying it and
-writing solutions to it's exercises.
+is likely to remain so for many more. It's reputation grew throughout the 90s
+but continued to do so posthumously - the 6.001 course is now a Python oriented
+course to accommodate shifting computing trends. SICP's broad strokes remain as
+vibrant as the day it was written however. The real soul of this book is in it's
+exercises: a powerful graphics language, a computer algebra system, a Scheme and
+"JIT" evaluator, a Prolog-like langauge and *much* more. This has spawned a long
+tradition of hackers comprehensively studying it and writing solutions to it's
+exercises.
 
 Unfortunately, exhaustive readings of the book were unlikely for it's target
 audience. SICP contains statements and source code that are redundant or
@@ -41,28 +38,36 @@ texinfo basics or gear up to a fully-featured experience on the web.
 - [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
 
 **** Environment
-I recommend Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at home /in/ Emacs too.]]
+SICP can be more than didactic, it /can/ be fun. The easiest way to do this is
+to have a great and pain free environment and REPL. I couldn't imagine doing it
+with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at home /in/ Emacs too.]]
 
 **** Language
-The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] an efficient if unimpressive language.
-Many readers since have used various Schemes, Lisps and languages pretending to
-be either. I've seen the following used and have tried to approximate their fitness
-for the task:
+The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]]. Many readers since have used various
+Schemes, Lisps and languages pretending to be either. I've seen the following
+used and have tried to approximate their fitness for the task with some features
+I've found useful:
 
-| Language  | Convenience | Utilities | Wildness | Popularity | Vanilla Threads | ~set!~ | Notes                                                                               |
-|-----------+-------------+-----------+----------+------------+-----------------+--------+-------------------------------------------------------------------------------------|
-| Guile     | 5/5         | 2/5       | 1/5      | 1/5        | ✓               | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
-| Racket    | 3/5         | 4/5       | 4/5      | 3/5        | ✓               |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
-| MITScheme | 5/5         | 1/5       | 0/5      | 0/5        | ✓               | ✓      | The Default SICP Choice                                                             |
-| LFErlang  | 2/5         | 3/5       | 5/5      | 2/5        |                 |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
-| Clojure   | 1/5         | 5/5       | 5/5      | 5/5        | ✓               |        | Needs no introduction                                                               |
++ Object system is not requried but can save you lots of time
++ Being able to redefine a function in the same file is extremely useful in doing SICP - some languages prohibit this.
++ A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
++ Several chapters more-or-less require mutable lists. Languages like Racket support mutable lists but use different method names and so will require you rewrite some code from the book.
++ Some chapters, particularly those dealing with changes to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
 
-I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]], I
-imagine both are servicable. 
+| Language  | Ease | Unit Tests | Native OOP | Redefinition | ~set!~ | Notes                                                                               |
+|-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
+| Guile     | 5/5  | ✓          | ✓          | ✓            | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
+| Racket    | 3/5  | ✓          | ✓          |              |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
+| MITScheme | 5/5  | ?          |            | ✓            | ✓      | The Default SICP Choice                                                             |
+| LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
+| Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
+
+I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]], both
+I've heard are servicable.
 
 ***** Using a Non-Lisp?
-Some online commentators have described SICP as stressing homoiconicicity, if
-such implicit emphasis exists I couldn't detect any (although the concept
+Some online commentators have described SICP as stressing homoiconicicity, but
+if such implicit emphasis exists I couldn't detect any (although the concept
 /itself/ is referenced obliquely).
 
 It is completely possible, if unhinged, to entirely do SICP in a language like
@@ -80,39 +85,31 @@ book intended to convey.
 
 Caveat Emptor.
 
-** The Core of SICP
-*** Techniques
-The book covers the following theorectical issues in serious depth, usually
-building an application using them.
 
-- Huffman Trees 
-- Message Passing and Actor Theory
-- Type Dispatch
-
-*** Technology
-You will build an implementation of everything on this list if you complete SICP.
-
-- Promises
-- Lazy Lists
-- Symbolic Computer
-- JIT Interpreter (without optimization)
-- Constraint Solver
-- Generic Methods in OOP 
-
+** Contents
 *** Chapter 1
-I'm assuming you are already a programmer and as such you can probably sail
-through this one. It's a good chapter but it's also skippable if you aren't
-rusty on any of the following.
+If you've got experience programming in any functional programming language,
+this chapter will be pretty straitforward for you.
 
+Even if you feel like the foundational material is old news to your, there are
+many numerical routines that you might be exposed to for the first time here.
+
+A quick review:
 - Implementing loops with recursive functions
 - car/cdr/cons and other lisp list manipulation functions
-- The 'highlight' results from Computability theory (Ackermann's function et al)
-- The features of the language you plan to use for SICP
-- You could implement change counting & pascals triangle without recursively
+- Some 'highlight' results from Computability theory (Ackermann's function et al)
+- Numerous Monte Carlo methods for approximating PI
+- A Change Counting "machine"
+- Euclid's method for greatest common denominator
+- High Level Functions
+- Fermat's Triangle
+- Define, convert and calculate fixed points of lots of common functions
+- Convert reals to rationals
+- Approximate trigonometric functions
+
 *** Chapter 2
-The chapter covers a lot of ground. I remember the following. If you aren't a
-specialist in computer science and also a prodigious Lisp programmer, you simply
-cannot skip this chapter.
+The chapter covers a lot of ground and doesn't stay put in any one place for
+long. It's highly rewarding and warmed me up to the rest of the book.
 
 Some things covered include
 
@@ -125,6 +122,7 @@ Some things covered include
 
 This book starts to give you a few nuggets of profound realization that the book
 is known for. It gets even better.
+
 **** 2.4 - Multiple Representation of Abstract Data
 This chapter is unusual. It's the least and the *most* important for practice of
 programming at large. The chapter justifies and presents simplified summaries of
@@ -154,7 +152,6 @@ Another important consideration is the parallel programming facilities of your
 language, the book demands a true concurrency environemtn in order for some
 exercises and examples to work right.
 
-Although these limit you, I recommend Guile without hesitation anyway.
 
 **** 3.34
 The center of 3.34 is the constraint solver. Following the books implementation
@@ -226,10 +223,10 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 
 *** Chapter 4
 This chapter centers around the creation of a number of Scheme evaluators and is
-widely recognized as the most substantial chapter. The regularity with which it
+widely regarded as the most substantial chapter. The regularity with which it
 revises it's own ideas make a testing framework and toolbelt a profitable use
 of your time.
- 
+
 If you've chosen a language that stresses immutability (like Racket or Clojure)
 you'll have a fair amount of extra work ahead of you - The default evaluator uses
 a stack that is manipulated with the use of ~set!~. 
@@ -253,8 +250,6 @@ my proposed solutions, and pulled some hair out debugging my broken code, I had
 some marvellous moments of epiphany. That Ahah! is what maks [sic] the book's
 reputation, and what makes the effort worthwhile. But it could have been better.
 #+END_QUOTE
-
-
 
 You'll accomplish the following here:
 
@@ -287,7 +282,22 @@ You'll accomplish the following here:
     - Specify a grammar for natural language
     - ...and then writing something that emits all possible sentences
   - Use a random evaluator to explore choices in a truly nondeterministic fashion
+  
+ 
+**** Functional-First Approach
+Some evaluator exercises occur prior to their implementation, most frequently
+taking the following form:
 
+1. Talk about the motivation and abstract concepts employed by an evaluator
+2. Discuss Implementation
+3. Exercises asking for implementation of various features
+4. Actual scheme code defining the implementation
+ 
+Instead of following the book linearly, I think that having a working
+implementation is extremely important throughout the book, so I'd recommend you
+include the entire evaluator prior to completing exercises related to it. [[https://mitpress.mit.edu/sicp/code/index.html][The
+Complete Code from SICP 2/e]] is available and can be used directly if you are
+using a mainline scheme distribution.
 
 **** Testing
 Starting with a testing strategy is essential to preserving sanity here; I
@@ -504,6 +514,22 @@ The `amb` evaluator presented in 4.3 is far from simple and requires patience an
 an eye for detail to work out whats really going on.
 
 **** 4.4 - Query Evaluator
+The query evaluator may be the most difficult material yet, particularly if you
+aren't previously familiar with a language like Prolog.
+
+This material requires very careful reading to grasp it's operation and the book
+frequently spends more time on it's consequences over it's content.
+
+If you want to grasp it's implementation, you will have to read and reread
+chapter 4.4.4.
+
+The unification step, which the book itself describes as the most unintuitive aspect,
+should be read thoroughly: It's the material that actually does the process of generating
+deductions from premises. 
+
+It's also important to remember that much of the rest of the material is devoted to various 
+'optimizations' and implementation details that can easily derail you.
+
 ***** Missing Stuff
 ****** Stack Overflows on Exercises
 The query evaluator presented as is cannot compute rules of the form ~(?x rule
@@ -567,6 +593,9 @@ This is a list of exercises I *haven't* completed for some reason or another.
 - 4.47 (started to get unbelievably bored of these exercises)
 - 4.48 (started to get unbelievably bored of these exercises)
 - 4.49 (started to get unbelievably bored of these exercises)
+- 4.69 (This is both tricky and somewhat irrelevant)
+- 4.70
+- 4.71
 
 * Footnotes
 [fn:1] Including all exercises asking you to draw with pen and paper as well as those specified above.
