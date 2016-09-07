@@ -474,7 +474,7 @@ not completely specified. For example, should we remove only the binding in the
 first frame of the environment? Complete the specification and justify any
 choices you make. |#
 
-#| - - - - - Spec:
+#| Spec:
 `undefine' and `unset' are functions that set the name of the binding inside the
 closest stack-frame to null. |#
 (define (undefine-variable! var env)
@@ -494,9 +494,9 @@ use it. They work fine. Louis, in contrast, has installed the system version of
 map as a primitive for the metacircular evaluator. When he tries it, things go
 terribly wrong. Explain why Louis’s map fails even though Eva’s works. |#
 
-#| - - - - - Solution:
-Louis is trying to use a variable defined inside the *interpreters* stack frame,
-not the *interpreTED* stack frame |#
+#| Solution:
+Louis is trying to use a variable defined inside the *interpreters* stack
+frame, not the *interpreTED* stack frame |#
 
 
 #| Exercise 4.15
@@ -998,7 +998,9 @@ demonstrates the need for this forcing.
 |#
 
 ;; Solution
-;; Any function using a lambda as an argument will fail -- the operands are not forced and when trying to apply them you will attempt to apply a thunk instead of a "real" value.
+;; Any function using a lambda as an argument will fail -- the operands are
+;; not forced and when trying to apply them you will attempt to apply a thunk
+;; instead of a "real" value.
 
 #| Exercise 4.29
 Exhibit a program that you would expect to run much more slowly without
@@ -1253,7 +1255,7 @@ a later callsite"
   (set! amb/infuse-exprs (cons exp amb/infuse-exprs)))
 
 (define (amb/execute-infuse-expressions env)
-  "Actually begin evaluating the expressionss added to `infuse-exprs'"
+  "Actually begin evaluating the expressions added to `infuse-exprs'"
   (map (λ (e)
          (ambeval e env
                   ;; success
@@ -2406,18 +2408,6 @@ of information (patterns and frames) is included in this history, and
 how the check should be made. (After you study the details of the
 query-system implementation in section *Note 4.4.4, you may want to
 modify the system to include your loop detector.) |#
-(define (query-driver-loop-reset)
-  (set! executed-rules '())
-  (query-driver-loop))
-
-(define (query/eval expr)
-  (set! executed-rules '())
-  (let ((q (query-syntax-process expr)))
-    (stream->list
-     (stream-map
-      (λ (frame)
-        (instantiate q frame (λ (v f) (contract-question-mark v))))
-      (qeval q (singleton-stream '()))))))
 
 ;; Because the rule variable contains the execution information, we can
 ;; lookup if a rule with the exact same parameters has been called before.
@@ -2440,7 +2430,23 @@ modify the system to include your loop detector.) |#
                        (singleton-stream
                         unify-result)))))))
 
-(install-driver-loop 'qeval-noloop query-driver-loop-reset)
+;; The following are just driver extensions to permit for `noloop' to work
+(define (noloop/query-driver-loop)
+  (set! executed-rules '())
+  (set! apply-a-rule noloop/apply-a-rule)
+  (query-driver-loop))
+
+(define (noloop/query/eval expr)
+  (set! executed-rules '())
+  (set! apply-a-rule noloop/apply-a-rule)
+  (let ((q (query-syntax-process expr)))
+    (stream->list
+     (stream-map
+      (λ (frame)
+        (instantiate q frame (λ (v f) (contract-question-mark v))))
+      (qeval q (singleton-stream '()))))))
+
+(install-driver-loop 'qeval-noloop noloop/query-driver-loop)
 
 #| Exercise 4.68
 Define rules to implement the `reverse' operation of *Note Exercise 2-18,
@@ -2491,7 +2497,7 @@ infinite stream of ones in section *Note 3.5.2: `(define ones (cons-stream 1 one
 #| Solution is non-indexable |#
 
 
-#| TODO Exercise 4.71
+#| Exercise 4.71
 Louis Reasoner wonders why the simple-query and disjoin procedures
 (4.4.4.2) are implemented using explicit delay operations, rather than
 being defined as follows:
@@ -2654,9 +2660,9 @@ Can you find examples that illustrate this difference? |#
 
 
 #| TODO Exercise 4.79
-When we implemented the Lisp evaluator in section *Note 4-1::, we saw how
-to use local environments to avoid name conflicts between the parameters of
-procedures. For example, in evaluating
+When we implemented the Lisp evaluator in section *Note 4-1, we
+saw how to use local environments to avoid name conflicts between
+the parameters of procedures. For example, in evaluating
 
      (define (square x)
        (* x x))
@@ -2697,4 +2703,4 @@ answer is probably worth a Ph.D.) |#
       ;; load our tests
       (load "test/evaluator.scm")
       ;; start the REPL
-      (driver-loop 'qeval-noloop)))
+      (driver-loop 'qeval)))
