@@ -34,6 +34,16 @@
          registers)
     mach))
 
+(define (machine-run mach init)
+  "Run a machine with the registers initialized to the alist in `init' and
+then dumps the values of all registers"
+  (map (λ (el) (set-register-contents! mach (car el) (cdr el))) init)
+  (start mach)
+  (map
+   (λ (reg) (cons (car reg)
+                  (get-contents (get-register mach (car reg)))))
+   (mach 'dump-registers)))
+
 (define-syntax define-register-machine
   (syntax-rules ()
     ((define-register-machine var #:registers registers #:ops ops #:assembly assembly)
@@ -41,15 +51,6 @@
                   #:registers 'registers
                   #:ops       `ops
                   #:assembly  'assembly)))))
-
-(define (machine-run mach init)
-  (map (λ (el)
-         (set-register-contents! mach (car el) (cdr el)))
-       init)
-  (start mach)
-  (map
-   (λ (reg) (cons (car reg) (get-contents (get-register mach (car reg)))))
-   (mach 'dump-registers)))
 
 
 
@@ -66,6 +67,7 @@ controller diagrams for this machine.
                   (+ counter 1))))
       (iter 1 1))
 |#
+
 (define-register-machine factorial
   #:registers (n product counter)
   #:ops       ((> ,>) (* ,*) (+ ,+))
@@ -82,9 +84,7 @@ controller diagrams for this machine.
 
 (machine-run factorial '((n . 6)))
 
-#|
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
       ;; load our tests
       (load "test/machine.scm")))
-|#
