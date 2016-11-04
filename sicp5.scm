@@ -23,15 +23,26 @@
 
 ;; Section 4.1
 (include "/home/zv/z/practice/sicp/machine/register.scm")
+(define (extract-config-names items)
+  (map (lambda (elt)
+         (if (list? elt)
+             (car elt)
+             elt))
+       items))
 
 (define* (build-rmachine #:key registers ops assembly)
-  (let* ([register-names
-          (map (λ (elt) (if (list? elt) (car elt) elt)) registers)]
-         [mach (make-machine register-names ops assembly)])
+  (let* ([register-names (extract-config-names registers)]
+         [proc-ops (map (λ (op)
+                     (if (list? op) op
+                         (list op (eval op (interaction-environment)))))
+                   ops)]
+         [mach (make-machine register-names proc-ops assembly)])
+    ;; Take each of the registers and set it's value as specified in the arguments
     (map (λ (elt)
            (if (list? elt)
                (set-register-contents! mach (car elt) (cadr elt))))
          registers)
+    ;; done
     mach))
 
 (define (machine-run mach init)
@@ -53,7 +64,6 @@ then dumps the values of all registers"
                   #:assembly  'assembly)))))
 
 
-
 #| Exercise 5.1
 Design a register machine to compute factorials using the iterative
 algorithm specified by the following procedure. Draw data-path and
@@ -70,9 +80,8 @@ controller diagrams for this machine.
 
 (define-register-machine factorial
   #:registers (n product counter)
-  #:ops       ((> ,>) (* ,*) (+ ,+))
-  #:assembly  (init
-               (assign counter (const 1))
+  #:ops       (> * +)
+  #:assembly  ((assign counter (const 1))
                (assign product (const 1))
                loop
                (test (op >) (reg counter) (reg n))
@@ -82,7 +91,6 @@ controller diagrams for this machine.
                (goto (label loop))
                end-fib))
 
-(machine-run factorial '((n . 6)))
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
