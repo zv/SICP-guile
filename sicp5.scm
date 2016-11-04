@@ -129,8 +129,7 @@ register-machine language.
                (branch (label end-newton))
                (assign guess (op improve) (reg guess) (reg x))
                (goto (label improve))
-               end-newton
-               ))
+               end-newton))
 
 
 #| Exercise 5.4
@@ -157,7 +156,7 @@ Iterative exponentiation:
     (expt-iter n 1))
 |#
 
-(define-register-machine recursiveexpt
+(define-register-machine recursive-expt
   #:registers (n b result stored-pc counter)
   #:ops       (* - = +)
   #:assembly  ((assign stored-pc (label immediate))
@@ -182,6 +181,21 @@ Iterative exponentiation:
                (assign result (const 1))
                (goto (reg stored-pc))
                done))
+
+(define-register-machine iter-expt
+  #:registers (counter n b result)
+  #:ops       (* - = +)
+  #:assembly  ((assign result (const 1))
+               (assign counter (const 1))
+               for-loop
+               (assign result (op *) (reg result) (reg b))
+               (test (op =) (reg n) (reg counter)) ;; is n == counter
+               (branch (label done))
+               (assign counter (op +) (reg counter) (const 1))
+               (goto (label for-loop))
+               done))
+
+
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
