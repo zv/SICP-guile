@@ -91,6 +91,47 @@ controller diagrams for this machine.
                (goto (label loop))
                end-fib))
 
+
+#| Exercise 5.3
+Design a machine to compute square roots using Newton’s method, as
+described in 1.1.7:
+
+  (define (sqrt x)
+    (define (good-enough? guess)
+      (< (abs (- (square guess) x)) 0.001))
+    (define (improve guess)
+      (average guess (/ x guess)))
+    (define (sqrt-iter guess)
+      (if (good-enough? guess)
+          guess
+          (sqrt-iter (improve guess))))
+    (sqrt-iter 1.0))
+
+Begin by assuming that good-enough? and improve operations are available as
+primitives. Then show how to expand these in terms of arithmetic
+operations. Describe each version of the sqrt machine design by drawing a
+data-path diagram and writing a controller definition in the
+register-machine language.
+|#
+
+(define (average a b) (/ (+ a b) 2))
+(define (square x) (* x x))
+(define (newton/good-enough? guess x) (< (abs (- (square guess) x)) 0.001))
+(define (newton/improve guess x) (average guess (/ x guess)))
+
+(define-register-machine newtons
+  #:registers (x guess)
+  #:ops       ((good-enough ,newton/good-enough?)
+               (improve ,newton/improve))
+  #:assembly  ((assign guess (const 1.0))
+               improve
+               (test (op good-enough) (reg guess) (reg x))
+               (branch (label end-newton))
+               (assign guess (op improve) (reg guess) (reg x))
+               (goto (label improve))
+               end-newton
+               ))
+
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
