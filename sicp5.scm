@@ -132,6 +132,56 @@ register-machine language.
                end-newton
                ))
 
+
+#| Exercise 5.4
+Specify register machines that implement each of the following procedures.
+For each machine, write a controller instruction sequence and draw a
+diagram showing the data paths.
+
+Recursive exponentiation:
+
+  (define (expt b n)
+    (if (= n 0)
+        1
+        (* b
+           (expt b (- n 1)))))
+
+Iterative exponentiation:
+
+  (define (expt b n)
+    (define (expt-iter counter product)
+      (if (= counter 0)
+          product
+          (expt-iter (- counter 1)
+                     (* b product))))
+    (expt-iter n 1))
+|#
+
+(define-register-machine recursiveexpt
+  #:registers (n b result stored-pc counter)
+  #:ops       (* - = +)
+  #:assembly  ((assign stored-pc (label immediate))
+               (assign counter (const 0))
+               start
+               (test (op =) (reg n) (reg counter)) ;; if n == 0
+               (branch (label immediate))
+               (assign stored-pc (label stkretn))
+               (save b)
+               (assign counter (op +) (reg counter) (reg n))
+               (goto (label start))
+               ;; now sum our values by popping off `counter' elts from the stack
+               stkretn
+               (assign result (op *) (reg result) (reg b))
+               ;; store our popped value in `result'
+               (assign counter (op -) (reg counter) (const 1))
+               (test (op =) (const 0) (reg counter))
+               (branch (label done))
+               (goto (label stkretn))
+               ;; We're done, store '2' in 'eax'
+               immediate
+               (assign result (const 1))
+               (goto (reg stored-pc))
+               done))
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
