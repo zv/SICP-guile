@@ -1,177 +1,178 @@
-* SICP Study Notes
+* SICP
 ** Why?
-SICP has been a great classic of computer science for more than two decades and
-is likely to remain so for many more. It's reputation grew throughout the 90s
-but continued to do so posthumously - the 6.001 course is now a Python oriented
-course to accommodate shifting computing trends. SICP's broad strokes remain as
-vibrant as the day it was written however. The real soul of this book is in it's
-exercises: a powerful graphics language, a computer algebra system, a Scheme and
-"JIT" evaluator, a Prolog-like langauge and *much* more. This has spawned a long
-tradition of hackers comprehensively studying it and writing solutions to it's
-exercises.
+   SICP has been a great classic of computer science for more than two decades
+   and is likely to remain so for many more. It's reputation has grown
+   throughout the 90s and continued to do so 'posthumously': the 6.001 course
+   (which SICP served as the textbook of) is now a Python oriented course to
+   accommodate shifting computing trends. SICP's broad strokes remain as vibrant
+   as the day it was written however. The real soul of this book is in it's
+   exercises: a powerful graphics language, a computer algebra system, a Scheme
+   and "JIT" evaluator, a Prolog-like langauge and more. This expansive coverage
+   of so many topics of computing spawned a long tradition of hackers studying
+   it and writing solutions to it's exercises.
 
-Unfortunately, exhaustive readings of the book were unlikely for it's target
-audience. SICP contains statements and source code that are redundant or
-ambiguous. SICP asks readers to consider code and structures whose details are
-described in principle, only later introducing their implementation. This
-pedagogical approach is maybe more sensible in the lecture hall, it is
-inefficient for the enthusiast.
+   An exhaustive reading of the book was unlikely for it's target audience. SICP
+   contains statements and source code that are redundant or ambiguous. Asking
+   readers to consider code and structures whose details are described in
+   principle, only later introducing their implementation. This pedagogical
+   approach is maybe more sensible in the lecture hall, but is inefficient for
+   the enthusiast.
 
-SICP makes it your responsibility to learn what the book has to teach, and part
-of that duty is ensuring you'll actually finish it by eliminating the
-details like dredging it's contents to clarify a remark or realizing
-in hindsight that a few minutes when starting a chapter could've saved hours
-down the road.
+   SICP makes it your responsibility to learn what the book has to teach, and
+   part of that duty is ensuring you'll actually finish it by eliminating the
+   details like dredging it's contents to clarify a remark or realizing in
+   hindsight that a few minutes when starting a chapter could've saved hours
+   down the road.
 
-If you get *absolutely* stuck, this repository also contains unique solutions to
-almost all of the exercises in Guile & PLT Scheme.
+   If you get *absolutely* stuck, this repository also contains unique solutions to
+   almost all of the exercises in Guile & PLT Scheme.
 
-If you are interested in exploit writing, assembly or reverse engineering
-"proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
-Windows Kernel]]" study guide and solutions as well.
+   If you are interested in exploit writing, assembly or reverse engineering
+   "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
+   Windows Kernel]]" study guide and solutions as well.
 
 ** How To Do It
 **** Getting It
-Although the original is [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you strip down to the
-texinfo basics or gear up to a fully-featured experience on the web.
-- [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
-- [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
+     Although the original is [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you strip down to the
+     texinfo basics or gear up to a fully-featured experience on the web.
+     - [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
+     - [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
 
 **** Environment
-SICP can be more than didactic, it /can/ be fun. The easiest way to do this is
-to have a great and pain free environment and REPL. I couldn't imagine doing it
-with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at home /in/ Emacs too.]]
+     SICP can be more than didactic, it /can/ be fun. The easiest way to do this
+     is to have a great and pain free environment and REPL. I couldn't imagine
+     doing it with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at
+     home /in/ Emacs too.]]
 
 **** Language
-The original publication uses [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]]. Many readers since have used various
-Schemes, Lisps and languages pretending to be either. I've seen the following
-used and have tried to approximate their fitness for the task with some features
-I've found useful:
+     SICP recommends [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] itself, however many readers since have used
+     various Schemes, Lisps and languages pretending to be either. I've seen the
+     following used and have tried to approximate their fitness for the task
+     with some features I've found useful:
 
-+ Object system is not requried but can save you lots of time
-+ Being able to redefine a function in the same file is extremely useful in doing SICP - some languages prohibit this.
-+ A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
-+ Several chapters more-or-less require mutable lists. Languages like Racket support mutable lists but use different method names and so will require you rewrite some code from the book.
-+ Some chapters, particularly those dealing with changes to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
+     + Object system is not requried but can save you lots of time
+     + Being able to redefine a function in the same file is extremely useful in doing SICP.
+     + A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
+     + Several chapters more-or-less require mutable lists. Languages like Racket support mutable lists but use different method names and so will require you rewrite some code from the book.
+     + Some chapters, particularly those dealing with changes to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
 
-| Language  | Ease | Unit Tests | Native OOP | Redefinition | ~set!~ | Notes                                                                               |
-|-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
-| Guile     | 5/5  | ✓          | ✓          | ✓            | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
-| Racket    | 3/5  | ✓          | ✓          |              |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
-| MITScheme | 5/5  | ?          |            | ✓            | ✓      | The Default SICP Choice                                                             |
-| LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
-| Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
+     | Language  | Ease | Unit Tests | Native OOP | Redefinition | ~set!~ | Notes                                                                               |
+     |-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
+     | Guile     | 5/5  | ✓          | ✓          | ✓            | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
+     | Racket    | 3/5  | ✓          | ✓          |              |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
+     | MITScheme | 5/5  | ?          |            | ✓            | ✓      | The Default SICP Choice                                                             |
+     | LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
+     | Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
 
-I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]], both
-I've heard are servicable.
+     I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]], both
+     I've heard are servicable.
 
 ***** Using a Non-Lisp?
-Some online commentators have described SICP as stressing homoiconicicity, but
-if such implicit emphasis exists I couldn't detect any (although the concept
-/itself/ is referenced obliquely).
+      Some online commentators have described SICP as stressing homoiconicicity, but
+      if such implicit emphasis exists I couldn't detect any (although the concept
+      /itself/ is referenced obliquely).
 
-It is completely possible, if unhinged, to entirely do SICP in a language like
-Javascript or Ruby. I personally have reimplemented several challenges in JS and
-did get a dash of enlightenment that is usually very remote in Javascript (as
-well as learning something /about/ JS that few JS textbooks teach).
+      It is completely possible, if unhinged, to entirely do SICP in a language like
+      Javascript or Ruby. I personally have reimplemented several challenges in JS and
+      did get a dash of enlightenment that is usually very remote in Javascript (as
+      well as learning something /about/ JS that few JS textbooks teach).
 
-Chapter 4's implementation would be the first major hurdle for an nonlisp
-effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
-accommodate Javascript.]] Others have used techniques solely from an earlier
-chapters to write Sexp parsers to write a Scheme interpreter inside JS. 
+      Chapter 4's implementation would be the first major hurdle for an nonlisp
+      effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
+      accommodate Javascript.]] Others have used techniques solely from an earlier
+      chapters to write Sexp parsers to write a Scheme interpreter inside JS. 
 
-All of this carries the risk of getting *completely* different message than the
-book intended to convey.
+      All of this carries the risk of getting *completely* different message than the
+      book intended to convey.
 
-Caveat Emptor.
-
+      Caveat Emptor.
 
 ** Contents
 *** Chapter 1
-If you've got experience programming in any functional programming language,
-this chapter will be pretty straitforward for you.
+    If you've got experience programming in any functional programming language,
+    this chapter will be pretty straitforward for you.
 
-Even if you feel like the foundational material is old news to your, there are
-many numerical routines that you might be exposed to for the first time here.
+    Even if you feel like the foundational material is old news to your, there are
+    many numerical routines that you might be exposed to for the first time here.
 
-A quick review:
-- Implementing loops with recursive functions
-- car/cdr/cons and other lisp list manipulation functions
-- Some 'highlight' results from Computability theory (Ackermann's function et al)
-- Numerous Monte Carlo methods for approximating PI
-- A Change Counting "machine"
-- Euclid's method for greatest common denominator
-- High Level Functions
-- Fermat's Triangle
-- Define, convert and calculate fixed points of lots of common functions
-- Convert reals to rationals
-- Approximate trigonometric functions
+    A quick review:
+    - Implementing loops with recursive functions
+    - car/cdr/cons and other lisp list manipulation functions
+    - Some 'highlight' results from Computability theory (Ackermann's function et al)
+    - Numerous Monte Carlo methods for approximating PI
+    - A Change Counting "machine"
+    - Euclid's method for greatest common denominator
+    - High Level Functions
+    - Fermat's Triangle
+    - Define, convert and calculate fixed points of lots of common functions
+    - Convert reals to rationals
+    - Approximate trigonometric functions
 
 *** Chapter 2
-The chapter covers a lot of ground and doesn't stay put in any one place for
-long. It's highly rewarding and warmed me up to the rest of the book.
+    The chapter covers a lot of ground and doesn't stay put in any one place for
+    long. It's highly rewarding and warmed me up to the rest of the book.
 
-Some things covered include
+    Some things covered include
 
-- Lambda calculus
-- Symbolic Computation & computer algebra systems with automatic integration & differentiation
-- Encoding, Decoding and all around learning everything about Huffman Trees from the ground up
-- The universality of the ~(list)~ datastructure in Lisp
-- Dynamic Programming and hierarchical data structures
-- Different ways to achieve language features like type-dispatch, message passing and inheritance
+    - Lambda calculus
+    - Symbolic Computation & computer algebra systems with automatic integration & differentiation
+    - Encoding, Decoding and all around learning everything about Huffman Trees from the ground up
+    - The universality of the ~(list)~ datastructure in Lisp
+    - Dynamic Programming and hierarchical data structures
+    - Different ways to achieve language features like type-dispatch, message passing and inheritance
 
-This book starts to give you a few nuggets of profound realization that the book
-is known for. It gets even better.
+    This book starts to give you a few nuggets of profound realization that the book
+    is known for. It gets even better.
 
 **** 2.4 - Multiple Representation of Abstract Data
-This chapter is unusual. It's the least and the *most* important for practice of
-programming at large. The chapter justifies and presents simplified summaries of
-the implementation details of important programming language features and why they
-are useful.
+     This chapter is unusual. It's the least and the *most* important for practice of
+     programming at large. The chapter justifies and presents simplified summaries of
+     the implementation details of important programming language features and why they
+     are useful.
 
-There are only 4 exercises, so you can mostly relax and focus on the content,
-although both /2.73/ and /2.75/ show up later.
+     There are only 4 exercises, so you can mostly relax and focus on the content,
+     although both /2.73/ and /2.75/ show up later.
 
 *** Chapter 3
-This chapter is the beginning of the end of standard computing textbook and the
-beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
-temptations to skip content, the first paragraphs of some chapters give the impression
-of covering what seems like already well-worn ground as a programmer - the content of the 
-chapters differ wildly from whats "on the tin".
+    This chapter is the beginning of the end of standard computing textbook and the
+    beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
+    temptations to skip content, the first paragraphs of some chapters give the impression
+    of covering what seems like already well-worn ground as a programmer - the content of the 
+    chapters differ wildly from whats "on the tin".
 
-Even if you are familiar, SICP has something of a reputation for taking the
-well-worn concepts and turning them inside out to expose their "true" structure [fn:2]. 
+    Even if you are familiar, SICP has something of a reputation for taking the
+    well-worn concepts and turning them inside out to expose their "true" structure [fn:2]. 
 
-An important tip for chapter 3 is *DO NOT USE A LANGUAGE WITHOUT MUTABLE LISTS*:
-If you are working with languages without convienent mutable data: I started out
-with Racket but was forced to rewrite my work after realizing that Racket's
-~mlists~ were not going to cut it for a chapter focused on the use and danger of
-mutable structures.
+    An important tip for chapter 3 is *DO NOT USE A LANGUAGE WITHOUT MUTABLE LISTS*:
+    If you are working with languages without convienent mutable data: I started out
+    with Racket but was forced to rewrite my work after realizing that Racket's
+    ~mlists~ were not going to cut it for a chapter focused on the use and danger of
+    mutable structures.
 
-Another important consideration is the parallel programming facilities of your
-language, the book demands a true concurrency environemtn in order for some
-exercises and examples to work right.
+    Another important consideration is the parallel programming facilities of your
+    language, the book demands a true concurrency environemtn in order for some
+    exercises and examples to work right.
 
 
 **** 3.34
-The center of 3.34 is the constraint solver. Following the books implementation
-is slower but does remove any function-to-function mapping confusion. On the other hand,
-writing your own saves you some time but requires a bit more non-SICP effort.
+     The center of 3.34 is the constraint solver. Following the books implementation
+     is slower but does remove any function-to-function mapping confusion. On the other hand,
+     writing your own saves you some time but requires a bit more non-SICP effort.
 
 ***** A Skeleton Constraint Solver Class
-The book implements the primary classes of the constraint-solver as
-straitforward Lisp functions with closures. Classes let you solve exercises
-faster, write fewer lines and be more satisfied with your final result.
+      The book implements the primary classes of the constraint-solver as
+      straitforward Lisp functions with closures. Classes let you solve exercises
+      faster, write fewer lines and be more satisfied with your final result.
 
-The following are example base-classes for the primary classes along with their
-entire implementation, which allow method introduced later later in the chapter
-such as ~process-new-value~ and ~process-forget-value~ to share implementation
-details regardless of if they are operating on an ~adder~ or ~multiplier~.
+      The following are example base-classes for the primary classes along with their
+      entire implementation, which allow method introduced later later in the chapter
+      such as ~process-new-value~ and ~process-forget-value~ to share implementation
+      details regardless of if they are operating on an ~adder~ or ~multiplier~.
 
 ****** Constraint
-[[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L823-L925][Implementation]]
+       [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L823-L925][Implementation]]
 
-#+BEGIN_SRC scheme
+       #+BEGIN_SRC scheme
 (define-class <constraint> ()
   (lhs #:getter lhs
        #:init-keyword #:lhs)
@@ -181,12 +182,12 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
          #:init-keyword #:total)
   (operator #:getter constraint-operator)
   (inverse-operator #:getter constraint-inv-operator))
-#+END_SRC
+       #+END_SRC
 
 ****** Connector
-[[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L777-L821][Implementation]]
+       [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L777-L821][Implementation]]
 
-#+BEGIN_SRC scheme
+       #+BEGIN_SRC scheme
 (define-class <connector> ()
   (value #:init-value #f
          #:accessor connector-value
@@ -202,12 +203,12 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 
 (define (make-connector)
   (make <connector>))
-#+END_SRC
+       #+END_SRC
 
 ****** Probe
-[[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L918-L933][Implementation]]
+       [[https://github.com/zv/SICP-guile/blob/232a32fcc6091d4f167ea6c4458ab1e55645f11b/sicp3.scm#L918-L933][Implementation]]
 
-#+BEGIN_SRC scheme
+       #+BEGIN_SRC scheme
 (define-class <probe> (<constraint>)
   (name #:getter name
         #:setter set-name
@@ -219,98 +220,97 @@ details regardless of if they are operating on an ~adder~ or ~multiplier~.
 (define (probe name connector)
   (let ((cs (make <probe> #:name name #:connector connector)))
     (connect connector cs) cs))
-#+END_SRC
-
+       #+END_SRC
 *** Chapter 4
-This chapter centers around the creation of a number of Scheme evaluators and is
-widely regarded as the most substantial chapter. The regularity with which it
-revises it's own ideas make a testing framework and toolbelt a profitable use
-of your time.
+    This chapter centers around the creation of a number of Scheme evaluators and is
+    widely regarded as the most substantial chapter. The regularity with which it
+    revises it's own ideas make a testing framework and toolbelt a profitable use
+    of your time.
 
-If you've chosen a language that stresses immutability (like Racket or Clojure)
-you'll have a fair amount of extra work ahead of you - The default evaluator uses
-a stack that is manipulated with the use of ~set!~. 
+    If you've chosen a language that stresses immutability (like Racket or Clojure)
+    you'll have a fair amount of extra work ahead of you - The default evaluator uses
+    a stack that is manipulated with the use of ~set!~. 
 
-Don't take my word on it though:
+    Don't take my word on it though:
 
-#+BEGIN_QUOTE
-I'm close the finishing the last major chunk of the book. Working with two
-colleagues for around two hours a week, its taken us nearly a year to get this
-far. Of course, we did every exercise, and lost a lot of time trying to work
-around incompatibilities between standard Scheme and the interesting corners of
-DrScheme [now DrRacket - ~mcons~, I'm looking at you]. Now we use mit-scheme and
-I wish we had done so from the very beginning.
+    #+BEGIN_QUOTE
+    I'm close the finishing the last major chunk of the book. Working with two
+    colleagues for around two hours a week, its taken us nearly a year to get this
+    far. Of course, we did every exercise, and lost a lot of time trying to work
+    around incompatibilities between standard Scheme and the interesting corners of
+    DrScheme [now DrRacket - ~mcons~, I'm looking at you]. Now we use mit-scheme and
+    I wish we had done so from the very beginning.
 
-I don't think the book is perfect. I found the structure of Chapter 4, where a
-Scheme interpreter is built, confusing and irritating. The exercises are
-interspersed with the text in a way that doesn't allow you to test any of your
-solutions unless you read ahead to get more infrastructure. This seems deeply
-unREPLy to me. Once I had typed in enough of the supporting code to actually run
-my proposed solutions, and pulled some hair out debugging my broken code, I had
-some marvellous moments of epiphany. That Ahah! is what maks [sic] the book's
-reputation, and what makes the effort worthwhile. But it could have been better.
-#+END_QUOTE
+    I don't think the book is perfect. I found the structure of Chapter 4, where a
+    Scheme interpreter is built, confusing and irritating. The exercises are
+    interspersed with the text in a way that doesn't allow you to test any of your
+    solutions unless you read ahead to get more infrastructure. This seems deeply
+    unREPLy to me. Once I had typed in enough of the supporting code to actually run
+    my proposed solutions, and pulled some hair out debugging my broken code, I had
+    some marvellous moments of epiphany. That Ahah! is what maks [sic] the book's
+    reputation, and what makes the effort worthwhile. But it could have been better.
+    #+END_QUOTE
 
-You'll accomplish the following here:
+    You'll accomplish the following here:
 
-- Simple Evaluator
-  - Implement a variable-only '/stack/' without stored function pointers. 
-  - Implement Type-Dispatching Evaluator
-  - Implement all major features of scheme used thus far
-    - Various forms of ~let~
-    - ~letrec~
-    - ~cond~
-    - Predicates
-    - etc.
-  - Simultaneous vs. Ordered ~define~
-  - The Implementation of Closures
-- Just-in-Time Interpreter/Compiler (the 'analyzer')
-  - Challenges of a JIT
-- Lazy Evaluator
-  - Differences between lazy variables and a lazy interpreter
-  - Relationship to the promise functions ~force~ and ~delay~
-  - Build a model of side-effects in lazy (or otherwise) evaluators
-  - Implementation and use of '[[https://en.wikipedia.org/wiki/Thunk][thunks]]'
-  - Permitting choice by adding lazy features to basic eval
-- "Nondeterministic" & Logic Evaluator
-  - Apply our earlier DFS with backtracking knowledge to build logic solvers
-  - Implement a system of closures for tracking logic unification state
-  - Understanding rule-oriented (as opposed to procedure-oriented) computing
-  - Simplify problems to their essential logical form (and solve them)
-  - Implementation of 'Pattern Matching' ala Erlang
-  - A "true" parser
-    - Specify a grammar for natural language
-    - ...and then writing something that emits all possible sentences
-  - Use a random evaluator to explore choices in a truly nondeterministic fashion
-  
- 
+    - Simple Evaluator
+      - Implement a variable-only '/stack/' without stored function pointers. 
+      - Implement Type-Dispatching Evaluator
+      - Implement all major features of scheme used thus far
+        - Various forms of ~let~
+        - ~letrec~
+        - ~cond~
+        - Predicates
+        - etc.
+      - Simultaneous vs. Ordered ~define~
+      - The Implementation of Closures
+    - Just-in-Time Interpreter/Compiler (the 'analyzer')
+      - Challenges of a JIT
+    - Lazy Evaluator
+      - Differences between lazy variables and a lazy interpreter
+      - Relationship to the promise functions ~force~ and ~delay~
+      - Build a model of side-effects in lazy (or otherwise) evaluators
+      - Implementation and use of '[[https://en.wikipedia.org/wiki/Thunk][thunks]]'
+      - Permitting choice by adding lazy features to basic eval
+    - "Nondeterministic" & Logic Evaluator
+      - Apply our earlier DFS with backtracking knowledge to build logic solvers
+      - Implement a system of closures for tracking logic unification state
+      - Understanding rule-oriented (as opposed to procedure-oriented) computing
+      - Simplify problems to their essential logical form (and solve them)
+      - Implementation of 'Pattern Matching' ala Erlang
+      - A "true" parser
+        - Specify a grammar for natural language
+        - ...and then writing something that emits all possible sentences
+      - Use a random evaluator to explore choices in a truly nondeterministic fashion
+
+
 **** Functional-First Approach
-Some evaluator exercises occur prior to their implementation, most frequently
-taking the following form:
+     Some evaluator exercises occur prior to their implementation, most frequently
+     taking the following form:
 
-1. Talk about the motivation and abstract concepts employed by an evaluator
-2. Discuss Implementation
-3. Exercises asking for implementation of various features
-4. Actual scheme code defining the implementation
- 
-Instead of following the book linearly, I think that having a working
-implementation is extremely important throughout the book, so I'd recommend you
-include the entire evaluator prior to completing exercises related to it. [[https://mitpress.mit.edu/sicp/code/index.html][The
-Complete Code from SICP 2/e]] is available and can be used directly if you are
-using a mainline scheme distribution.
+     1. Talk about the motivation and abstract concepts employed by an evaluator
+     2. Discuss Implementation
+     3. Exercises asking for implementation of various features
+     4. Actual scheme code defining the implementation
+
+     Instead of following the book linearly, I think that having a working
+     implementation is extremely important throughout the book, so I'd recommend you
+     include the entire evaluator prior to completing exercises related to it. [[https://mitpress.mit.edu/sicp/code/index.html][The
+     Complete Code from SICP 2/e]] is available and can be used directly if you are
+     using a mainline scheme distribution.
 
 **** Testing
-Starting with a testing strategy is essential to preserving sanity here; I
-recommend using the input → result REPL 'dialogues' listed in the text to ensure
-that you are conforming to the features that the authors expect you to use in the 
-coming exercises.
+     Starting with a testing strategy is essential to preserving sanity here; I
+     recommend using the input → result REPL 'dialogues' listed in the text to ensure
+     that you are conforming to the features that the authors expect you to use in the 
+     coming exercises.
 
 ***** The Test Runner
-The default Guile test runner will output a =.log= file to your current directory
-instead of printing errors to =stdout=. This is an example test-runner that allows
-for more immediate testing.
+      The default Guile test runner will output a =.log= file to your current directory
+      instead of printing errors to =stdout=. This is an example test-runner that allows
+      for more immediate testing.
 
-#+BEGIN_SRC scheme
+      #+BEGIN_SRC scheme
 (use-modules (srfi srfi-64))
 (define (sicp-evaluator-runner)
   (let* ((runner (test-runner-null))
@@ -342,12 +342,12 @@ for more immediate testing.
 
 (test-runner-factory
  (lambda () (sicp-evaluator-runner)))
-#+END_SRC
+      #+END_SRC
 
 ***** ~test-eval~ Macro
-This simple macro allows you to directly extract the expected/result pairs from
-the REPL excerpts.
-#+BEGIN_SRC scheme
+      This simple macro allows you to directly extract the expected/result pairs from
+      the REPL excerpts.
+      #+BEGIN_SRC scheme
  ;; Standard Evaluator Tests
 (define-syntax test-eval
   (syntax-rules (=> test-environment test-equal)
@@ -357,13 +357,13 @@ the REPL excerpts.
      (test-eqv  expect (test-evaluator 'expr test-environment)))
     ((test-eval expr expect)
      (test-eqv  expect (test-evaluator 'expr test-environment)))))
-#+END_SRC
+      #+END_SRC
 
 ***** Unit Tests
-Now just add tests! The next section of this guide will show you how to
-automatically run tests at sensible points as part of the ~driver-loop~.
+      Now just add tests! The next section of this guide will show you how to
+      automatically run tests at sensible points as part of the ~driver-loop~.
 
-#+BEGIN_SRC scheme
+      #+BEGIN_SRC scheme
 (test-begin "Tests") ; Begin our tests
 (test-begin "Evaluator") ; Begin evaluator tests
 (test-begin "Basic") ; The basic (4.1) evaluator
@@ -385,25 +385,25 @@ automatically run tests at sensible points as part of the ~driver-loop~.
 (test-end "Basic")
 (test-end "Evaluator")
 (test-end "Tests")
-#+END_SRC
+      #+END_SRC
 
 **** Code Reuse
 
 ***** Evaluator
-Features common to 
-- An evaluator function driven by a switch statement
-- An application function that extends the frame
-- A driver loop that makes both accessible in the form of a REPL
+      Features common to 
+      - An evaluator function driven by a switch statement
+      - An application function that extends the frame
+      - A driver loop that makes both accessible in the form of a REPL
 
 ****** Type-dispatch for the core evaluator switch statement
-[[http://sarabander.github.io/sicp/html/4_002e1.xhtml#Exercise-4_002e3][Exercise 4.3]] asks you to implement a type-dispatch scheme for the base
-evaluator, allowing you to incrementally introduce functionality rather than
-rewrite ~eval~ with each new feature. This turns out to be very useful
-and I wrote all my evaluators in this style.
+       [[http://sarabander.github.io/sicp/html/4_002e1.xhtml#Exercise-4_002e3][Exercise 4.3]] asks you to implement a type-dispatch scheme for the base
+       evaluator, allowing you to incrementally introduce functionality rather than
+       rewrite ~eval~ with each new feature. This turns out to be very useful
+       and I wrote all my evaluators in this style.
 
-The concept is demonstrated here:
+       The concept is demonstrated here:
 
-#+BEGIN_SRC scheme
+       #+BEGIN_SRC scheme
 (define-class <dispatch-table> ()
   (method-table #:init-value  (make-hash-table)
                 #:getter      method-table))
@@ -438,20 +438,20 @@ The concept is demonstrated here:
 (install-procedure `(undefine ,eval-undefinition))
 
 (install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
-#+END_SRC
+       #+END_SRC
 
 ****** Driver Loops
-Just as you dispatched a procedure specific to an evaluator above, you can do
-the same with the ~driver-loop~ implementation provided to each evaluator.
+       Just as you dispatched a procedure specific to an evaluator above, you can do
+       the same with the ~driver-loop~ implementation provided to each evaluator.
 
-1. You'll want to be able to quickly switch the evaluator invoked by ~driver-loop~ as you progress through the chapter and later chapters have a radically different loop.
-2. [[http://www.nongnu.org/geiser/][Geiser]] is a very popular scheme integration module for Emacs Lisp that you will probably use. Like many IDE-integrated IDE's it doesn't deal well with a program that requests user input on =stdin=.
-3. You can share more code, even between radically different implementations.
+       1. You'll want to be able to quickly switch the evaluator invoked by ~driver-loop~ as you progress through the chapter and later chapters have a radically different loop.
+       2. [[http://www.nongnu.org/geiser/][Geiser]] is a very popular scheme integration module for Emacs Lisp that you will probably use. Like many IDE-integrated IDE's it doesn't deal well with a program that requests user input on =stdin=.
+       3. You can share more code, even between radically different implementations.
 
-My approach is simple - add an entry to a table of ~driver-loop~ implementations
-which are chosen at runtime.
+       My approach is simple - add an entry to a table of ~driver-loop~ implementations
+       which are chosen at runtime.
 
-#+BEGIN_SRC scheme
+       #+BEGIN_SRC scheme
 ;; This function is what actually gets called to invoke your evaluator's REPL
 (define (driver-loop evaluator)
   ((get dispatch-tt 'driver-loop evaluator)))
@@ -489,14 +489,14 @@ which are chosen at runtime.
       ;; start the REPL
       (driver-loop 'amb)))
 ;;; EOF
-#+END_SRC
+       #+END_SRC
 
 **** Missing Functions
-Many code excerpts from the text cannot be directly used in the evaluator
-/provided/ by the book itself. Before you initialize your evaluators environment,
-be sure to add the following to your ~primitive-procedures~
+     Many code excerpts from the text cannot be directly used in the evaluator
+     /provided/ by the book itself. Before you initialize your evaluators environment,
+     be sure to add the following to your ~primitive-procedures~
 
-#+BEGIN_SRC lisp
+     #+BEGIN_SRC lisp
 (append! primitive-procedures
          `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
            (= ,=) (< ,<) (<= ,<=) (> ,>) (> ,>=)
@@ -504,102 +504,141 @@ be sure to add the following to your ~primitive-procedures~
            (list ,list)
            (member ,member)
            (display ,display)))
-#+END_SRC
+     #+END_SRC
 
-Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
-one used by the ~analyze~ evaluator.
+     Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
+     one used by the ~analyze~ evaluator.
 
 **** 4.3 - Variations on a Scheme
-The `amb` evaluator presented in 4.3 is far from simple and requires patience and
-an eye for detail to work out whats really going on.
+     The `amb` evaluator presented in 4.3 is far from simple and requires patience and
+     an eye for detail to work out whats really going on.
 
 **** 4.4 - Query Evaluator
-The query evaluator may be the most difficult material yet, particularly if you
-aren't previously familiar with a language like Prolog.
+     The query evaluator may be the most difficult material yet, particularly if you
+     aren't previously familiar with a language like Prolog.
 
-This material requires very careful reading to grasp it's operation and the book
-frequently spends more time on it's consequences over it's content.
+     This material requires very careful reading to grasp it's operation and the book
+     frequently spends more time on it's consequences over it's content.
 
-If you want to grasp it's implementation, you will have to read and reread
-chapter 4.4.4.
+     If you want to grasp it's implementation, you will have to read and reread
+     chapter 4.4.4.
 
-The unification step, which the book itself describes as the most unintuitive aspect,
-should be read thoroughly: It's the material that actually does the process of generating
-deductions from premises. 
+     The unification step, which the book itself describes as the most unintuitive aspect,
+     should be read thoroughly: It's the material that actually does the process of generating
+     deductions from premises. 
 
-It's also important to remember that much of the rest of the material is devoted to various 
-'optimizations' and implementation details that can easily derail you.
+     It's also important to remember that much of the rest of the material is devoted to various 
+     'optimizations' and implementation details that can easily derail you.
 
 ***** Missing Stuff
 ****** Stack Overflows on Exercises
-The query evaluator presented as is cannot compute rules of the form ~(?x rule
-?y)~ as many questions ask to, simply translate them to the postfix form and you
-will be fine.
+       The query evaluator presented as is cannot compute rules of the form ~(?x rule
+       ?y)~ as many questions ask to, simply translate them to the postfix form and you
+       will be fine.
 
-#+BEGIN_EXAMPLE
+       #+BEGIN_EXAMPLE
 (rule (?x next-to ?y in (?x ?y . ?u)))
                 ⇩
 (rule (next-to ?x ?y in (?x ?y . ?u)))
-#+END_EXAMPLE
+       #+END_EXAMPLE
 
+*** Chapter 5
+
+    
+**** A better way to run register machines
+     Here is a macro and runner function for generating a quick register machine definition as follows:
+     #+BEGIN_SRC lisp
+(define-register-machine newtons
+  #:registers (x guess)
+  #:ops       ((good-enough ,newton/good-enough?)
+               (improve ,newton/improve))
+  #:assembly  ((assign guess (const 1.0))
+               improve
+               (test (op good-enough) (reg guess) (reg x))
+               (branch (label end-newton))
+               (assign guess (op improve) (reg guess) (reg x))
+               (goto (label improve))
+               end-newton))
+     #+END_SRC
+
+
+     #+BEGIN_SRC scheme
+(define (machine-run mach init)
+  "Run a machine with the registers initialized to the alist in `init' and
+then dumps the values of all registers"
+  (map (λ (el) (set-register-contents! mach (car el) (cdr el))) init)
+  (start mach)
+  (map
+   (λ (reg) (cons (car reg)
+                  (get-contents (get-register mach (car reg)))))
+   (mach 'dump-registers)))
+
+(define-syntax define-register-machine
+  (syntax-rules ()
+    ((define-register-machine var #:registers registers #:ops ops #:assembly assembly)
+     (define var (build-rmachine
+                  #:registers 'registers
+                  #:ops       `ops
+                  #:assembly  'assembly)))))
+     #+END_SRC
 
 ** If I could do it all again...
-Everyone has regrets, let's hope you have fewer by reading mine.
+   Everyone has regrets, let's hope you have fewer by reading mine.
 
 *** TODO Turns out SICP doesn't include stupid material
-So many books have irrelevant exercises, SICP doesnt.
-I sped through the end of SICP Chapter 3 - I won't do it again.
+    So many books have irrelevant exercises, SICP doesnt.
+    I sped through the end of SICP Chapter 3 - I won't do it again.
 *** TODO Pay more attention to Lazy evaluator
 *** DONE A case of the or-bores
-CLOSED: [2016-08-01 Mon 13:34]
-Implementing ~or~, ~and~ and other other connective logical statements in the
-=amb= evaluator would really be neat -- I just installed a primitive procedure.
+    CLOSED: [2016-08-01 Mon 13:34]
+    Implementing ~or~, ~and~ and other other connective logical statements in the
+    =amb= evaluator would really be neat -- I just installed a primitive procedure.
 
 *** TODO Permutations and the Floor Puzzle
-Permutations and the generation thereof are one of those strange backwaters of
-computer programming that never really manages to fit into the broader scheme
-(ha) of knowledge. I've come up with no less than 3 ways to do them over the
-years, including counting in base-N (where N is the number of permuted items),
-the traditional map-n-slap and other mundane methods.
+    Permutations and the generation thereof are one of those strange backwaters of
+    computer programming that never really manages to fit into the broader scheme
+    (ha) of knowledge. I've come up with no less than 3 ways to do them over the
+    years, including counting in base-N (where N is the number of permuted items),
+    the traditional map-n-slap and other mundane methods.
 
-I always feel guilty not giving an honest effort before looking up an algorithm
-online and I always feel somewhat stumped on permutation problems. Sure, I know
-the "classic" swap algorithm, I've (obviously) implemented the method for
-permuting a list in Chapter 2, but something essential feels like it's getting
-left out.
+    I always feel guilty not giving an honest effort before looking up an algorithm
+    online and I always feel somewhat stumped on permutation problems. Sure, I know
+    the "classic" swap algorithm, I've (obviously) implemented the method for
+    permuting a list in Chapter 2, but something essential feels like it's getting
+    left out.
 
-Take Exercise 4.39, which (loosely) is to solve the floor puzzle without using
-~amb~ *AND* take advantage of knowledge about the puzzle to make it perform
-better than 'depth first'.
+    Take Exercise 4.39, which (loosely) is to solve the floor puzzle without using
+    ~amb~ *AND* take advantage of knowledge about the puzzle to make it perform
+    better than 'depth first'.
 
 *** Exercise 4.43
-I ended up looking at someone elses solution here - This one is hard to solve
- *without* resorting "tricks", such as applying eliminative logic beforehand to
- solve the problem. This mixes all sorts of different kinds of representations
- of data and many solutions are incorrect.
+    I ended up looking at someone elses solution here - This one is hard to solve
+    *without* resorting "tricks", such as applying eliminative logic beforehand to
+    solve the problem. This mixes all sorts of different kinds of representations
+    of data and many solutions are incorrect.
 *** ~parse_words~
-The parse words exercises give you the feeling that something really essential
-is being left out. I completed the exercises but I started to get to a really
-uncomfortable point, especially in Exercise 4.49 that this was some deep
-metaphor for parsing fully-specified grammars.
+    The parse words exercises give you the feeling that something really essential
+    is being left out. I completed the exercises but I started to get to a really
+    uncomfortable point, especially in Exercise 4.49 that this was some deep
+    metaphor for parsing fully-specified grammars.
 
 ** TODO Exercises
-This is a list of exercises I *haven't* completed for some reason or another.
+   This is a list of exercises I *haven't* completed for some reason or another.
 *** Chapter 4
-- 4.32
-- 4.33
-- 4.34
-- 4.44
-- 4.47 (started to get unbelievably bored of these exercises)
-- 4.48 (started to get unbelievably bored of these exercises)
-- 4.49 (started to get unbelievably bored of these exercises)
-- 4.69 (This is both tricky and somewhat irrelevant)
-- 4.70
-- 4.71
+    - 4.32
+    - 4.33
+    - 4.34
+    - 4.44
+    - 4.47 (started to get unbelievably bored of these exercises)
+    - 4.48 (started to get unbelievably bored of these exercises)
+    - 4.49 (started to get unbelievably bored of these exercises)
+    - 4.69 (This is both tricky and somewhat irrelevant)
+    - 4.71
+    - 4.74
 
 * Footnotes
 [fn:1] Including all exercises asking you to draw with pen and paper as well as those specified above.
 [fn:2] Ever wonder how people make calculators and webservers using ONLY
 type-inference without ANY instructions specified? Turns out thats actually
 fairly simple and you are just going to have to read the whole thing to find
-out.
+ou.
