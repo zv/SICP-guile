@@ -211,6 +211,11 @@ machine. Where are these instructions? |#
 Both the save & restore of `continue' are useless.
 |#
 
+                                                  ; The Simulator
+
+
+#| Exercise 5.7: Use the simulator to test the machines you designed in Exercise 5.4. |#
+
 
 
 
