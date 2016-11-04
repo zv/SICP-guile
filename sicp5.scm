@@ -201,7 +201,19 @@ Hand-simulate the factorial and Fibonacci machines, using some nontrivial
 input (requiring execution of at least one recursive call). Show the
 contents of the stack at each significant point in the execution. |#
 
+
+#| Exercise 5.6 
+Ben Bitdiddle observes that the Fibonacci machine’s controller sequence has
+an extra save and an extra restore, which can be removed to make a faster
+machine. Where are these instructions? |#
 
+#| Answer:
+Both the save & restore of `continue' are useless.
+|#
+
+
+
+
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
       ;; load our tests
