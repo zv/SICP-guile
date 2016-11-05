@@ -1,4 +1,5 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
+(use-modules (srfi srfi-111))
 
 (define (make-machine register-names ops controller-text)
   "`Make-machine' then extends this basic model (by sending it
@@ -57,11 +58,11 @@ and to `initialize' the stack to empty."
 
                                                   ; Register
 (define (make-register name)
-  (let ((contents '*unassigned*))
+  (let ((contents (box #nil)))
     (define (dispatch message)
-      (cond ((eq? message 'get) contents)
+      (cond ((eq? message 'get) (unbox contents))
             ((eq? message 'set)
-             (lambda (value) (set! contents value)))
+             (lambda (value) (set-box! contents value)))
             (else
              (error "Unknown request -- REGISTER" message))))
     dispatch))
