@@ -223,3 +223,19 @@ Both the save & restore of `continue' are useless.
     (begin
       ;; load our tests
       (load "test/machine.scm")))
+#| Exercise 5.9
+The treatment of machine operations above permits them to operate on labels
+as well as on constants and the contents of registers. Modify the
+expression-processing procedures to enforce the condition that operations
+can be used only with registers and constants. |#
+(define (make-operation-exp exp machine labels operations)
+  (let ((op (lookup-prim (operation-exp-op exp) operations))
+        (aprocs
+         (map (lambda (e)
+                (if (or (register-exp? e) (constant-exp? e))
+                    (make-primitive-exp e machine labels)
+                    (error "neither register nor constant exp in `make-operation-exp'")))
+              (operation-exp-operands exp))))
+    (lambda ()
+      (apply op (map (lambda (p) (p)) aprocs)))))
+
