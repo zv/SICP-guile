@@ -1,4 +1,5 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
+(use-modules (ice-9 q))
 (use-modules (srfi srfi-111))
 
 (define (make-machine register-names ops controller-text)
@@ -29,25 +30,16 @@ procedure `make-stack' creates a stack whose local state consists of a
 list of the items on the stack.  A stack accepts requests to `push' an
 item onto the stack, to `pop' the top item off the stack and return it,
 and to `initialize' the stack to empty."
-  (let ((s '()))
-    (define (push x)
-      (set! s (cons x s)))
-    (define (pop)
-      (if (null? s)
-          (error "Empty stack -- POP")
-          (let ((top (car s)))
-            (set! s (cdr s))
-            top)))
-    (define (initialize)
-      (set! s '())
-      'done)
-    (define (dispatch message)
-      (cond ((eq? message 'push) push)
-            ((eq? message 'pop) (pop))
-            ((eq? message 'initialize) (initialize))
-            (else (error "Unknown request -- STACK"
-                         message))))
-    dispatch))
+  (let ((s #nil))
+    (define (push x) (q-push! s x))
+    (define (pop) (q-pop! s))
+    (define (initialize) (set! s (make-q)))
+    (λ (msg)
+      (match msg
+        ['push push]
+        ['pop pop]
+        ['initialize initialize]
+        [_ (error "Unknown request -- STACK" msg)]))))
 
 (define (pop stack)
   (stack 'pop))
