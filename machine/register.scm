@@ -50,24 +50,24 @@ and to `initialize' the stack to empty."
 
                                                   ; Register
 (define (make-register name)
-  (let ((contents (box #nil)))
+  (let ([contents (box #nil)]
+        [before-set-hook (make-hook 2)])
     (define (dispatch message)
-      (cond ((eq? message 'get) (unbox contents))
-            ((eq? message 'set)
-             (lambda (value) (set-box! contents value)))
-            (else
-             (error "Unknown request -- REGISTER" message))))
+      (match message
+        ['get (unbox contents)]
+        ['set (λ (value)
+           (run-hook before-set-hook contents value)
+           (set-box! contents value))]
+        ['add-hook (λ (fn) (add-hook! before-set-hook fn))]
+        ['remove-hook! (λ (fn) (remove-hook! before-set-hook fn))]
+        [_ (error "Unknown request -- REGISTER" message)]))
     dispatch))
 
-(define (get-contents register)
-  (register 'get))
-
-(define (set-contents! register value)
-  ((register 'set) value))
-
-
-(define (get-register machine reg-name)
-  ((machine 'get-register) reg-name))
+(define (get-contents register) (register 'get))
+(define (set-contents! register value) ((register 'set) value))
+(define (get-register machine reg-name) ((machine 'get-register) reg-name))
+(define (set-register-hook register fn) ((register 'set-hook) fn))
+(define (remove-register-hook register fn) ((register 'remove-hook) fn))
 
 
                                                   ; The Basic Machine
