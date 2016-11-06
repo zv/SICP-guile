@@ -31,7 +31,7 @@ procedure `make-stack' creates a stack whose local state consists of a
 list of the items on the stack.  A stack accepts requests to `push' an
 item onto the stack, to `pop' the top item off the stack and return it,
 and to `initialize' the stack to empty."
-  (let ((s #nil))
+  (let ((s (make-q)))
     (define (push x) (q-push! s x))
     (define (pop) (q-pop! s))
     (define (initialize) (set! s (make-q)))
@@ -52,12 +52,12 @@ and to `initialize' the stack to empty."
                                                   ; Register
 (define (make-register name)
   (let ([contents (box #nil)]
-        [before-set-hook (make-hook 2)])
+        [before-set-hook (make-hook 3)])
     (define (dispatch message)
       (match message
         ['get (unbox contents)]
         ['set (λ (value)
-           (run-hook before-set-hook contents value)
+           (run-hook before-set-hook name (unbox contents) value)
            (set-box! contents value))]
         ['add-hook (λ (fn) (add-hook! before-set-hook fn))]
         ['remove-hook! (λ (fn) (remove-hook! before-set-hook fn))]
@@ -67,7 +67,7 @@ and to `initialize' the stack to empty."
 (define (get-contents register) (register 'get))
 (define (set-contents! register value) ((register 'set) value))
 (define (get-register machine reg-name) ((machine 'get-register) reg-name))
-(define (set-register-hook register fn) ((register 'set-hook) fn))
+(define (set-register-hook register fn) ((register 'add-hook) fn))
 (define (remove-register-hook register fn) ((register 'remove-hook) fn))
 
 
@@ -166,8 +166,6 @@ returns the modified list."
                     (update-insts! insts labels machine)
                     insts)))
 
-
-
 (define (extract-labels text receive)
   "`Extract-labels' takes as arguments a list `text' (the sequence of
 controller instruction expressions) and a `receive' procedure. `Receive'
@@ -180,18 +178,17 @@ in the list `insts' that the label designates.
 `text' and accumulating the `insts' and the `labels'. If an element is a
 symbol (and thus a label) an appropriate entry is added to the `labels'
 table. Otherwise the element is accumulated onto the `insts' list."
-  (if (null? text)
-      (receive '() '())
+  (if (null? text) (receive '() '())
       (extract-labels (cdr text)
                       (lambda (insts labels)
                         (let ((next-inst (car text)))
                           (if (symbol? next-inst)
                               (receive insts
-                                  (cons (make-label-entry next-inst
-                                                          insts)
+                                  (cons (make-label-entry next-inst insts)
                                         labels))
-                              (receive (cons (make-instruction next-inst)
-                                             insts)
+
+                              (receive
+                                  (cons (make-instruction next-inst) insts)
                                   labels)))))))
 
 
@@ -207,9 +204,13 @@ procedures: "
      (lambda (inst)
        (set-instruction-execution-proc!
         inst
-        (make-execution-procedure
-         (instruction-text inst) labels machine
-         pc flag stack ops)))
+        (make-execution-procedure (instruction-text inst)
+                                  labels
+                                  machine
+                                  pc
+                                  flag
+                                  stack
+                                  ops)))
      insts)))
 
 (define (make-instruction text) (cons text '()))
@@ -320,18 +321,13 @@ destination may be specified either as a label or as a register, and there
 is no condition to check--the `pc' is always set to the new destination. "
   (let ((dest (goto-dest inst)))
     (cond ((label-exp? dest)
-           (let ((insts
-                  (lookup-label labels
-                                (label-exp-label dest))))
+           (let ((insts (lookup-label labels (label-exp-label dest))))
              (lambda () (set-contents! pc insts))))
           ((register-exp? dest)
-           (let ((reg
-                  (get-register machine
-                                (register-exp-reg dest))))
+           (let ((reg (get-register machine (register-exp-reg dest))))
              (lambda ()
                (set-contents! pc (get-contents reg)))))
-          (else (error "Bad GOTO instruction -- ASSEMBLE"
-                       inst)))))
+          (else (error "Bad GOTO instruction -- ASSEMBLE" inst)))))
 
 (define (goto-dest goto-instruction) (cadr goto-instruction))
 
@@ -374,7 +370,6 @@ performed. At simulation time, the action procedure is executed and the
 
                                                   ; Execution procedure for subexpressions
 
-
 ;; The value of a `reg', `label', or `const' expression may be needed for
 ;; assignment to a register (`make-assign') or for input to an operation
 ;; (`make-operation-exp', below).  The following procedure generates
@@ -398,15 +393,10 @@ performed. At simulation time, the action procedure is executed and the
          (error "Unknown expression type -- ASSEMBLE" exp))))
 
 (define (register-exp? exp) (tagged-list? exp 'reg))
-
 (define (register-exp-reg exp) (cadr exp))
-
 (define (constant-exp? exp) (tagged-list? exp 'const))
-
 (define (constant-exp-value exp) (cadr exp))
-
 (define (label-exp? exp) (tagged-list? exp 'label))
-
 (define (label-exp-label exp) (cadr exp))
 
 (define (make-operation-exp exp machine labels operations)
