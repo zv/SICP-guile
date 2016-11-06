@@ -1,10 +1,11 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
-
-(use-modules (ice-9 popen))
-(use-modules (ice-9 unicode))
-(use-modules (srfi srfi-98))
-(use-modules (ice-9 rdelim))
-(use-modules (srfi srfi-1))
+(use-modules ;;(srfi srfi-1)
+             (ice-9 popen)
+             (ice-9 hash-table)
+             (ice-9 unicode)
+             (srfi srfi-98)
+             (ice-9 rdelim)
+             (srfi srfi-1))
 
 ;; (srfi srfi-13)) ; for 'string-join'
 
@@ -23,37 +24,10 @@
 (setlocale LC_ALL "")
 
 (define *input-prompt*  ">>> ")
-(define *assembly-context* 15)
+(define *assembly-context* 20)
 (define *stack-context* 15)
+(define *opcode-padding* 15)
 (define *command-table* '(next step continue bp))
-
-(define *machine*
-  (make-machine
-   '(n b result retn-addr counter) ;; register-names
-   `((* ,*) (- ,-) (+ ,+) (= ,=));; proc-ops
-   ;; assembly
-   '((movw retn-addr (label immediate))
-    (movw counter (const 0))
-    start
-    (test (op =) (reg n) (reg counter)) ;; if n == 0
-    (jeq (label immediate))
-    (movw retn-addr (label stkretn))
-    (push b)
-    (movw counter (op +) (reg counter) (reg n))
-    (goto (label start))
-    ;; now sum our values by popping off `counter' elts from the stack
-    stkretn
-    (movw result (op *) (reg result) (reg b))
-    ;; store our popped value in `result'
-    (movw counter (op -) (reg counter) (const 1))
-    (test (op =) (const 0) (reg counter))
-    (jeq (label done))
-    (goto (label stkretn))
-    ;; We're done, store '2' in 'eax'
-    immediate
-    (movw result (const 1))
-    (goto (reg retn-addr))
-    done)))
 
 (define *machine*
   (make-machine
@@ -104,46 +78,42 @@
       machine-end
     )))
 
-
 ;; initialize machine
-;;(map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 400) (b . 200)))
 (map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 10)))
 
 (*machine* 'init)
 
-(define ansi-color-tables
-  (let ((table (make-hash-table 23)))
-    (hashq-set! table 'CLEAR "0")
-    (hashq-set! table 'RESET "0")
-    (hashq-set! table 'BOLD  "1")
-    (hashq-set! table 'DARK  "2")
-    (hashq-set! table 'UNDERLINE "4")
-    (hashq-set! table 'UNDERSCORE "4")
-    (hashq-set! table 'BLINK "5")
-    (hashq-set! table 'REVERSE "6")
-    (hashq-set! table 'CONCEALED "8")
-    (hashq-set! table 'BLACK "30")
-    (hashq-set! table 'RED "31")
-    (hashq-set! table 'GREEN "32")
-    (hashq-set! table 'YELLOW "33")
-    (hashq-set! table 'BLUE "34")
-    (hashq-set! table 'MAGENTA "35")
-    (hashq-set! table 'CYAN "36")
-    (hashq-set! table 'WHITE "37")
-    (hashq-set! table 'ON-BLACK "40")
-    (hashq-set! table 'ON-RED "41")
-    (hashq-set! table 'ON-GREEN "42")
-    (hashq-set! table 'ON-YELLOW "43")
-    (hashq-set! table 'ON-BLUE "44")
-    (hashq-set! table 'ON-MAGENTA "45")
-    (hashq-set! table 'ON-CYAN "46")
-    (hashq-set! table 'ON-WHITE "47")
-    table))
+(define *ansi-color-tables*
+  (alist->hash-table '((CLEAR . "0")
+                       (RESET . "0")
+                       (BOLD . "1")
+                       (DARK . "2")
+                       (UNDERLINE . "4")
+                       (UNDERSCORE . "4")
+                       (BLINK . "5")
+                       (REVERSE . "6")
+                       (CONCEALED . "8")
+                       (BLACK . "30")
+                       (RED . "31")
+                       (GREEN . "32")
+                       (YELLOW . "33")
+                       (BLUE . "34")
+                       (MAGENTA . "35")
+                       (CYAN . "36")
+                       (WHITE . "37")
+                       (ON-BLACK . "40")
+                       (ON-RED . "41")
+                       (ON-GREEN . "42")
+                       (ON-YELLOW . "43")
+                       (ON-BLUE . "44")
+                       (ON-MAGENTA . "45")
+                       (ON-CYAN . "46")
+                       (ON-WHITE . "47"))))
 
 (define (color . lst)
   (let ((color-list
          (remove not
-                 (map (lambda (color) (hashq-ref ansi-color-tables color)) lst))))
+                 (map (λ (color) (hash-ref *ansi-color-tables* color)) lst))))
     (if (null? color-list)
         ""
         (string-append
@@ -158,6 +128,7 @@
    (color 'RESET)))
 
 (define (clear) (system "tput clear"))
+
 
 (define break (integer->char #x2500)) ;; Box-drawing char '─'
 
@@ -233,7 +204,7 @@
   (next (string-split str #\newline) 0))
 
 
-(define (format-stack stk max)
+(define (format-stack stk instr-seq max)
   (define (next rest ctr)
     (cond
      ((= ctr max) " [+]\n")
@@ -245,9 +216,15 @@
                                                   (if (= ctr 0)
                                                       'BOLD
                                                       'DARK
-                                                      )) (extract-readable head))
+                                                      ))
+                 (if (pair? head)
+                     (format #f "*0x~4,'0x" (element-index (caar head) instr-seq))
+                     head)
+                 ;; (extract-readable head)
+                 )
          (next (cdr rest) (+ 1 ctr)))))))
-    (next stk 0))
+
+  (next stk 0))
 
 
 ;; TODO REWRITE THIS FUCKING JUNK
@@ -266,9 +243,9 @@
     [else
      (string-append
       (if first
-          (string-pad-right (template "~a ~a"
+          (string-pad-right (template " 0x~4,'0x ~a"
                                       (element-index inst instr-seq)
-                                      (format-arg (car inst))) 5)
+                                      (format-arg (car inst))) *opcode-padding*)
           (format-arg (car inst)))
       " "
                     (format-instr (cdr inst) #f)
@@ -279,28 +256,29 @@
     (cond
      [(null? instrs) ""]
      [else
-      (string-append "  "
-                     (format-instr (caar instrs) #t)
+      (string-append (format-instr (caar instrs) #t)
                      (process (cdr instrs)))]))
 
   (wrap-rows (process insts) *assembly-context*)
   )
 
 (define (print-machine-state machine)
-  (format #t "~a\n" (build-header "Assembly"))
+  (format #t "~a\n\n" (build-header "Assembly"))
   (display (format-instr (get-contents (get-register machine 'pc))
                          (machine 'dump-instruction-seq)))
+  (format #t "\n")
   (format #t "~a\n" (build-header "Registers"))
   (print-registers (extract-registers machine))
 
   (format #t "~a\n" (build-header "Memory"))
   (format #t "~a\n" (build-header "Stack"))
 
-  (display (format-stack ((machine 'stack) 'raw) *stack-context*))
+  (display (format-stack ((machine 'stack) 'raw)
+                         (machine 'dump-instruction-seq)
+                         *stack-context*))
 
   (format #t "~a\n" (make-string (terminal-width) break)))
   
-
 
 (define (base-driver-loop)
   (clear)
