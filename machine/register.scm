@@ -1,6 +1,7 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
 (use-modules (ice-9 q))
 (use-modules (srfi srfi-111))
+(use-modules (srfi srfi-26))
 
 (define (make-machine register-names ops controller-text)
   "`Make-machine' then extends this basic model (by sending it
@@ -78,51 +79,61 @@ whose local state consists of a stack, an initially empty instruction
 sequence, a list of operations that initially contains an operation to
 initialize the stack, and a 'register table' that initially contains two
 registers, named `flag' and `pc'"
-  (let ([pc     (make-register 'pc)]
-        [flag   (make-register 'flag)]
-        [stack  (make-stack)]
-        [the-instruction-sequence '()])
-    (let ((the-ops
-           (list (list 'initialize-stack
-                       (lambda () (stack 'initialize)))))
-          (register-table
-           (list (list 'pc pc)
-                 (list 'flag flag))))
-      (define (allocate-register name)
-        (if (assoc name register-table)
-            (error "Multiply defined register: " name)
-            (set! register-table
-              (cons (list name (make-register name))
-                    register-table)))
-        'register-allocated)
-      (define (lookup-register name)
-        (let ((val (assoc name register-table)))
-          (if val
-              (cadr val)
-              (error "Unknown register:" name))))
-      (define (execute)
-        (let ((insts (get-contents pc)))
-          (if (null? insts) 'done
-              (begin
-                ((instruction-execution-proc (car insts)))
-                (execute)))))
-      (define (dispatch message)
-        (match message
-          ['start
-           (set-contents! pc the-instruction-sequence)
-           (execute)]
-          ['install-instruction-sequence
-           (λ (seq) (set! the-instruction-sequence seq))]
-          ['allocate-register allocate-register]
-          ['get-register lookup-register]
-          ['install-operations
-           (λ (ops) (set! the-ops (append the-ops ops)))]
-          ['stack stack]
-          ['operations the-ops]
-          ['dump-registers  register-table]
-          [_
-           (error "Unknown request -- MACHINE" message)]))
-      dispatch)))
+  (let* ([pc     (make-register 'pc)]
+         [flag   (make-register 'flag)]
+         [stack  (make-stack)]
+         [the-instruction-sequence '()]
+         [the-ops `((initialize-stack ,(λ () (stack 'initialize))))]
+         [register-table `((pc ,pc)
+                           (flag ,flag))])
+    (define (allocate-register name)
+      (if (assoc name register-table)
+          (error "Multiply defined register: " name)
+          (set! register-table
+            (cons (list name (make-register name))
+                  register-table)))
+      'register-allocated)
+    (define (lookup-register name)
+      (let ((val (assoc name register-table)))
+        (if val
+            (cadr val)
+            (error "Unknown register:" name))))
+    (define (execute)
+      (match (get-contents pc)
+        [() 'done]
+        [insts (begin
+                 ((instruction-execution-proc (car insts)))
+                 (execute))]))
+    (define (step)
+      (let ((insts (get-contents pc)))
+        (if (null? insts) 'done
+            (begin
+              ((instruction-execution-proc (car insts)))))))
+    (define (hook-registers fn)
+      (map
+       (λ (elt)
+         (set-register-hook (cadr elt) fn))
+        register-table))
+    (define (dispatch message)
+      (match message
+        ['init
+         (set-contents! pc the-instruction-sequence)]
+        ['start
+         (set-contents! pc the-instruction-sequence)
+         (execute)]
+        ['install-instruction-sequence
+         (λ (seq) (set! the-instruction-sequence seq))]
+        ['allocate-register allocate-register]
+        ['get-register lookup-register]
+        ['install-operations
+         (λ (ops) (set! the-ops (append the-ops ops)))]
+        ['stack stack]
+        ['install-register-hook (cut hook-registers <>)]
+        ['operations the-ops]
+        ['dump-registers  register-table]
+        ['step (step)]
+        [_ (error "Unknown request -- MACHINE" message)]))
+    dispatch))
 
 (define (start machine)
   (machine 'start))
