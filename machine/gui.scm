@@ -12,13 +12,19 @@
 ;; hook machine register
 ;; process table
 
+(define (template format-string . format-args)
+  (apply format `(#f
+                  ,format-string
+                  ,@format-args)))
+
 (include "/home/zv/z/practice/sicp/machine/register.scm")
 
 ;; We use special box-building characters, we need to set the appropriate locale.
 (setlocale LC_ALL "")
 
 (define *input-prompt*  ">>> ")
-(define *assembly-lines* 7)
+(define *assembly-context* 15)
+(define *stack-context* 15)
 (define *command-table* '(next step continue bp))
 
 (define *machine*
@@ -26,26 +32,26 @@
    '(n b result retn-addr counter) ;; register-names
    `((* ,*) (- ,-) (+ ,+) (= ,=));; proc-ops
    ;; assembly
-   '((assign retn-addr (label immediate))
-    (assign counter (const 0))
+   '((movw retn-addr (label immediate))
+    (movw counter (const 0))
     start
     (test (op =) (reg n) (reg counter)) ;; if n == 0
-    (branch (label immediate))
-    (assign retn-addr (label stkretn))
-    (save b)
-    (assign counter (op +) (reg counter) (reg n))
+    (jeq (label immediate))
+    (movw retn-addr (label stkretn))
+    (push b)
+    (movw counter (op +) (reg counter) (reg n))
     (goto (label start))
     ;; now sum our values by popping off `counter' elts from the stack
     stkretn
-    (assign result (op *) (reg result) (reg b))
+    (movw result (op *) (reg result) (reg b))
     ;; store our popped value in `result'
-    (assign counter (op -) (reg counter) (const 1))
+    (movw counter (op -) (reg counter) (const 1))
     (test (op =) (const 0) (reg counter))
-    (branch (label done))
+    (jeq (label done))
     (goto (label stkretn))
     ;; We're done, store '2' in 'eax'
     immediate
-    (assign result (const 1))
+    (movw result (const 1))
     (goto (reg retn-addr))
     done)))
 
@@ -58,41 +64,41 @@
 
         ;;; procedure fact
       fact
-        (restore retaddr)       ; return address
-        (restore temp)          ; argument
-        (save n)                ; save caller's n and retaddr
-        (save retaddr)
-        (assign n (reg temp))   ; working on n
+        (pop retaddr)       ; return address
+        (pop temp)          ; argument
+        (push n)                ; push caller's n and retaddr
+        (push retaddr)
+        (movw n (reg temp))   ; working on n
         (test (op =) (reg n) (const 1))
-        (branch (label fact-base))
-        (assign temp (op -) (reg n) (const 1))
+        (jeq (label fact-base))
+        (movw temp (op -) (reg n) (const 1))
         ; prepare for the recursive call:
         ;  push the argument and return value on stack
-        (save temp)
-        (assign retaddr (label fact-after-rec-return))
-        (save retaddr)
+        (push temp)
+        (movw retaddr (label fact-after-rec-return))
+        (push retaddr)
         (goto (label fact))     ; the recursive call
       fact-after-rec-return
-        (assign retval (op *) (reg retval) (reg n))
+        (movw retval (op *) (reg retval) (reg n))
         (goto (label fact-end))
 
       fact-base
-        (assign retval (const 1))
+        (movw retval (const 1))
 
       fact-end
-        ; restore the caller's registers we've saved
+        ; pop the caller's registers we've pushd
         ;
-        (restore retaddr)
-        (restore n)
+        (pop retaddr)
+        (pop n)
         (goto (reg retaddr))    ; return to caller
         ;;; end procedure fact
 
       machine-start
         ; to call fact, push n and a return address on stack
         ; and jump to fact
-        (save n)
-        (assign retaddr (label machine-end))
-        (save retaddr)
+        (push n)
+        (movw retaddr (label machine-end))
+        (push retaddr)
         (goto (label fact))
 
       machine-end
@@ -154,31 +160,6 @@
 (define (clear) (system "tput clear"))
 
 (define break (integer->char #x2500)) ;; Box-drawing char '─'
-(define asm
-"0x0001	iter-fact+1	mov result 1
-0x0002	iter-fact+2	mov counter 1
-0x0003	iter-fact+3	mov result (* result b)
-0x0004	iter-fact+4	test (= n counter)
-0x0005	iter-fact+5	branch .done
-0x0006	iter-fact+6	assign counter (+ counter 1)
-0x0007	iter-fact+7	goto .for-loop
-")
-
-(define test-regs
-  "pc		0x0
-flag		#t
-result		1267650600228229401496703205376
-b		2
-n		100
-counter		100
-")
-
-(define test-registers
-  '((result . 1267650600228229401496703205376)
-    (b . 2)
-    (n . 100)
-    (counter . 100)
-    (flag . #t)))
 
 ;; Because the terminal shell operates in it's own process, we need a fluid <-> thread binding
 (define (terminal-width)
@@ -221,6 +202,10 @@ counter		100
   (map print regs))
 
 
+(define (element-index e lst)
+  (cond [(eqv? e (caar lst)) 0]
+        [else (+ (element-index e (cdr lst)) 1)]))
+
 (define (extract-readable elt) (if (pair? elt) (caar elt) elt))
 
 (define (extract-registers machine)
@@ -264,31 +249,56 @@ counter		100
          (next (cdr rest) (+ 1 ctr)))))))
     (next stk 0))
 
+
+;; TODO REWRITE THIS FUCKING JUNK
+(define (format-instr insts instr-seq)
+  (define (format-instr inst first)
+   (define (format-arg arg)
+    (match arg
+      [('reg var) ( template "~a" var )]
+      [('const var) ( template "$~x" var )]
+      [('label var)  (template ".~a" var)]
+      [('op var) (template "~a" var)]
+      [var (template "~a" var)]))
+
+   (cond
+    [(null? inst) "\n"]
+    [else
+     (string-append
+      (if first
+          (string-pad-right (template "~a ~a"
+                                      (element-index inst instr-seq)
+                                      (format-arg (car inst))) 5)
+          (format-arg (car inst)))
+      " "
+                    (format-instr (cdr inst) #f)
+                    )]))
+
+
+  (define (process instrs)
+    (cond
+     [(null? instrs) ""]
+     [else
+      (string-append "  "
+                     (format-instr (caar instrs) #t)
+                     (process (cdr instrs)))]))
+
+  (wrap-rows (process insts) *assembly-context*)
+  )
+
 (define (print-machine-state machine)
   (format #t "~a\n" (build-header "Assembly"))
-  (display (wrap-rows (format #f "~y" (map car (get-contents (get-register machine 'pc))))
-                      *assembly-lines*))
+  (display (format-instr (get-contents (get-register machine 'pc))
+                         (machine 'dump-instruction-seq)))
   (format #t "~a\n" (build-header "Registers"))
   (print-registers (extract-registers machine))
 
   (format #t "~a\n" (build-header "Memory"))
   (format #t "~a\n" (build-header "Stack"))
 
-  (display (format-stack ((machine 'stack) 'raw) 10))
+  (display (format-stack ((machine 'stack) 'raw) *stack-context*))
 
-  (format #t "~a\n" (make-string (terminal-width) break))
-
-  )
-
-(define (print-stuff)
-  (format #t "~a\n" (build-header "Assembly"))
-  (display asm)
-  (format #t "~a\n" (build-header "Registers"))
-  (print-registers test-registers)
-  (format #t "~a\n" (build-header "Stack"))
-  (display asm)
   (format #t "~a\n" (make-string (terminal-width) break)))
-
   
 
 
