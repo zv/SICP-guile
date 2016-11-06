@@ -18,6 +18,7 @@
 (setlocale LC_ALL "")
 
 (define *input-prompt*  ">>> ")
+(define *assembly-lines* 7)
 (define *command-table* '(next step continue bp))
 
 (define *machine*
@@ -48,8 +49,60 @@
     (goto (reg retn-addr))
     done)))
 
+(define *machine*
+  (make-machine
+    '(n temp retval retaddr)
+    `((= ,=) (+ ,+) (- ,-) (* ,*))
+    '(
+        (goto (label machine-start))
+
+        ;;; procedure fact
+      fact
+        (restore retaddr)       ; return address
+        (restore temp)          ; argument
+        (save n)                ; save caller's n and retaddr
+        (save retaddr)
+        (assign n (reg temp))   ; working on n
+        (test (op =) (reg n) (const 1))
+        (branch (label fact-base))
+        (assign temp (op -) (reg n) (const 1))
+        ; prepare for the recursive call:
+        ;  push the argument and return value on stack
+        (save temp)
+        (assign retaddr (label fact-after-rec-return))
+        (save retaddr)
+        (goto (label fact))     ; the recursive call
+      fact-after-rec-return
+        (assign retval (op *) (reg retval) (reg n))
+        (goto (label fact-end))
+
+      fact-base
+        (assign retval (const 1))
+
+      fact-end
+        ; restore the caller's registers we've saved
+        ;
+        (restore retaddr)
+        (restore n)
+        (goto (reg retaddr))    ; return to caller
+        ;;; end procedure fact
+
+      machine-start
+        ; to call fact, push n and a return address on stack
+        ; and jump to fact
+        (save n)
+        (assign retaddr (label machine-end))
+        (save retaddr)
+        (goto (label fact))
+
+      machine-end
+    )))
+
+
 ;; initialize machine
-(map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 400) (b . 200)))
+;;(map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 400) (b . 200)))
+(map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 10)))
+
 (*machine* 'init)
 
 (define ansi-color-tables
@@ -168,26 +221,64 @@ counter		100
   (map print regs))
 
 
+(define (extract-readable elt) (if (pair? elt) (caar elt) elt))
+
 (define (extract-registers machine)
   (map
    (λ (rega)
-     (cons (car rega)
-           (get-contents (cadr rega))))
+     (let ([ct (get-contents (cadr rega))])
+       (cons (car rega)
+             (extract-readable ct))))
    (remove
     (λ (elt)
       (eq? (car elt) 'pc))
-    (*machine* 'dump-registers)))
-  ;; (map
-  ;;  (λ (reg) (cons (car reg)
-  ;;                 (get-contents (get-register machine (car reg)))))
-  ;;  (machine 'dump-registers))
-  )
+    (*machine* 'dump-registers))))
+
+(define (wrap-rows str n)
+  "Wrap a string to a max of `n' rows"
+  (define (next lines ctr)
+    (cond
+     ((= ctr n) "")
+     ((null? lines)
+      (string-append "\n" (next lines (+ ctr 1))))
+     (else
+      (string-append (car lines)
+                     "\n"
+                     (next (cdr lines) (+ ctr 1))))))
+  (next (string-split str #\newline) 0))
+
+
+(define (format-stack stk max)
+  (define (next rest ctr)
+    (cond
+     ((= ctr max) " [+]\n")
+     ((null? rest) "")
+     (else
+      (let ((head (car rest)))
+        (string-append
+         (format #f " [~a] ~a\n" (colorize-string (number->string ctr)
+                                                  (if (= ctr 0)
+                                                      'BOLD
+                                                      'DARK
+                                                      )) (extract-readable head))
+         (next (cdr rest) (+ 1 ctr)))))))
+    (next stk 0))
 
 (define (print-machine-state machine)
   (format #t "~a\n" (build-header "Assembly"))
-  (format #t "~y" (map car (get-contents (get-register machine 'pc))))
+  (display (wrap-rows (format #f "~y" (map car (get-contents (get-register machine 'pc))))
+                      *assembly-lines*))
   (format #t "~a\n" (build-header "Registers"))
-  (print-registers (extract-registers machine)))
+  (print-registers (extract-registers machine))
+
+  (format #t "~a\n" (build-header "Memory"))
+  (format #t "~a\n" (build-header "Stack"))
+
+  (display (format-stack ((machine 'stack) 'raw) 10))
+
+  (format #t "~a\n" (make-string (terminal-width) break))
+
+  )
 
 (define (print-stuff)
   (format #t "~a\n" (build-header "Assembly"))
