@@ -235,20 +235,15 @@ procedures: "
 
                                                   ; Generating Execution Procedures
 (define (make-execution-procedure inst labels machine pc flag stack ops)
-  "The assembler calls `make-execution-procedure' to generate the execution
-procedure for an instruction. Like the `analyze' procedure in the evaluator
-of section *Note 4-1-7, this dispatches on the type of instruction to
-generate the appropriate execution procedure. "
-  (match inst
-    [('assign tail ...)   (make-assign inst machine labels ops pc)]
-    [('test tail ...)     (make-test inst machine labels ops flag pc)]
-    [('branch tail ...)   (make-branch inst machine labels flag pc)]
-    [('goto tail ...)     (make-goto inst machine labels pc)]
-    (('save tail ...)     (make-save inst machine stack pc))
-    [('restore tail ...)  (make-restore inst machine stack pc)]
-    [('perform tail ...)  (make-perform inst machine labels ops pc)]
-    [_
-     (error "Unknown instruction type -- ASSEMBLE" inst)]))
+  (match (car inst)
+    ['movw     (make-assign inst machine labels ops pc)]
+    ['test     (make-test inst machine labels ops flag pc)]
+    ['jeq      (make-branch inst machine labels flag pc)]
+    ['goto     (make-goto inst machine labels pc)]
+    ['push     (make-save inst machine stack pc)]
+    ['pop      (make-restore inst machine stack pc)]
+    ['perform  (make-perform inst machine labels ops pc)]
+    [_ (error "Unknown instruction type -- ASSEMBLE" inst)]))
 
 (define (make-assign inst machine labels operations pc)
   "`Make-assign' extracts the target register name (the second element of
