@@ -146,23 +146,6 @@
          [len (string-length left)])
     (string-pad-right left (+ 9 (terminal-width)) break)))
 
-(define* (print-registers frame #:optional (port (current-output-port)) #:key (per-line-prefix "  "))
-  (define (print fmt val)
-    (display per-line-prefix port)
-    (run-hook before-print-hook val)
-    (format port fmt val))
-
-  (format port "~aRegisters:~%" per-line-prefix)
-  (let ((ip (machine-instruction-pointer machine)))
-    (format "pc = #x~x" ip)
-    (let ((info (find-program-debug-info ip)))
-      (when info
-        (let ((addr (program-debug-info-addr info)))
-          (format port " (#x~x + ~d * 4)" addr (/ (- ip addr) 4)))))
-    (newline port))
-  (print "sp = ~a\n" (frame-stack-pointer frame))
-  (print "fp = ~a\n" (frame-address frame)))
-
 (define (print-registers regs)
   (define (print reg)
     (format #t " ~a ~s ~%"
@@ -179,14 +162,10 @@
 
 (define (extract-registers machine)
   (map
-   (λ (rega)
-     (let ([ct (get-contents (cadr rega))])
-       (cons (car rega)
-             (extract-readable ct))))
-   (remove
-    (λ (elt)
-      (eq? (car elt) 'pc))
-    (*machine* 'dump-registers))))
+   (λ (register)
+     (cons (car register)
+           (extract-readable (get-contents (cadr register)))))
+   (remove (λ (elt) (eq? (car elt) 'pc)) (machine 'dump-registers))))
 
 (define (wrap-rows str n)
   "Wrap a string to a max of `n' rows"
@@ -201,7 +180,6 @@
                      (next (cdr lines) (+ ctr 1))))))
   (next (string-split str #\newline) 0))
 
-
 (define (format-stack stk instr-seq max)
   (define (next rest ctr)
     (cond
@@ -211,10 +189,7 @@
       (let ((head (car rest)))
         (string-append
          (format #f " [~a] ~a\n" (colorize-string (number->string ctr)
-                                                  (if (= ctr 0)
-                                                      'BOLD
-                                                      'DARK
-                                                      ))
+                                                  (if (= ctr 0) 'BOLD 'DARK))
                  (if (pair? head)
                      (format #f "*0x~4,'0x" (element-index (caar head) instr-seq))
                      head)
@@ -280,14 +255,17 @@
   (format #t "~a\n" (make-string (terminal-width) break)))
   
 
-(define (base-driver-loop)
+(define (driver-loop)
   (clear)
   (print-machine-state *machine*)
-  ((*machine* 'step))
   (display *input-prompt*)
-  (let* ([input (read-char)]
-         [output ">>"])
-    1)
-  (base-driver-loop))
+  (let ([input (read-line)])
+    (match input
+      ["q"      (exit)]
+      ["quit"   (exit)]
+      ["step" ((*machine* 'step))]
+      ["j"    ((*machine* 'step))]
+      [_      ((*machine* 'step))])
+    (driver-loop)))
 
-(base-driver-loop)
+(driver-loop)
