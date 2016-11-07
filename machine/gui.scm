@@ -1,11 +1,10 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
-(use-modules ;;(srfi srfi-1)
+(use-modules (srfi srfi-1)
              (ice-9 popen)
              (ice-9 hash-table)
              (ice-9 unicode)
              (srfi srfi-98)
-             (ice-9 rdelim)
-             (srfi srfi-1))
+             (ice-9 rdelim))
 
 ;; (srfi srfi-13)) ; for 'string-join'
 
@@ -33,50 +32,48 @@
   (make-machine
     '(n temp retval retaddr)
     `((= ,=) (+ ,+) (- ,-) (* ,*))
-    '(
-        (goto (label machine-start))
+    '((goto (label machine-start))
 
         ;;; procedure fact
       fact
-        (pop retaddr)       ; return address
-        (pop temp)          ; argument
-        (push n)                ; push caller's n and retaddr
-        (push retaddr)
-        (movw n (reg temp))   ; working on n
-        (test (op =) (reg n) (const 1))
-        (jeq (label fact-base))
-        (movw temp (op -) (reg n) (const 1))
-        ; prepare for the recursive call:
-        ;  push the argument and return value on stack
-        (push temp)
-        (movw retaddr (label fact-after-rec-return))
-        (push retaddr)
-        (goto (label fact))     ; the recursive call
+      (pop retaddr)       ; return address
+      (pop temp)          ; argument
+      (push n)                ; push caller's n and retaddr
+      (push retaddr)
+      (movw n (reg temp))   ; working on n
+      (test (op =) (reg n) (const 1))
+      (jeq (label fact-base))
+      (movw temp (op -) (reg n) (const 1))
+                                                  ; prepare for the recursive call:
+                                                  ;  push the argument and return value on stack
+      (push temp)
+      (movw retaddr (label fact-after-rec-return))
+      (push retaddr)
+      (goto (label fact))     ; the recursive call
       fact-after-rec-return
-        (movw retval (op *) (reg retval) (reg n))
-        (goto (label fact-end))
+      (movw retval (op *) (reg retval) (reg n))
+      (goto (label fact-end))
 
       fact-base
-        (movw retval (const 1))
+      (movw retval (const 1))
 
       fact-end
-        ; pop the caller's registers we've pushd
-        ;
-        (pop retaddr)
-        (pop n)
-        (goto (reg retaddr))    ; return to caller
+                                                  ; pop the caller's registers we've pushd
+      (pop retaddr)
+      (pop n)
+      (goto (reg retaddr))    ; return to caller
         ;;; end procedure fact
 
       machine-start
-        ; to call fact, push n and a return address on stack
-        ; and jump to fact
-        (push n)
-        (movw retaddr (label machine-end))
-        (push retaddr)
-        (goto (label fact))
+                                                  ; to call fact, push n and a return address on stack
+                                                  ; and jump to fact
+      (push n)
+      (movw retaddr (label machine-end))
+      (push retaddr)
+      (goto (label fact))
 
       machine-end
-    )))
+      )))
 
 ;; initialize machine
 (map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 10)))
@@ -131,6 +128,7 @@
 
 
 (define break (integer->char #x2500)) ;; Box-drawing char '─'
+(define arrow "🡆")
 
 ;; Because the terminal shell operates in it's own process, we need a fluid <-> thread binding
 (define (terminal-width)
@@ -226,46 +224,48 @@
 
   (next stk 0))
 
-
 ;; TODO REWRITE THIS FUCKING JUNK
 (define (format-instr insts instr-seq)
   (define (format-instr inst first)
    (define (format-arg arg)
     (match arg
-      [('reg var) ( template "~a" var )]
-      [('const var) ( template "$~x" var )]
+      [('reg var)    (template "~a" var)]
+      [('const var)  (template "$~x" var)]
       [('label var)  (template ".~a" var)]
-      [('op var) (template "~a" var)]
-      [var (template "~a" var)]))
-
+      [('op var)     (template "~a" var)]
+      [var           (template "~a" var)]))
    (cond
     [(null? inst) "\n"]
     [else
      (string-append
       (if first
-          (string-pad-right (template " 0x~4,'0x ~a"
+          (string-pad-right (template " 0x~4,'0x\t~a"
                                       (element-index inst instr-seq)
-                                      (format-arg (car inst))) *opcode-padding*)
+                                      (format-arg (car inst)))
+                            *opcode-padding*)
           (format-arg (car inst)))
       " "
-                    (format-instr (cdr inst) #f)
-                    )]))
+      (format-instr (cdr inst) #f)
+      )]))
 
-
-  (define (process instrs)
+  (define (process instrs first)
     (cond
      [(null? instrs) ""]
      [else
-      (string-append (format-instr (caar instrs) #t)
-                     (process (cdr instrs)))]))
+      (string-append
+       (if first arrow " ")
+       (format-instr (caar instrs) #t)
+                     (process (cdr instrs) #f))]))
 
-  (wrap-rows (process insts) *assembly-context*)
+  (wrap-rows (process insts #t) *assembly-context*)
   )
 
 (define (print-machine-state machine)
   (format #t "~a\n\n" (build-header "Assembly"))
+
   (display (format-instr (get-contents (get-register machine 'pc))
                          (machine 'dump-instruction-seq)))
+
   (format #t "\n")
   (format #t "~a\n" (build-header "Registers"))
   (print-registers (extract-registers machine))
