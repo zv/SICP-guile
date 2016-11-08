@@ -140,18 +140,16 @@
       72))
 
 (define (build-header hdr)
-  "Print a line of the format ─── HDR ────"
+  "Build a line of the format ─── HDR ────"
   (let* ([colored-hdr (colorize-string hdr 'YELLOW)]
          [left (format #f "~a ~a " (make-string 7 break) colored-hdr)]
          [len (string-length left)])
     (string-pad-right left (+ 9 (terminal-width)) break)))
 
-(define (print-registers regs)
-  (define (print reg)
-    (format #t " ~a ~s ~%"
-            (string-pad-right (colorize-string (symbol->string (car reg)) 'BOLD) 30)
-            (cdr reg)))
-  (map print regs))
+
+(define (print-section-header hdr)
+  "Print a section header"
+  (format #t "~a\n" (build-header hdr)))
 
 
 (define (element-index e lst)
@@ -232,40 +230,67 @@
        (format-instr (caar instrs) #t)
                      (process (cdr instrs) #f))]))
 
-  (wrap-rows (process insts #t) *assembly-context*)
-  )
+  (wrap-rows (process insts #t) *assembly-context*))
 
-(define (print-machine-state machine)
-  (format #t "~a\n\n" (build-header "Assembly"))
-
+                                                  ; Assembly
+(define (display-assembly machine)
+  (print-section-header "Assembly")
   (display (format-instr (get-contents (get-register machine 'pc))
                          (machine 'dump-instruction-seq)))
+  (display "\n"))
 
-  (format #t "\n")
-  (format #t "~a\n" (build-header "Registers"))
+
+                                                  ; Registers
+(define (print-registers regs)
+  (define (print reg)
+    (format #t " ~a ~s ~%"
+            (string-pad-right (colorize-string (symbol->string (car reg)) 'BOLD) 30)
+            (cdr reg)))
+  (map print regs))
+
+(define (display-registers machine)
+  (print-section-header "Registers")
   (print-registers (extract-registers machine))
+  (display "\n"))
 
-  (format #t "~a\n" (build-header "Memory"))
-  (format #t "~a\n" (build-header "Stack"))
+
+                                                  ; Memory
 
+(define (display-memory machine)
+  (print-section-header "Memory")
+  (display "\n"))
+
+
+                                                  ; Stack
+(define (display-stack machine)
+  (print-section-header "Stack")
   (display (format-stack ((machine 'stack) 'raw)
                          (machine 'dump-instruction-seq)
                          *stack-context*))
-
+  (display "\n"))
+
+                                                  ; Driver Loop
+(define (print-machine-state machine)
+  "This function is responsible for building the 'view' of the GUI,
+handling appropriate termcap values and so on"
+  (clear)
+  (display-assembly machine)
+  (display-registers machine)
+  (display-stack machine)
   (format #t "~a\n" (make-string (terminal-width) break)))
-  
+
+(define (process-prompt-input)
+  (match (read-line)
+    ["q"      (exit)]
+    ["quit"   (exit)]
+    ["step" ((*machine* 'step))]
+    ["j"    ((*machine* 'step))]
+    [_      ((*machine* 'step))]))
 
 (define (driver-loop)
-  (clear)
   (print-machine-state *machine*)
   (display *input-prompt*)
-  (let ([input (read-line)])
-    (match input
-      ["q"      (exit)]
-      ["quit"   (exit)]
-      ["step" ((*machine* 'step))]
-      ["j"    ((*machine* 'step))]
-      [_      ((*machine* 'step))])
-    (driver-loop)))
+  (process-prompt-input)
+  (driver-loop))
 
 (driver-loop)
