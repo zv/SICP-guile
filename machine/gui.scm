@@ -12,7 +12,7 @@
 ;; hook machine register
 ;; process table
 
-(define (template format-string . format-args)
+(define (%% format-string . format-args)
   (apply format `(#f
                   ,format-string
                   ,@format-args)))
@@ -202,17 +202,17 @@
   (define (format-instr inst first)
    (define (format-arg arg)
     (match arg
-      [('reg var)    (template "~a" var)]
-      [('const var)  (template "$~x" var)]
-      [('label var)  (template ".~a" var)]
-      [('op var)     (template "~a" var)]
-      [var           (template "~a" var)]))
+      [('reg var)    (%% "~a" var)]
+      [('const var)  (%% "$~x" var)]
+      [('label var)  (%% ".~a" var)]
+      [('op var)     (%% "~a" var)]
+      [var           (%% "~a" var)]))
    (cond
     [(null? inst) "\n"]
     [else
      (string-append
       (if first
-          (string-pad-right (template " 0x~4,'0x\t~a"
+          (string-pad-right (%% " 0x~4,'0x\t~a"
                                       (element-index inst instr-seq)
                                       (format-arg (car inst)))
                             *opcode-padding*)
