@@ -265,13 +265,37 @@ handling appropriate termcap values and so on"
   (display-stack machine)
   (format #t "~a\n" (make-string (terminal-width) break)))
 
+(define (load-machine filename args)
+  (let* ((port     (open-input-file filename #:guess-encoding #t))
+         (machine (eval (read port) (interaction-environment))))
+    (set! *machine* machine)
+    (map (λ (elt)
+           (set-register-contents! *machine* (car elt) (cdr elt)))
+         args)
+    (*machine* 'init)))
+
+(define (pairlist->alist arg)
+  "Takes in a list of k,v pairs '(a 1 b 2 c 3 d 4) and returns an alist of
+pairs ((a . 1) (b . 2) (c . 3) (d . 4)) "
+  (if (null? arg) '()
+      (let ((fst (string->symbol (car arg)))
+            (snd (string->number (cadr arg)))) ;; we can safely error out if there is no cadr
+        (cons
+         (cons fst snd)
+         (pairlist->alist (cddr arg))))))
+
 (define (process-prompt-input)
-  (match (read-line)
-    ["q"      (exit)]
-    ["quit"   (exit)]
-    ["step" ((*machine* 'step))]
-    ["j"    ((*machine* 'step))]
-    [_      ((*machine* 'step))]))
+  (let* ((line (read-line)))
+    (match (string-split line #\space)
+      [("q")      (exit)]
+      [("quit")   (exit)]
+      [("step") ((*machine* 'step))]
+      [("j")    ((*machine* 'step))]
+      [("load" filename)
+       (load-machine filename '())]
+      [("load" filename rest ...)
+       (load-machine filename (pairlist->alist rest))]
+      [_      ((*machine* 'step))])))
 
 (define (driver-loop)
   (print-machine-state *machine*)
@@ -280,3 +304,4 @@ handling appropriate termcap values and so on"
   (driver-loop))
 
 (driver-loop)
+
