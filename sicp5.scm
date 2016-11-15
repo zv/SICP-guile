@@ -14,7 +14,8 @@
   (eq? #f (assq-ref (current-source-location) 'filename)))
 
 (define do-debug? #t)
-(define (debug format-string . format-args)
+
+(define (reg-debug format-string . format-args)
   (if do-debug?
       (apply format `(#t
                       ,(string-append format-string "~&")
@@ -157,14 +158,14 @@ Iterative exponentiation:
 |#
 
 (define-register-machine recursive-expt
-  #:registers (n b result stored-pc counter)
+  #:registers (n b result retnaddr counter)
   #:ops       (* - = +)
-  #:assembly  ((assign stored-pc (label immediate))
+  #:assembly  ((assign retnaddr (label immediate))
                (assign counter (const 0))
                start
                (test (op =) (reg n) (reg counter)) ;; if n == 0
                (branch (label immediate))
-               (assign stored-pc (label stkretn))
+               (assign retnaddr (label stkretn))
                (save b)
                (assign counter (op +) (reg counter) (reg n))
                (goto (label start))
@@ -179,7 +180,7 @@ Iterative exponentiation:
                ;; We're done, store '2' in 'eax'
                immediate
                (assign result (const 1))
-               (goto (reg stored-pc))
+               (goto (reg retnaddr))
                done))
 
 (define-register-machine iter-expt
@@ -202,7 +203,7 @@ input (requiring execution of at least one recursive call). Show the
 contents of the stack at each significant point in the execution. |#
 
 
-#| Exercise 5.6 
+#| Exercise 5.6
 Ben Bitdiddle observes that the Fibonacci machine’s controller sequence has
 an extra save and an extra restore, which can be removed to make a faster
 machine. Where are these instructions? |#
@@ -216,13 +217,28 @@ Both the save & restore of `continue' are useless.
 
 #| Exercise 5.7: Use the simulator to test the machines you designed in Exercise 5.4. |#
 
+
+#| Exercise 5.8
+The following register-machine code is ambiguous, because the label `here'
+is defined more than once:
 
+  start
+    (goto (label here))
+  here
+    (assign a (const 3))
+    (goto (label there))
+  here
+    (assign a (const 4))
+    (goto (label there))
+  there
+
+
+With the simulator as written, what will the contents of register `a' be
+when control reaches `there'? Modify the `extract-labels' procedure so that
+the assembler will signal an error if the same label name is used to
+indicate two different locations. |#
 
 
-(if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
-    (begin
-      ;; load our tests
-      (load "test/machine.scm")))
 #| Exercise 5.9
 The treatment of machine operations above permits them to operate on labels
 as well as on constants and the contents of registers. Modify the
@@ -246,65 +262,8 @@ simulator to use your new syntax. Can you implement your new syntax without
 changing any part of the simulator except the syntax procedures in this
 section? |#
 
-;; (define (make-execution-procedure inst labels machine pc flag stack ops)
-;;   (match (car inst)
-;;     ['mov  (make-assign inst machine labels ops pc)]
-;;     ['cmp  (make-test inst machine labels ops flag pc)]
-;;     ['je   (make-branch inst machine labels flag pc)]
-;;     ['jmp  (make-goto inst machine labels pc)]
-;;     ['push (make-save inst machine stack pc)]
-;;     ['pop  (make-restore inst machine stack pc)]
-;;     ['call (make-perform inst machine labels ops pc)]
-;;     [_     (error "Unknown instruction type -- ASSEMBLE" inst)]))
-
-
-(define factorial-rec
-  (make-machine
-    '(n temp retval retaddr)
-    `((= ,=) (+ ,+) (- ,-) (* ,*))
-    '(
-        (goto (label machine-start))
-
-        ;;; procedure fact
-      fact
-        (restore retaddr)       ; return address
-        (restore temp)          ; argument
-        (save n)                ; save caller's n and retaddr
-        (save retaddr)
-        (assign n (reg temp))   ; working on n
-        (test (op =) (reg n) (const 1))
-        (branch (label fact-base))
-        (assign temp (op -) (reg n) (const 1))
-        ; prepare for the recursive call:
-        ;  push the argument and return value on stack
-        (save temp)
-        (assign retaddr (label fact-after-rec-return))
-        (save retaddr)
-        (goto (label fact))     ; the recursive call
-      fact-after-rec-return
-        (assign retval (op *) (reg retval) (reg n))
-        (goto (label fact-end))
-
-      fact-base
-        (assign retval (const 1))
-
-      fact-end
-        ; restore the caller's registers we've saved
-        ;
-        (restore retaddr)
-        (restore n)
-        (goto (reg retaddr))    ; return to caller
-        ;;; end procedure fact
-
-      machine-start
-        ; to call fact, push n and a return address on stack
-        ; and jump to fact
-        (save n)
-        (assign retaddr (label machine-end))
-        (save retaddr)
-        (goto (label fact))
-
-      machine-end
-    )))
-
-
+
+(if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
+    (begin
+      ;; load our tests
+      (load "test/machine.scm")))
