@@ -44,8 +44,8 @@
       (test (op =) (reg n) (const 1))
       (jeq (label fact-base))
       (movw temp (op -) (reg n) (const 1))
-                                                  ; prepare for the recursive call:
-                                                  ;  push the argument and return value on stack
+      ;; prepare for the recursive call:
+      ;; push the argument and return value on stack
       (push temp)
       (movw retaddr (label fact-after-rec-return))
       (push retaddr)
@@ -111,7 +111,29 @@
    (color 'RESET)))
 
 (define (clear) (system "tput clear"))
+
 
+(define (element-index e lst)
+  (cond [(eqv? e (caar lst)) 0]
+        [else (+ (element-index e (cdr lst)) 1)]))
+
+(define (extract-readable elt) (if (pair? elt) (caar elt) elt))
+
+(define (wrap-rows str n)
+  "Wrap a string to a max of `n' rows"
+  (define (next lines ctr)
+    (cond
+     ((= ctr n) "")
+     ((null? lines)
+      (string-append "\n" (next lines (+ ctr 1))))
+     (else
+      (string-append (car lines)
+                     "\n"
+                     (next (cdr lines) (+ ctr 1))))))
+  (next (string-split str #\newline) 0))
+
+
+                                                  ; Header Drawing Code
 
 (define break (integer->char #x2500)) ;; Box-drawing char '─'
 (define arrow "🡆")
@@ -132,56 +154,12 @@
          [len (string-length left)])
     (string-pad-right left (+ 9 (terminal-width)) break)))
 
-
 (define (print-section-header hdr)
   "Print a section header"
   (format #t "~a\n" (build-header hdr)))
 
 
-(define (element-index e lst)
-  (cond [(eqv? e (caar lst)) 0]
-        [else (+ (element-index e (cdr lst)) 1)]))
-
-(define (extract-readable elt) (if (pair? elt) (caar elt) elt))
-
-(define (extract-registers machine)
-  (map
-   (λ (register)
-     (cons (car register)
-           (extract-readable (get-contents (cadr register)))))
-   (remove (λ (elt) (eq? (car elt) 'pc)) (machine 'dump-registers))))
-
-(define (wrap-rows str n)
-  "Wrap a string to a max of `n' rows"
-  (define (next lines ctr)
-    (cond
-     ((= ctr n) "")
-     ((null? lines)
-      (string-append "\n" (next lines (+ ctr 1))))
-     (else
-      (string-append (car lines)
-                     "\n"
-                     (next (cdr lines) (+ ctr 1))))))
-  (next (string-split str #\newline) 0))
-
-(define (format-stack stk instr-seq max)
-  (define (next rest ctr)
-    (cond
-     ((= ctr max) " [+]\n")
-     ((null? rest) "")
-     (else
-      (let ((head (car rest)))
-        (string-append
-         (format #f " [~a] ~a\n" (colorize-string (number->string ctr)
-                                                  (if (= ctr 0) 'BOLD 'DARK))
-                 (if (pair? head)
-                     (format #f "*0x~4,'0x" (element-index (caar head) instr-seq))
-                     head)
-                 ;; (extract-readable head)
-                 )
-         (next (cdr rest) (+ 1 ctr)))))))
-
-  (next stk 0))
+                                                  ; Assembly
 
 ;; TODO REWRITE THIS FUCKING JUNK
 (define (format-instr insts instr-seq)
@@ -218,7 +196,6 @@
 
   (wrap-rows (process insts #t) *assembly-context*))
 
-                                                  ; Assembly
 (define (display-assembly machine)
   (print-section-header "Assembly")
   (display (format-instr (get-contents (get-register machine 'pc))
@@ -227,21 +204,25 @@
 
 
                                                   ; Registers
-(define (print-registers regs)
+(define (display-registers machine)
+  (print-section-header "Registers")
+  (format-register-contents (extract-registers machine)))
+
+(define (format-register-contents regs)
   (define (print reg)
     (format #t " ~a ~s ~%"
             (string-pad-right (colorize-string (symbol->string (car reg)) 'BOLD) 30)
             (cdr reg)))
   (map print regs))
 
-(define (display-registers machine)
-  (print-section-header "Registers")
-  (print-registers (extract-registers machine))
-  (display "\n"))
-
+(define (extract-registers machine)
+  (map
+   (λ (register)
+     (cons (car register)
+           (extract-readable (get-contents (cadr register)))))
+   (remove (λ (elt) (eq? (car elt) 'pc)) (machine 'dump-registers))))
 
                                                   ; Memory
-
 (define (display-memory machine)
   (print-section-header "Memory")
   (display "\n"))
