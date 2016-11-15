@@ -252,8 +252,27 @@
   (print-section-header "Stack")
   (display (format-stack ((machine 'stack) 'raw)
                          (machine 'dump-instruction-seq)
-                         *stack-context*))
-  (display "\n"))
+                         *stack-context*)))
+
+(define (format-stack stk instr-seq max)
+  (define (next rest ctr)
+    (cond
+     ((= ctr max) " [+]\n")
+     ((null? rest) "")
+     (else
+      (let ((head (car rest)))
+        (string-append
+         (format #f " [~a] ~a\n" (colorize-string (number->string ctr)
+                                                  (if (= ctr 0) 'BOLD 'DARK))
+                 (if (pair? head)
+                     (format #f "*0x~4,'0x" (element-index (caar head) instr-seq))
+                     head)
+                 ;; (extract-readable head)
+                 )
+         (next (cdr rest) (+ 1 ctr)))))))
+
+  (next stk 0))
+
 
                                                   ; Driver Loop
 (define (print-machine-state machine)
