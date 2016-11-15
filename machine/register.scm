@@ -31,23 +31,29 @@ procedure `make-stack' creates a stack whose local state consists of a
 list of the items on the stack.  A stack accepts requests to `push' an
 item onto the stack, to `pop' the top item off the stack and return it,
 and to `initialize' the stack to empty."
-  (let ((s (make-q)))
-    (define (push x) (q-push! s x))
-    (define (pop) (q-pop! s))
-    (define (initialize) (set! s (make-q)))
-    (λ (msg)
+  (let ((s '()))
+    (define (push x)
+      (set! s (cons x s)))
+    (define (pop)
+      (if (null? s)
+          (error "Empty stack: POP")
+          (let ((top (car s)))
+            (set! s (cdr s))
+            top)))
+    (define (initialize)
+      (set! s '())
+      'done)
+    (define (dispatch msg)
       (match msg
         ['push push]
-        ['pop pop]
-        ['initialize initialize]
-        [_ (error "Unknown request -- STACK" msg)]))))
+        ['pop (pop)]
+        ['initialize (initialize)]
+        ['raw s]
+        [_ (error "Unknown request -- STACK" msg)]))
+    dispatch))
 
-(define (pop stack)
-  (stack 'pop))
-
-(define (push stack value)
-  ((stack 'push) value))
-
+(define (pop stack) (stack 'pop))
+(define (push stack value) ((stack 'push) value))
 
                                                   ; Register
 (define (make-register name)
@@ -110,10 +116,7 @@ registers, named `flag' and `pc'"
             (begin
               ((instruction-execution-proc (car insts)))))))
     (define (hook-registers fn)
-      (map
-       (λ (elt)
-         (set-register-hook (cadr elt) fn))
-        register-table))
+      (map (λ (elt) (set-register-hook (cadr elt) fn)) register-table))
     (define (dispatch message)
       (match message
         ['init
@@ -121,6 +124,8 @@ registers, named `flag' and `pc'"
         ['start
          (set-contents! pc the-instruction-sequence)
          (execute)]
+        ['dump-instruction-seq the-instruction-sequence]
+        ['step step]
         ['install-instruction-sequence
          (λ (seq) (set! the-instruction-sequence seq))]
         ['allocate-register allocate-register]
@@ -131,7 +136,6 @@ registers, named `flag' and `pc'"
         ['install-register-hook (cut hook-registers <>)]
         ['operations the-ops]
         ['dump-registers  register-table]
-        ['step (step)]
         [_ (error "Unknown request -- MACHINE" message)]))
     dispatch))
 
@@ -213,10 +217,12 @@ procedures: "
                                   ops)))
      insts)))
 
-(define (make-instruction text) (cons text '()))
+(define (make-instruction text) (list text
+                                      '()
+                                      '()))
 (define (instruction-text inst) (car inst))
-(define (instruction-execution-proc inst) (cdr inst))
-(define (set-instruction-execution-proc! inst proc) (set-cdr! inst proc))
+(define (instruction-execution-proc inst) (cadr inst))
+(define (set-instruction-execution-proc! inst proc) (set-car! (cdr inst) proc))
 
 
 ;; Elements of the label table are pairs:
