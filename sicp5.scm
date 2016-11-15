@@ -239,3 +239,72 @@ can be used only with registers and constants. |#
     (lambda ()
       (apply op (map (lambda (p) (p)) aprocs)))))
 
+
+#| Exercise 5.10
+Design a new syntax for register-machine instructions and modify the
+simulator to use your new syntax. Can you implement your new syntax without
+changing any part of the simulator except the syntax procedures in this
+section? |#
+
+;; (define (make-execution-procedure inst labels machine pc flag stack ops)
+;;   (match (car inst)
+;;     ['mov  (make-assign inst machine labels ops pc)]
+;;     ['cmp  (make-test inst machine labels ops flag pc)]
+;;     ['je   (make-branch inst machine labels flag pc)]
+;;     ['jmp  (make-goto inst machine labels pc)]
+;;     ['push (make-save inst machine stack pc)]
+;;     ['pop  (make-restore inst machine stack pc)]
+;;     ['call (make-perform inst machine labels ops pc)]
+;;     [_     (error "Unknown instruction type -- ASSEMBLE" inst)]))
+
+
+(define factorial-rec
+  (make-machine
+    '(n temp retval retaddr)
+    `((= ,=) (+ ,+) (- ,-) (* ,*))
+    '(
+        (goto (label machine-start))
+
+        ;;; procedure fact
+      fact
+        (restore retaddr)       ; return address
+        (restore temp)          ; argument
+        (save n)                ; save caller's n and retaddr
+        (save retaddr)
+        (assign n (reg temp))   ; working on n
+        (test (op =) (reg n) (const 1))
+        (branch (label fact-base))
+        (assign temp (op -) (reg n) (const 1))
+        ; prepare for the recursive call:
+        ;  push the argument and return value on stack
+        (save temp)
+        (assign retaddr (label fact-after-rec-return))
+        (save retaddr)
+        (goto (label fact))     ; the recursive call
+      fact-after-rec-return
+        (assign retval (op *) (reg retval) (reg n))
+        (goto (label fact-end))
+
+      fact-base
+        (assign retval (const 1))
+
+      fact-end
+        ; restore the caller's registers we've saved
+        ;
+        (restore retaddr)
+        (restore n)
+        (goto (reg retaddr))    ; return to caller
+        ;;; end procedure fact
+
+      machine-start
+        ; to call fact, push n and a return address on stack
+        ; and jump to fact
+        (save n)
+        (assign retaddr (label machine-end))
+        (save retaddr)
+        (goto (label fact))
+
+      machine-end
+    )))
+
+
