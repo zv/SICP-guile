@@ -31,21 +31,6 @@
              elt))
        items))
 
-(define* (build-rmachine #:key registers ops assembly)
-  (let* ([register-names (extract-config-names registers)]
-         [proc-ops (map (λ (op)
-                     (if (list? op) op
-                         (list op (eval op (interaction-environment)))))
-                   ops)]
-         [mach (make-machine register-names proc-ops assembly)])
-    ;; Take each of the registers and set it's value as specified in the arguments
-    (map (λ (elt)
-           (if (list? elt)
-               (set-register-contents! mach (car elt) (cadr elt))))
-         registers)
-    ;; done
-    mach))
-
 (define (machine-run mach init)
   "Run a machine with the registers initialized to the alist in `init' and
 then dumps the values of all registers"
@@ -58,11 +43,8 @@ then dumps the values of all registers"
 
 (define-syntax define-register-machine
   (syntax-rules ()
-    ((define-register-machine var #:registers registers #:ops ops #:assembly assembly)
-     (define var (build-rmachine
-                  #:registers 'registers
-                  #:ops       `ops
-                  #:assembly  'assembly)))))
+    ((define-register-machine var #:assembly assembly)
+     (define var (make-machine 'assembly)))))
 
 
 #| Exercise 5.1
@@ -80,15 +62,13 @@ controller diagrams for this machine.
 |#
 
 (define-register-machine factorial
-  #:registers (n product counter)
-  #:ops       (> * +)
-  #:assembly  ((assign counter (const 1))
-               (assign product (const 1))
+  #:assembly  ((movw counter (const 1))
+               (movw product (const 1))
                loop
                (test (op >) (reg counter) (reg n))
-               (branch (label end-fib))
-               (assign product (op *) (reg counter) (reg product))
-               (assign counter (op +) (reg counter) (const 1))
+               (jeq (label end-fib))
+               (movw product (op *) (reg counter) (reg product))
+               (movw counter (op +) (reg counter) (const 1))
                (goto (label loop))
                end-fib))
 
@@ -121,14 +101,11 @@ register-machine language.
 (define (newton/improve guess x) (average guess (/ x guess)))
 
 (define-register-machine newtons
-  #:registers (x guess)
-  #:ops       ((good-enough ,newton/good-enough?)
-               (improve ,newton/improve))
-  #:assembly  ((assign guess (const 1.0))
+  #:assembly  ((movw guess (const 1.0))
                improve
-               (test (op good-enough) (reg guess) (reg x))
-               (branch (label end-newton))
-               (assign guess (op improve) (reg guess) (reg x))
+               (test (op newton/good-enough?) (reg guess) (reg x))
+               (jeq (label end-newton))
+               (movw guess (op newton/improve) (reg guess) (reg x))
                (goto (label improve))
                end-newton))
 
@@ -158,41 +135,37 @@ Iterative exponentiation:
 |#
 
 (define-register-machine recursive-expt
-  #:registers (n b result retnaddr counter)
-  #:ops       (* - = +)
-  #:assembly  ((assign retnaddr (label immediate))
-               (assign counter (const 0))
+  #:assembly  ((movw retnaddr (label immediate))
+               (movw counter (const 0))
                start
                (test (op =) (reg n) (reg counter)) ;; if n == 0
-               (branch (label immediate))
-               (assign retnaddr (label stkretn))
-               (save b)
-               (assign counter (op +) (reg counter) (reg n))
+               (jeq (label immediate))
+               (movw retnaddr (label stkretn))
+               (push b)
+               (movw counter (op +) (reg counter) (reg n))
                (goto (label start))
                ;; now sum our values by popping off `counter' elts from the stack
                stkretn
-               (assign result (op *) (reg result) (reg b))
+               (movw result (op *) (reg result) (reg b))
                ;; store our popped value in `result'
-               (assign counter (op -) (reg counter) (const 1))
+               (movw counter (op -) (reg counter) (const 1))
                (test (op =) (const 0) (reg counter))
-               (branch (label done))
+               (jeq (label done))
                (goto (label stkretn))
                ;; We're done, store '2' in 'eax'
                immediate
-               (assign result (const 1))
+               (movw result (const 1))
                (goto (reg retnaddr))
                done))
 
 (define-register-machine iter-expt
-  #:registers (counter n b result)
-  #:ops       (* - = +)
-  #:assembly  ((assign result (const 1))
-               (assign counter (const 1))
+  #:assembly  ((movw result (const 1))
+               (movw counter (const 1))
                for-loop
-               (assign result (op *) (reg result) (reg b))
+               (movw result (op *) (reg result) (reg b))
                (test (op =) (reg n) (reg counter)) ;; is n == counter
-               (branch (label done))
-               (assign counter (op +) (reg counter) (const 1))
+               (jeq (label done))
+               (movw counter (op +) (reg counter) (const 1))
                (goto (label for-loop))
                done))
 
@@ -225,12 +198,13 @@ is defined more than once:
   start
     (goto (label here))
   here
-    (assign a (const 3))
+    (movw a (const 3))
     (goto (label there))
   here
-    (assign a (const 4))
+    (movw a (const 4))
     (goto (label there))
   there
+
 
 
 With the simulator as written, what will the contents of register `a' be

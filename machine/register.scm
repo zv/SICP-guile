@@ -1,9 +1,11 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
 (use-modules (ice-9 q))
+(use-modules (ice-9 match))
+(use-modules (srfi srfi-1))
 (use-modules (srfi srfi-111))
 (use-modules (srfi srfi-26))
 
-(define (make-machine register-names ops controller-text)
+(define (make-machine controller-text)
   "`Make-machine' then extends this basic model (by sending it
 messages) to include the registers, operations, and controller of the
 particular machine being defined.  First it allocates a register in the
@@ -16,14 +18,16 @@ the modified machine model. "
   (let ((machine (make-new-machine)))
     (for-each (lambda (register-name)
                 ((machine 'allocate-register) register-name))
-              register-names)
-    ((machine 'install-operations) ops)
+              (select-registers controller-text))
+
+    ((machine 'install-operations) (select-operations controller-text))
+
     ((machine 'install-instruction-sequence)
      (assemble controller-text machine))
     machine))
 
 
-                                      ; Stack
+                                                  ; Stack
 
 (define (make-stack)
   "We can also represent a stack as a procedure with local state.  The
@@ -154,6 +158,39 @@ registers, named `flag' and `pc'"
 
 
                                                   ; Assembler
+
+(define (find-arguments controller-text pred)
+  "This function takes in a predicate and controller-text, looking for
+bottom-most opcode arguments such as (op *), (reg register) or (const 1)"
+  (delete-duplicates
+   (fold
+    (lambda (elt each)
+      (let ((results (filter pred elt)))
+        (if results (append (map cadr results) each) each)))
+    '()
+    (filter list? controller-text))))
+
+(define (select-operations controller-text)
+  "Returns a duplicates-free copy of all external 'syscalls' as '((op fn))"
+  (map
+   (λ (op)
+     (list op (eval op (interaction-environment))))
+   (find-arguments controller-text
+                   (λ (e) (tagged-list? e 'op)))))
+
+(define (select-registers controller-text)
+  "Returns a duplicates-free copy of all used registers"
+  (delete-duplicates
+   (let ((result (find-arguments controller-text register-exp?)))
+    ;; bullshit haqing to get assign/push registers
+    (for-each
+     (lambda (exp)
+       (match exp
+         [('assign register rest ...)  (append! result (list register))]
+         [('push register rest ...)    (append! result (list register))]
+         [_ #f]))
+     controller-text)
+    result)))
 
 (define (assemble controller-text machine)
   "The `assemble' procedure is the main entry to the assembler.  It

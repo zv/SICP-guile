@@ -1,3 +1,5 @@
+;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
+
 (use-modules (srfi srfi-64))
 
 (define (machine-sim-runner)
@@ -70,52 +72,48 @@
 ;;               #:ops        `((rem ,modulo) (= ,=))
 ;;               #:assembly   '(test-b                    ;; label
 ;;                              (test =)                  ;; test
-;;                              (branch (label gcd-done)) ;; conditional branch
+;;                              (jeq (label gcd-done)) ;; conditional branch
 ;;                              (t<-r)                    ;; button push
 ;;                              (a<-b)                    ;; button push
 ;;                              (b<-t)                    ;; button push
 ;;                              (goto (label test-b))     ;; unconditional branch
 ;;                              gcd-done))
 
+;; (define-register-machine test-gcd
+;;   #:assembly (test-b
+;;               (test (op =) (reg b) (const 0))
+;;               (jeq (label gcd-done))
+;;               (movw t (reg a))
+;;               rem-loop
+;;               (test (op <) (reg t) (reg b))
+;;               (jeq (label rem-done))
+;;               (movw t (op -) (reg t) (reg b))
+;;               (goto (label rem-loop))
+;;               rem-done
+;;               (movw a (reg b))
+;;               (movw b (reg t))
+;;               (goto (label test-b))
+;;               gcd-done))
 
-(define-register-machine test-gcd
-  #:registers
-  #:ops (= < -)
-  #:assembly (test-b
-   (test (op =) (reg b) (const 0))
-   (branch (label gcd-done))
-   (assign t (reg a))
-   rem-loop
-   (test (op <) (reg t) (reg b))
-   (branch (label rem-done))
-   (assign t (op -) (reg t) (reg b))
-   (goto (label rem-loop))
-   rem-done
-   (assign a (reg b))
-   (assign b (reg t))
-   (goto (label test-b))
-   gcd-done)
-  )
+;; (define-register-machine recursive-gcd
+;;   #:assembly
+;;   (movw continue (label fact-done))   ; set up final return address fact-loop
+;;   (test (op =) (reg n) (const 1))
+;;   (jeq (label base-case))
+;;   (push continue)                       ; Set up for the recursive call
+;;   (push n)                              ; by saving n and continue.
+;;   (movw n (op -) (reg n) (const 1))   ; Set up continue so that the
+;;   (movw continue (label after-fact))  ; computation will continue
+;;   (goto (label fact-loop))              ; at after-fact when the after-fact                              ; subroutine returns.
+;;   (pop n)
+;;   (pop continue)
+;;   (movw val (op *) (reg n) (reg val)) ; val now contains n(n - 1)!
+;;   (goto (reg continue))                 ; return to caller base-case
+;;   (movw val (const 1))                ; base case: 1! = 1
+;;   (goto (reg continue)))                 ; return to caller fact-done)
 
-(define-register-machine recursive-gcd
-  #:registers (n val continue)
-  #:ops (- * =)
-  #:assembly (assign continue (label fact-done))   ; set up final return address fact-loop
-                (test (op =) (reg n) (const 1))
-                (branch (label base-case))
-                (save continue)                       ; Set up for the recursive call
-                (save n)                              ; by saving n and continue.
-                (assign n (op -) (reg n) (const 1))   ; Set up continue so that the
-                (assign continue (label after-fact))  ; computation will continue
-                (goto (label fact-loop))              ; at after-fact when the after-fact                              ; subroutine returns.
-                (restore n)   (restore continue)
-                (assign val (op *) (reg n) (reg val)) ; val now contains n(n - 1)!
-                (goto (reg continue))                 ; return to caller base-case
-                (assign val (const 1))                ; base case: 1! = 1
-                (goto (reg continue)))                 ; return to caller fact-done)
-
-(test-equal (get-register-contents factorial 'product) 720)
-(test-approximate (get-register-contents newtons 'guess) 9)
+(test-equal 720 (get-register-contents factorial 'product))
+(test-approximate 9 (get-register-contents newtons 'guess))
 
 (test-end "register simulator")
 (test-end "tests")
