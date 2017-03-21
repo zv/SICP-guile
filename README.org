@@ -1,17 +1,17 @@
 * SICP
 ** Why?
    SICP has been a great classic of computer science for more than two decades
-   and is likely to remain so for many more. It's reputation has grown
+   and is likely to remain so for many more. Its reputation has grown
    throughout the 90s and continued to do so 'posthumously': the 6.001 course
    (which SICP served as the textbook of) is now a Python oriented course to
    accommodate shifting computing trends. SICP's broad strokes remain as vibrant
-   as the day it was written however. The real soul of this book is in it's
+   as the day it was written however. The real soul of this book is in its
    exercises: a powerful graphics language, a computer algebra system, a Scheme
    and "JIT" evaluator, a Prolog-like langauge and more. This expansive coverage
    of so many topics of computing spawned a long tradition of hackers studying
-   it and writing solutions to it's exercises.
+   it and writing solutions to its exercises.
 
-   An exhaustive reading of the book was unlikely for it's target audience. SICP
+   An exhaustive reading of the book was unlikely for its target audience. SICP
    contains statements and source code that are redundant or ambiguous. Asking
    readers to consider code and structures whose details are described in
    principle, only later introducing their implementation. This pedagogical
@@ -20,7 +20,7 @@
 
    SICP makes it your responsibility to learn what the book has to teach, and
    part of that duty is ensuring you'll actually finish it by eliminating the
-   details like dredging it's contents to clarify a remark or realizing in
+   details like dredging its contents to clarify a remark or realizing in
    hindsight that a few minutes when starting a chapter could've saved hours
    down the road.
 
@@ -68,7 +68,7 @@
      I've heard are servicable.
 
 ***** Using a Non-Lisp?
-      Some online commentators have described SICP as stressing homoiconicicity, but
+      Some online commentators have described SICP as stressing homoiconicity, but
       if such implicit emphasis exists I couldn't detect any (although the concept
       /itself/ is referenced obliquely).
 
@@ -77,7 +77,7 @@
       did get a dash of enlightenment that is usually very remote in Javascript (as
       well as learning something /about/ JS that few JS textbooks teach).
 
-      Chapter 4's implementation would be the first major hurdle for an nonlisp
+      Chapter 4's implementation would be the first major hurdle for a nonlisp
       effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
       accommodate Javascript.]] Others have used techniques solely from an earlier
       chapters to write Sexp parsers to write a Scheme interpreter inside JS. 
@@ -150,7 +150,7 @@
     mutable structures.
 
     Another important consideration is the parallel programming facilities of your
-    language, the book demands a true concurrency environemtn in order for some
+    language, the book demands a true concurrency enviroment in order for some
     exercises and examples to work right.
 
 
@@ -224,7 +224,7 @@
 *** Chapter 4
     This chapter centers around the creation of a number of Scheme evaluators and is
     widely regarded as the most substantial chapter. The regularity with which it
-    revises it's own ideas make a testing framework and toolbelt a profitable use
+    revises its own ideas make a testing framework and toolbelt a profitable use
     of your time.
 
     If you've chosen a language that stresses immutability (like Racket or Clojure)
@@ -517,10 +517,10 @@
      The query evaluator may be the most difficult material yet, particularly if you
      aren't previously familiar with a language like Prolog.
 
-     This material requires very careful reading to grasp it's operation and the book
-     frequently spends more time on it's consequences over it's content.
+     This material requires very careful reading to grasp its operation and the book
+     frequently spends more time on its consequences over its content.
 
-     If you want to grasp it's implementation, you will have to read and reread
+     If you want to grasp its implementation, you will have to read and reread
      chapter 4.4.4.
 
      The unification step, which the book itself describes as the most unintuitive aspect,
