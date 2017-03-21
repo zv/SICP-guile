@@ -43,15 +43,21 @@
      is to have a great and pain free environment and REPL. I couldn't imagine
      doing it with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at
      home /in/ Emacs too.]]
+     
+     With that said, the Racket community has put together something truly
+     astonishing with [[http://docs.racket-lang.org/drracket/interface-essentials.html?q=faq][DrRacket]]. I have used it's excellent debugger over and
+     over (when you want true enlightenment, debug chapter 2's =partial-tree=)
+     and could imagine it as a great SICP environment, perhaps even surpassing
+     Emacs in this regard.
 
 **** Language
-     SICP recommends [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] itself, however many readers since have used
-     various Schemes, Lisps and languages pretending to be either. I've seen the
-     following used and have tried to approximate their fitness for the task
-     with some features I've found useful:
+     SICP recommends [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]]. Many readers have used various Schemes, Lisps
+     and languages pretending to be either. I've seen the following used and
+     have tried to approximate their fitness for the task with some features
+     I've found useful:
 
-     + Object system is not requried but can save you lots of time
-     + Being able to redefine a function in the same file is extremely useful in doing SICP.
+     + Object system is not required but can save you lots of time
+     + Being able to redefine a function in the same file is extremely useful in SICP.
      + A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
      + Several chapters more-or-less require mutable lists. Languages like Racket support mutable lists but use different method names and so will require you rewrite some code from the book.
      + Some chapters, particularly those dealing with changes to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
@@ -86,6 +92,29 @@
       book intended to convey.
 
       Caveat Emptor.
+
+**** Mechanics
+***** Keeping your exercises under version control
+      SICP regularly makes reference to itself at later chapters. For example,
+      one of the Lisp interpreter exercises in Chapter 4 makes reference to
+      2.71 (Chapter 2). This means that having the results of your work
+      chronicled will make your life considerably easier.
+
+      Also, as you get deeper into the book, more serious challenges will be
+      posed. You'll be building a Lisp interpreter, a JIT compiler, an actual
+      compiler - these are serious software construction projects and you'll
+      benefit from the tools of software construction.
+
+***** Keeping a Diary
+      SICP contains so much information that's easy to lose track of later on if
+      you don't refresh your memory. A diary can also help you learn about your
+      own learning process, serve as a reference and be personal evidence of this
+      challenge you are about to embark on.
+      
+***** Doing both at once?
+      A variety of schemes allow you to write comments of the form: =#| BLOCK COMMENT |#=.
+      You can assign heading that you think are appropriate to each scheme file you include and 
+      later extract those comments using a shell script.
 
 ** Contents
 *** Chapter 1
@@ -654,8 +683,7 @@ then dumps the values of all registers"
     solve the problem. This mixes all sorts of different kinds of representations
     of data and many solutions are incorrect.
 *** ~parse_words~
-    The parse words exercises give you the feeling that something really essential
-    is being left out. I completed the exercises but I started to get to a really
+    I completed the exercises but I started to get to a really
     uncomfortable point, especially in Exercise 4.49 that this was some deep
     metaphor for parsing fully-specified grammars.
 
