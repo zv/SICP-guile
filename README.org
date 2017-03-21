@@ -198,7 +198,6 @@
      content, although both /2.73/ and /2.75/ show up later, so be sure you
      record your answers.
 
-
 *** Chapter 3
     This chapter is the beginning of the end of standard computing textbook and the
     beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
@@ -609,8 +608,28 @@
        #+END_EXAMPLE
 
 *** Chapter 5
+    Chapter 5 begins with modeling a 'register machine', approximate to many
+    contemporary architectures. Asking you to implement (or invent) a register
+    machine language, complete with the control flow constructs and data
+    structures needed.
 
+    This is where the chapter is known for /'going off the deep end'/: building
+    a scheme compiler with tail call optimization, garbage collection, lexical
+    addressing, tracing and so on.
     
+*** ZV's Graphical Debugger & REPL
+    I've built a REPL debugger for the Ch5 machine language. This can be used
+    with whichever assembly variant you decide to write your exercises in, but
+    if are familiar with x86 assembly, I think it will seem like a little slice
+    of home.
+
+    If you'd like to use it, you can find it's source code in ~machine/gui.scm~.
+
+    #+CAPTION: SICP Chapter 5 GUI Debugger
+    #+NAME: guidebugger
+    [[./vendor/gui.jpg]]
+
+
 **** A better way to run register machines
      Here is a macro and runner function for generating a quick register machine definition as follows:
      #+BEGIN_SRC lisp
