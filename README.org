@@ -64,7 +64,7 @@
      | LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
      | Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
 
-     I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://common-lisp.net/][Chicken Scheme]], both
+     I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://www.call-cc.org/][Chicken Scheme]], both
      I've heard are servicable.
 
 ***** Using a Non-Lisp?
