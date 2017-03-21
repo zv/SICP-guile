@@ -109,14 +109,29 @@
     - Approximate trigonometric functions
 
 *** Chapter 2
-    The chapter covers a lot of ground and doesn't stay put in any one place for
-    long. It's highly rewarding and warmed me up to the rest of the book.
+    This chapter is broadly concerned with the generality and principles of
+    recursion or even more broadly with how abstract structures are built from
+    concrete components.
 
-    Some things covered include
+    This is quite a broad brush and in turn the chapter doesn't stay put in one
+    place for long.
 
+    Some topics:
+
+    - Abstractions for arithmetic
+      - Rationals
+      - Interval
+    - Representing lists & trees with =cons= cells or pointers
+    - More advanced uses of recursion
+      - The 8 Queens Problem
+      - Permuting numbers
+    - Building a picture-drawing 'language' or library
+      - The mechanics of graphics
+      - Encoding higher order operations on graphics into lower-order actions
     - Lambda calculus
-    - Symbolic Computation & computer algebra systems with automatic integration & differentiation
-    - Encoding, Decoding and all around learning everything about Huffman Trees from the ground up
+    - Symbolic Computation 
+      - Computer algebra systems with automatic integration & differentiation
+    - Encoding, Decoding and everything in-between for Huffman Trees. 
     - The universality of the ~(list)~ datastructure in Lisp
     - Dynamic Programming and hierarchical data structures
     - Different ways to achieve language features like type-dispatch, message passing and inheritance
@@ -124,14 +139,36 @@
     This book starts to give you a few nuggets of profound realization that the book
     is known for. It gets even better.
 
-**** 2.4 - Multiple Representation of Abstract Data
-     This chapter is unusual. It's the least and the *most* important for practice of
-     programming at large. The chapter justifies and presents simplified summaries of
-     the implementation details of important programming language features and why they
-     are useful.
 
-     There are only 4 exercises, so you can mostly relax and focus on the content,
-     although both /2.73/ and /2.75/ show up later.
+**** 2.3 Symbolic Data
+     If you are determined to speed through SICP, I would recommend taking your
+     time reading chapter 2.3. Many commentators on the text regularly highlight
+     the Huffman Coding material in Chapter 2.3.4. You will learn something interesting
+     if you are a novice *or* if you are a professional: 
+
+     - Symbolic Calculator by Integration & Differentiation
+     - Variety of binary trees and set data structures
+     - Huffman encoder/decoder
+
+     Although not as well known, there is a function that generates an
+     automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while it's
+     it's inversion is apparently a requirement for getting a job at Google]], the
+     method is also genuinely beautiful - a personal favorite of mine.
+     
+**** 2.4 - Multiple Representation of Abstract Data
+     This chapter covers the tactics of abstraction. Ways to link code with
+     operations upon 'structure' (both of the C variety and a more abstract one)
+     while retaining 'genericity'.
+
+     It's at once the least memorable and yet possibly the *most* important for
+     practice of programming at large. The chapter justifies and presents
+     simplified summaries of the implementation details of important programming
+     language features and why they are useful.
+
+     There are only 4 exercises, so you can mostly relax and focus on the
+     content, although both /2.73/ and /2.75/ show up later, so be sure you
+     record your answers.
+
 
 *** Chapter 3
     This chapter is the beginning of the end of standard computing textbook and the
