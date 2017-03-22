@@ -40,7 +40,7 @@
 
 **** Environment
      SICP can be more than didactic, it /can/ be fun. The easiest way to do this
-     is to have a great and pain free environment and REPL. I couldn't imagine
+     is to have a great, pain free environment and REPL. I couldn't imagine
      doing it with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at
      home /in/ Emacs too.]]
      
@@ -86,12 +86,51 @@
       Chapter 4's implementation would be the first major hurdle for a nonlisp
       effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
       accommodate Javascript.]] Others have used techniques solely from an earlier
-      chapters to write Sexp parsers to write a Scheme interpreter inside JS. 
+      chapters to write Sexp parsers to write a Scheme interpreter inside JS.
 
       All of this carries the risk of getting *completely* different message than the
       book intended to convey.
 
       Caveat Emptor.
+
+***** Helpful Details
+      SICP doesn't rely on implementation details in MIT Scheme to communicate
+      it's points and translates well across implementations. Still, if this is
+      your first time using Scheme, you might be able to benefit from a few
+      modern implementation-specific details:
+
+****** Macros
+       In addition to being useful for reducing redundancy and writing
+       specialized unit-testing code, macros help cement your knowledge by
+       forcing you to go beyond the motion of the exercises.
+
+       Be prepared to spend a few hours on this topic, =syntax-rules= are much
+       more safe & sophisticated than 'replacement macro systems'. The most
+       common use-cases will be covered in your language-of-choice's
+       documentation; for everything else there is [[http://www.phyast.pitt.edu/~micheles/syntax-rules.pdf][Syntax Rules for the Merely
+       Eccentric]]
+
+****** Object System
+       SICP will instruct you in building your own 'OOP' system and is helpful
+       in organizing some of the more complex exercises. With that said, it's
+       both more expedient to use your own Lisp's object system (usually some
+       descendent of Common Lisp's) as well as didactic in it's own right.
+
+       There's not much conflict here however. The places where SICP asks you to
+       use it's own 'objects' aren't the places you'd want to use your
+       language's object system. Bigger exercises (particularly those in
+       Chapter 3) are where you benefit from a 'proper' object system. You could
+       also make your own (ideal use of macros!), because while it's true that
+       Lisp object systems can provide many features with varying degrees of
+       adherance to the doctrine of object-orientation, SICP benefits come from
+       a few like inheritance/composition.
+
+****** Unit Testing With SRFI-78
+       There's lots of ways to test Scheme code, I still recommend the simplest
+       thing that works: [[https://srfi.schemers.org/srfi-78/srfi-78.html][SRFI-78]]. If you haven't used it before, you can read
+       some tests for my implementation of interpreter and compiler code in
+       =test/=.
+
 
 **** Mechanics
 ***** Keeping your exercises under version control
@@ -115,6 +154,7 @@
       A variety of schemes allow you to write comments of the form: =#| BLOCK COMMENT |#=.
       You can assign heading that you think are appropriate to each scheme file you include and 
       later extract those comments using a shell script.
+
 
 ** Contents
 *** Chapter 1
@@ -617,55 +657,55 @@
     a scheme compiler with tail call optimization, garbage collection, lexical
     addressing, tracing and so on.
     
-*** ZV's Graphical Debugger & REPL
-    I've built a REPL debugger for the Ch5 machine language. This can be used
-    with whichever assembly variant you decide to write your exercises in, but
-    if are familiar with x86 assembly, I think it will seem like a little slice
-    of home.
+**** ZV's Graphical Debugger & REPL
+     I've built a REPL debugger for the Ch5 machine language. This can be used
+     with whichever assembly variant you decide to write your exercises in, but
+     if are familiar with x86 assembly, I think it will seem like a little slice
+     of home.
 
-    If you'd like to use it, you can find it's source code in ~machine/gui.scm~.
+     If you'd like to use it, you can find it's source code in ~machine/gui.scm~.
 
-    #+CAPTION: SICP Chapter 5 GUI Debugger
-    #+NAME: guidebugger
-    [[./vendor/gui.jpg]]
-
-
-**** A better way to run register machines
-     Here is a macro and runner function for generating a quick register machine definition as follows:
-     #+BEGIN_SRC lisp
-(define-register-machine newtons
-  #:registers (x guess)
-  #:ops       ((good-enough ,newton/good-enough?)
-               (improve ,newton/improve))
-  #:assembly  ((assign guess (const 1.0))
-               improve
-               (test (op good-enough) (reg guess) (reg x))
-               (branch (label end-newton))
-               (assign guess (op improve) (reg guess) (reg x))
-               (goto (label improve))
-               end-newton))
-     #+END_SRC
+     #+CAPTION: SICP Chapter 5 GUI Debugger
+     #+NAME: guidebugger
+     [[./vendor/gui.jpg]]
 
 
-     #+BEGIN_SRC scheme
-(define (machine-run mach init)
-  "Run a machine with the registers initialized to the alist in `init' and
-then dumps the values of all registers"
-  (map (λ (el) (set-register-contents! mach (car el) (cdr el))) init)
-  (start mach)
-  (map
-   (λ (reg) (cons (car reg)
-                  (get-contents (get-register mach (car reg)))))
-   (mach 'dump-registers)))
+***** A better way to run register machines
+      Here is a macro and runner function for generating a quick register machine definition as follows:
+      #+BEGIN_SRC lisp
+ (define-register-machine newtons
+   #:registers (x guess)
+   #:ops       ((good-enough ,newton/good-enough?)
+                (improve ,newton/improve))
+   #:assembly  ((assign guess (const 1.0))
+                improve
+                (test (op good-enough) (reg guess) (reg x))
+                (branch (label end-newton))
+                (assign guess (op improve) (reg guess) (reg x))
+                (goto (label improve))
+                end-newton))
+      #+END_SRC
 
-(define-syntax define-register-machine
-  (syntax-rules ()
-    ((define-register-machine var #:registers registers #:ops ops #:assembly assembly)
-     (define var (build-rmachine
-                  #:registers 'registers
-                  #:ops       `ops
-                  #:assembly  'assembly)))))
-     #+END_SRC
+
+      #+BEGIN_SRC scheme
+ (define (machine-run mach init)
+   "Run a machine with the registers initialized to the alist in `init' and
+ then dumps the values of all registers"
+   (map (λ (el) (set-register-contents! mach (car el) (cdr el))) init)
+   (start mach)
+   (map
+    (λ (reg) (cons (car reg)
+                   (get-contents (get-register mach (car reg)))))
+    (mach 'dump-registers)))
+
+ (define-syntax define-register-machine
+   (syntax-rules ()
+     ((define-register-machine var #:registers registers #:ops ops #:assembly assembly)
+      (define var (build-rmachine
+                   #:registers 'registers
+                   #:ops       `ops
+                   #:assembly  'assembly)))))
+      #+END_SRC
 
 ** If I could do it all again...
    Everyone has regrets, let's hope you have fewer by reading mine.
