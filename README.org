@@ -65,7 +65,7 @@
      | Language  | Ease | Unit Tests | Native OOP | Redefinition | ~set!~ | Notes                                                                               |
      |-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
      | Guile     | 5/5  | ✓          | ✓          | ✓            | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
-     | Racket    | 3/5  | ✓          | ✓          |              |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
+     | Racket    | 3/5  | ✓          | ✓          | (DrRacket allows you to disable 'constant definitions')             |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
      | MITScheme | 5/5  | ?          |            | ✓            | ✓      | The Default SICP Choice                                                             |
      | LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
      | Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
