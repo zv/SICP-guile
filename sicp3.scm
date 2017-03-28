@@ -313,20 +313,12 @@ space. (This requires a very clever idea.)
 ;; -- Section 3.3.2 - Queues -----------------------
 ;; ---( Utility Functions )--------------------------
 (define (make-queue) (cons '() '()))
-
 (define (front-ptr queue) (car queue))
-
 (define (rear-ptr queue) (cdr queue))
+(define (set-front-ptr! queue item) (set-car! queue item))
+(define (set-rear-ptr! queue item) (set-cdr! queue item))
+(define (empty-queue? queue) (null? (front-ptr queue)))
 
-(define (set-front-ptr! queue item)
-  (set-car! queue item))
-
-(define (set-rear-ptr! queue item)
-  (set-cdr! queue item))
-
-(define (empty-queue? queue)
-
-  (null? (front-ptr queue)))
 (define (front-queue queue)
   (if (empty-queue? queue)
       (error "FRONT called with an empty queue" queue)
@@ -431,17 +423,98 @@ operations using this representation.
     dispatch))
 
 
-#| TODO: Exercise 3.23
+#| Exercise 3.23
 A deque (“double-ended queue”) is a sequence in which items can be inserted and
 deleted at either the front or the rear. Operations on deques are the
 constructor make-deque, the predicate empty-deque?, selectors front-deque and
 rear-deque, and mutators front-insert-deque!, rear-insert-deque!,
 front-delete-deque!, rear-delete-deque!. Show how to represent deques using
-pairs, and give implementations of the operations.151 All operations should be
+pairs, and give implementations of the operations. All operations should be
 accomplished in Θ(1) steps.
 |#
 
-;; -- 3.3.3 | Representing Tables  -------------------
+#| Structure:
+This is the structure I've decided to use for the deque. There may be other
+neat ways to encode a deque with cons-cells. I'd love to hear if anyone has
+a better structure:
+
+    F: Front Ptr
+    B: Back Ptr
+    X: Value
+    /: Null or End
+
+      +---+---+
+      | F | B |-----------------+
+      +-|-+---+                 |
+        V                       V
+      +-+-+---+   +---+---+   +-+-+---+
+      | * | * |-->| * | * |-->| * | / |
+      +-|-+---+   +-|-+---+   +-|-+---+
+        V   ^---+   V   ^---+   V
+      +-+-+---+ | +---+---+ | +---+---+
+      | X | / | | | X | * | | | X | * |
+      +---+---+ | +---+-+-+ | +---+-+-+
+                |       |   |       |
+                +-------+   +-------+
+                                                                            |#
+
+(define (make-deque) '(() . ()))
+(define (empty-deque? dq) (null? (front-deque dq)))
+(define (front-deque dq) (car dq))
+(define (rear-deque dq) (cdr dq))
+(define (next-deque lst) (if (null? lst) '() (cdr lst)))
+(define (prev-deque lst) (if (null? lst) '() (cdar lst)))
+
+(define (front-insert-deque! dq value)
+  (let ([new-elt (cons (cons value '()) '())])
+    (cond
+     ((empty-deque? dq)
+      (set-car! dq new-elt) (set-cdr! dq new-elt)
+      dq)
+     (else
+      ;; link our next element to the current front
+      (set-cdr! new-elt (front-deque dq))
+      ;; find the next element to make a backwards link
+      (set-cdr! (car (front-deque dq)) new-elt)
+      (set-car! dq new-elt)
+      dq))))
+
+(define (rear-insert-deque! dq value)
+  (let ([new-elt (cons (cons value '()) '())])
+    (cond
+     ((empty-deque? dq)
+      (set-car! dq new-elt) (set-cdr! dq new-elt)
+      dq)
+     (else
+      ;; Link our backwards element
+      (set-cdr! (car new-elt) (rear-deque dq))
+      (set-cdr! (rear-deque dq) new-elt)
+      (set-cdr! dq new-elt)
+      dq))))
+
+(define (front-delete-deque! dq)
+  (let ([next (next-deque (front-deque dq))]
+        [front (front-deque dq)])
+    (cond
+     ((null? next) (set-car! dq '()) (set-cdr! dq '()))
+     (else
+      (set-car! dq next)
+      (set-cdr! (car (front-deque dq)) '())))
+    front))
+
+(define (rear-delete-deque! dq)
+  (let ([rear (rear-deque dq)]
+        [prev (prev-deque (rear-deque dq))])
+    (cond
+     ((null? next) (set-car! dq '()) (set-cdr! dq '()))
+     (else
+      (set-cdr! dq prev)
+      (set-cdr! (rear-deque dq) '())))
+    rear))
+
+
+
+;; -- 3.3.3
 ;; --( Utility Functions )----------------------------
 (define (lookup key table)
   (let ((record (assoc key (cdr table))))
