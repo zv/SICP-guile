@@ -617,6 +617,21 @@ access appropriate `lookup' and `insert!' procedures for a local table.
     dispatch))
 
 
+#| Exercise 3.25
+Generalizing one and two-dimensional tables, show how to implement a table
+in which values are stored under an arbitrary number of keys and different
+values may be stored under different numbers of keys. The `lookup' and
+`insert!' procedures should take as input a list of keys used to access the
+table.
+|#
+
+#| Answer:
+The easiest way to accomplish this is to accept variadic arguments to
+`insert' and `lookup', folding them into a string or using the list
+directly (which `equal?' can compare)
+|#
+
+
 
 
 ;; -- 3.3.4 | Constraint Satisfaction ----------------
