@@ -45,7 +45,7 @@
      home /in/ Emacs too.]]
      
      With that said, the Racket community has put together something truly
-     astonishing with [[http://docs.racket-lang.org/drracket/interface-essentials.html?q=faq][DrRacket]]. I have used it's excellent debugger over and
+     astonishing with [[http://docs.racket-lang.org/drracket/interface-essentials.html?q=faq][DrRacket]]. I have used its excellent debugger over and
      over (when you want true enlightenment, debug chapter 2's =partial-tree=)
      and could imagine it as a great SICP environment, perhaps even surpassing
      Emacs in this regard.
@@ -95,7 +95,7 @@
 
 ***** Helpful Details
       SICP doesn't rely on implementation details in MIT Scheme to communicate
-      it's points and translates well across implementations. Still, if this is
+      its points and translates well across implementations. Still, if this is
       your first time using Scheme, you might be able to benefit from a few
       modern implementation-specific details:
 
@@ -114,10 +114,10 @@
        SICP will instruct you in building your own 'OOP' system and is helpful
        in organizing some of the more complex exercises. With that said, it's
        both more expedient to use your own Lisp's object system (usually some
-       descendent of Common Lisp's) as well as didactic in it's own right.
+       descendent of Common Lisp's) as well as didactic in its own right.
 
        There's not much conflict here however. The places where SICP asks you to
-       use it's own 'objects' aren't the places you'd want to use your
+       use its own 'objects' aren't the places you'd want to use your
        language's object system. Bigger exercises (particularly those in
        Chapter 3) are where you benefit from a 'proper' object system. You could
        also make your own (ideal use of macros!), because while it's true that
@@ -220,8 +220,8 @@
      - Huffman encoder/decoder
 
      Although not as well known, there is a function that generates an
-     automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while it's
-     it's inversion is apparently a requirement for getting a job at Google]], the
+     automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while
+     its inversion is apparently a requirement for getting a job at Google]], the
      method is also genuinely beautiful - a personal favorite of mine.
      
 **** 2.4 - Multiple Representation of Abstract Data
@@ -340,7 +340,7 @@
 
     #+BEGIN_QUOTE
     I'm close the finishing the last major chunk of the book. Working with two
-    colleagues for around two hours a week, its taken us nearly a year to get this
+    colleagues for around two hours a week, it's taken us nearly a year to get this
     far. Of course, we did every exercise, and lost a lot of time trying to work
     around incompatibilities between standard Scheme and the interesting corners of
     DrScheme [now DrRacket - ~mcons~, I'm looking at you]. Now we use mit-scheme and
@@ -663,7 +663,7 @@
      if are familiar with x86 assembly, I think it will seem like a little slice
      of home.
 
-     If you'd like to use it, you can find it's source code in ~machine/gui.scm~.
+     If you'd like to use it, you can find its source code in ~machine/gui.scm~.
 
      #+CAPTION: SICP Chapter 5 GUI Debugger
      #+NAME: guidebugger
