@@ -28,6 +28,7 @@
 (define *stack-context* 15)
 (define *opcode-padding* 15)
 (define *command-table* '(next step continue bp))
+(define *tracing* #t)
 
 (define *machine*
   (make-machine
@@ -256,8 +257,15 @@
 
                                                   ; Metainfo
 (define (display-metainfo machine)
-  (print-section-header "Meta")
-  (format #t "Executed:  ~a\n" (machine 'instructions-executed)))
+  (if *tracing*
+      (begin
+        (print-section-header "Meta")
+        (format #t "Executed:  ~a\n" (machine 'instructions-executed)))))
+
+(define (toggle-tracing status)
+  (if (equal? status "on")
+      (set! *tracing* #t)
+      (set! *tracing* #f)))
 
                                                   ; Driver Loop
 (define (print-machine-state machine)
@@ -300,6 +308,7 @@ pairs ((a . 1) (b . 2) (c . 3) (d . 4)) "
        (load-machine filename '())]
       [("load" filename rest ...)
        (load-machine filename (pairlist->alist rest))]
+      [("trace" status) (toggle-tracing status)]
       [_      ((*machine* 'step))])))
 
 (define (driver-loop)

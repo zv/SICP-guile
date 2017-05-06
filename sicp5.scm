@@ -366,6 +366,16 @@ prints the value of the instruction count and resets the count to zero. |#
 I've modified `make-new-machine' to return 'instruction-count', and
 machine/gui to automatically return this upon every step / continue
 |#
+
+
+#| Exercise 5.16
+Augment the simulator to provide for "instruction tracing". That is, before
+each instruction is executed, the simulator should print the text of the
+instruction. Make the machine model accept `trace-on' and `trace-off'
+messages to turn tracing on and off. |#
+
+#| Answer: Added to machine/gui #|
+
 
 
 
