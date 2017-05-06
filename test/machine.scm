@@ -116,4 +116,31 @@
 (test-approximate 9 (get-register-contents newtons 'guess))
 
 (test-end "register simulator")
+
+(define sample-text '((movw counter (const 1))
+                      (movw product (const 1))
+                      loop
+                      (push 1)
+                      (pop counter)
+                      (pop counter)
+                      (test (op >) (reg counter) (reg n))
+                      (jeq (label end-fib))
+                      (movw product (op *) (reg counter) (reg product))
+                      (movw counter (op +) (reg counter) (const 1))
+                      (goto (label loop))
+                      end-fib))
+
+
+(test-equal
+    '(1 counter)
+    (extract-stack-manipulations sample-text))
+
+(test-equal
+    '(loop)
+    (extract-goto-destinations sample-text))
+
+(test-begin "register helper fns")
+
+(test-end "register helper fns")
+
 (test-end "tests")
