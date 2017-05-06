@@ -4,6 +4,7 @@
              (ice-9 hash-table)
              (ice-9 unicode)
              (srfi srfi-98)
+             (ice-9 format)
              (ice-9 rdelim))
 
 ;; (srfi srfi-13)) ; for 'string-join'
@@ -30,8 +31,6 @@
 
 (define *machine*
   (make-machine
-    '(n temp retval retaddr)
-    `((= ,=) (+ ,+) (- ,-) (* ,*))
     '((goto (label machine-start))
 
         ;;; procedure fact

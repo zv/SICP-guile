@@ -67,8 +67,8 @@ and to `initialize' the stack to empty."
       (match message
         ['get (unbox contents)]
         ['set (λ (value)
-           (run-hook before-set-hook name (unbox contents) value)
-           (set-box! contents value))]
+                (run-hook before-set-hook name (unbox contents) value)
+                (set-box! contents value))]
         ['add-hook (λ (fn) (add-hook! before-set-hook fn))]
         ['remove-hook! (λ (fn) (remove-hook! before-set-hook fn))]
         [_ (error "Unknown request -- REGISTER" message)]))
@@ -196,31 +196,31 @@ bottom-most opcode arguments such as (op *), (reg register) or (const 1)"
   "The `assemble' procedure is the main entry to the assembler.  It
 takes the controller text and the machine model as arguments and
 returns the instruction sequence to be stored in the model.  `Assemble'
-calls `extract-labels' to build the initial instruction list and label
+calls `select-labels' to build the initial instruction list and label
 table from the supplied controller text.  The second argument to
-`extract-labels' is a procedure to be called to process these results:
+`select-labels' is a procedure to be called to process these results:
 This procedure uses `update-insts!' to generate the instruction
 execution procedures and insert them into the instruction list, and
 returns the modified list."
-  (extract-labels controller-text
+  (select-labels controller-text
                   (lambda (insts labels)
                     (update-insts! insts labels machine)
                     insts)))
 
-(define (extract-labels text receive)
-  "`Extract-labels' takes as arguments a list `text' (the sequence of
+(define (select-labels text receive)
+  "`Select-labels' takes as arguments a list `text' (the sequence of
 controller instruction expressions) and a `receive' procedure. `Receive'
 will be called with two values: (1) a list `insts' of instruction data
 structures, each containing an instruction from `text'; and (2) a table
 called `labels', which associates each label from `text' with the position
 in the list `insts' that the label designates.
 
-`Extract-labels' works by sequentially scanning the elements of the
+`Select-labels' works by sequentially scanning the elements of the
 `text' and accumulating the `insts' and the `labels'. If an element is a
 symbol (and thus a label) an appropriate entry is added to the `labels'
 table. Otherwise the element is accumulated onto the `insts' list."
   (if (null? text) (receive '() '())
-      (extract-labels (cdr text)
+      (select-labels (cdr text)
                       (lambda (insts labels)
                         (let ((next-inst (car text)))
                           (if (symbol? next-inst)

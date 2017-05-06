@@ -190,7 +190,7 @@ Both the save & restore of `continue' are useless.
 
 #| Exercise 5.7: Use the simulator to test the machines you designed in Exercise 5.4. |#
 
-
+ 
 #| Exercise 5.8
 The following register-machine code is ambiguous, because the label `here'
 is defined more than once:
@@ -205,12 +205,12 @@ is defined more than once:
     (goto (label there))
   there
 
-
-
 With the simulator as written, what will the contents of register `a' be
 when control reaches `there'? Modify the `extract-labels' procedure so that
 the assembler will signal an error if the same label name is used to
 indicate two different locations. |#
+
+#| Answer: extract-label updated in 57a079eda7d4a0dc58ba2f8324f4b03c55ad27cc |#
 
 
 #| Exercise 5.9

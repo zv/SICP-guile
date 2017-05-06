@@ -1,4 +1,4 @@
-;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; -*-
+;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
 ;; TODO: DEADLOCK
 ;; TODO: 3.4
 ;; Chapter 3 of SICP
@@ -506,7 +506,7 @@ a better structure:
   (let ([rear (rear-deque dq)]
         [prev (prev-deque (rear-deque dq))])
     (cond
-     ((null? next) (set-car! dq '()) (set-cdr! dq '()))
+     ((null? rear) (set-car! dq '()) (set-cdr! dq '()))
      (else
       (set-cdr! dq prev)
       (set-cdr! (rear-deque dq) '())))
@@ -583,7 +583,7 @@ keys. `Make-table' should return a `dispatch' procedure that can be used to
 access appropriate `lookup' and `insert!' procedures for a local table.
 |#
 
-(define (make-table same-key?)
+(define (make-table-with-key same-key?)
   (let ((local-table (list '*table*)))
     ;; just redefine `assoc' with `same-key?'
     (define (assoc key records)
@@ -773,8 +773,6 @@ the `table' would not be shared between the various applications of
         (first-item)
         (remove-first-agenda-item! the-agenda)
         (propagate))))
-
-
 
 (define (make-time-segment time queue)
   (cons time queue))

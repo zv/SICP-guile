@@ -431,7 +431,7 @@
 
 (define (permutations s)
   (if (null? s)                    ; empty set?
-      (list null)                   ; sequence containing empty set
+      (list null)                  ; sequence containing empty set
       (flatmap (lambda (x)
                  (map (lambda (p) (cons x p))
                       (permutations (remove x s))))
