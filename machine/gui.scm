@@ -254,6 +254,11 @@
   (next stk 0))
 
 
+                                                  ; Metainfo
+(define (display-metainfo machine)
+  (print-section-header "Meta")
+  (format #t "Executed:  ~a\n" (machine 'instructions-executed)))
+
                                                   ; Driver Loop
 (define (print-machine-state machine)
   "This function is responsible for building the 'view' of the GUI,
@@ -262,6 +267,7 @@ handling appropriate termcap values and so on"
   (display-assembly machine)
   (display-registers machine)
   (display-stack machine)
+  (display-metainfo machine)
   (format #t "~a\n" (make-string (terminal-width) break)))
 
 (define (load-machine filename args)

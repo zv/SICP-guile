@@ -93,6 +93,7 @@ registers, named `flag' and `pc'"
          [flag   (make-register 'flag)]
          [stack  (make-stack)]
          [the-instruction-sequence '()]
+         [instructions-executed 0]
          [the-ops `((initialize-stack ,(λ () (stack 'initialize))))]
          [register-table `((pc ,pc)
                            (flag ,flag))])
@@ -112,12 +113,14 @@ registers, named `flag' and `pc'"
       (match (get-contents pc)
         [() 'done]
         [insts (begin
+                 (set! instructions-executed (+ 1 instructions-executed))
                  ((instruction-execution-proc (car insts)))
                  (execute))]))
     (define (step)
       (let ((insts (get-contents pc)))
         (if (null? insts) 'done
             (begin
+              (set! instructions-executed (+ 1 instructions-executed))
               ((instruction-execution-proc (car insts)))))))
     (define (hook-registers fn)
       (map (λ (elt) (set-register-hook (cadr elt) fn)) register-table))
@@ -137,6 +140,7 @@ registers, named `flag' and `pc'"
         ['install-operations
          (λ (ops) (set! the-ops (append the-ops ops)))]
         ['stack stack]
+        ['instructions-executed instructions-executed]
         ['install-register-hook (cut hook-registers <>)]
         ['operations the-ops]
         ['dump-registers  register-table]
