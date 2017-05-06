@@ -322,8 +322,20 @@ from Figure 5.12 and examine the lists you constructed.
                                 (eq? opcode 'push))))))))
 
 
+#| Exercise 5.13
+Modify the simulator so that it uses the controller sequence to determine
+what registers the machine has rather than requiring a list of registers as
+an argument to `make-machine'. Instead of pre-allocating the registers in
+`make-machine', you can allocate them one at a time when they are first
+seen during assembly of the instructions. |#
+
+#| Answer:
+I modified `make-machine' directly to support this change in rev:f68d783
+|#
+
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
       ;; load our tests
       (load "test/machine.scm")))
+
