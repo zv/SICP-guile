@@ -236,6 +236,10 @@ simulator to use your new syntax. Can you implement your new syntax without
 changing any part of the simulator except the syntax procedures in this
 section? |#
 
+#| Answer:
+Yes, I can. |#
+
+
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
