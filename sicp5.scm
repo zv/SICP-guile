@@ -273,6 +273,55 @@ There are several reasonable possibilities for the meaning of
 |#
 
 
+#| Exercise 5.12
+The simulator can be used to help determine the data paths required for
+implementing a machine with a given controller. Extend the assembler to
+store the following information in the machine model:
+
+* DONE a list of all instructions, with duplicates removed, sorted by
+instruction type (`assign', `goto', and so on);
+
+* DONE a list (without duplicates) of the registers used to hold entry points
+(these are the registers referenced by `goto' instructions);
+
+* DONE a list (without duplicates) of the registers that are `save'd or
+`restore'd;
+
+* DONE for each register, a list (without duplicates) of the sources from which
+it is assigned (for example, the sources for register `val' in the
+factorial machine of *Note Figure 5-11 are `(const 1)' and `((op *) (reg n)
+(reg val))').
+
+Extend the message-passing interface to the machine to provide access to
+this new information. To test your analyzer, define the Fibonacci machine
+from Figure 5.12 and examine the lists you constructed.
+|#
+(define (filter-opcodes text fn)
+  "Filter controller text down to those opcodes for which `fn' == #t"
+  (map car (filter fn
+                   (select-labels text (λ (insts labels) insts)))))
+
+(define (extract-goto-destinations text)
+  (fold
+   (λ (elt acc)
+     (if (member (car elt) acc) acc (append acc elt)))
+   '() ;; initial argument to fold
+   (map cdadr (filter-opcodes text
+                               (λ (inst) (eq? (caar inst) 'goto))))))
+
+(define (extract-stack-manipulations text)
+  (fold
+   (λ (elt acc)
+     (if (member (car elt) acc) acc (append acc elt)))
+   '() ;; initial argument to fold
+   (map cdr
+        (filter-opcodes text
+                        (λ (inst)
+                          (let ((opcode (caar inst)))
+                            (or (eq? opcode 'pop)
+                                (eq? opcode 'push))))))))
+
+
 
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
