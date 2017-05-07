@@ -374,7 +374,7 @@ each instruction is executed, the simulator should print the text of the
 instruction. Make the machine model accept `trace-on' and `trace-off'
 messages to turn tracing on and off. |#
 
-#| Answer: Added to machine/gui #|
+#| Answer: Added to machine/gui |#
 
 
 #| Exercise 5.17
