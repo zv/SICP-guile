@@ -390,6 +390,82 @@ This is already a feature :)
 |#
 
 
+#| TODO Exercise 5.18
+Modify the `make-register' procedure of section *Note 5-2-1 so that
+registers can be traced. Registers should accept messages that turn tracing
+on and off. When a register is traced, assigning a value to the register
+should print the name of the register, the old contents of the register,
+and the new contents being assigned. Extend the interface to the machine
+model to permit you to turn tracing on and off for designated machine
+registers. |#
+
+
+#| TODO Exercise 5.19
+Alyssa P. Hacker wants a "breakpoint" feature in the simulator to help her
+debug her machine designs. You have been hired to install this feature for
+her. She wants to be able to specify a place in the controller sequence
+where the simulator will stop and allow her to examine the state of the
+machine. You are to implement a procedure
+
+     (set-breakpoint <MACHINE> <LABEL> <N>)
+
+that sets a breakpoint just before the nth instruction after the given
+label. For example,
+
+     (set-breakpoint gcd-machine 'test-b 4)
+
+installs a breakpoint in `gcd-machine' just before the assignment to
+register `a'. When the simulator reaches the breakpoint it should print the
+label and the offset of the breakpoint and stop executing instructions.
+Alyssa can then use `get-register-contents' and `set-register-contents!' to
+manipulate the state of the simulated machine. She should then be able to
+continue execution by saying
+
+     (proceed-machine <MACHINE>)
+
+She should also be able to remove a specific breakpoint by means of
+
+     (cancel-breakpoint <MACHINE> <LABEL> <N>)
+
+or to remove all breakpoints by means of
+
+     (cancel-all-breakpoints <MACHINE>)
+
+|#
+
+
+#| TODO Exercise 5.21
+Implement register machines for the following procedures. Assume that the
+list-structure memory operations are available as machine primitives.
+
+a. Recursive `count-leaves':
+
+        (define (count-leaves tree)
+          (cond ((null? tree) 0)
+                ((not (pair? tree)) 1)
+                (else (+ (count-leaves (car tree))
+                         (count-leaves (cdr tree))))))
+
+b. Recursive `count-leaves' with explicit counter:
+
+        (define (count-leaves tree)
+          (define (count-iter tree n)
+            (cond ((null? tree) n)
+                  ((not (pair? tree)) (+ n 1))
+                  (else (count-iter (cdr tree)
+                                    (count-iter (car tree) n)))))
+          (count-iter tree 0))
+|#
+
+
+#| TODO Exercise 5.22
+Exercise 3.12 of section 3.3.1 presented an `append' procedure that appends
+two lists to form a new list and an `append!' procedure that splices two
+lists together. Design a register machine to implement each of these
+procedures. Assume that the list-structure memory operations are available
+as primitive operations. |#
+
+
 (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
     (begin
       ;; load our tests
