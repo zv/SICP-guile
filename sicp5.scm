@@ -434,6 +434,43 @@ or to remove all breakpoints by means of
 |#
 
 
+#| Exercise 5.20
+Draw the box-and-pointer representation and the memory-vector
+representation (shown in Figure 5-14) of the list structure produced by
+
+  (define x (cons 1 2))
+  (define y (list x x))
+
+with the `free' pointer initially `p1'. What is the final value of `free' ?
+What pointers represent the values of `x' and `y' ? |#
+
+
+#| Answer:
+
+* Cons-cells:
+
+     +---+---+       +---+----+
+     | | |  -|------>| | ||||||
+     +---+---+       +---+----+
+       |               |
+       +---------------+
+       |
+       v
+     +---+---+
+     | 1 | 2 |
+     +---+---+
+
+* car/cdr Adjascency lst
+
+    +---+----+----+----+---+---+
+    | 0 | 1  | 2  |  3 | 4 | 5 |
+    +---+----+----+----+---+---+
+    |   | n1 | p1 | p1 |   |   |
+    |   | n2 | p3 | e0 |   |   |
+    +---+----+----+----+---+---+
+|#
+
+
 #| TODO Exercise 5.21
 Implement register machines for the following procedures. Assume that the
 list-structure memory operations are available as machine primitives.
