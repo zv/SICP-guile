@@ -1,0 +1,119 @@
+* Chapter 1: Building Abstractions with Procedures
+  :PROPERTIES:
+  :header-args: :results output
+  :END:
+
+** Exercises
+*** 1.1
+    #+BEGIN_QUOTE
+    *Exercise 1.1:* Below is a sequence of expressions.  What is the
+    result printed by the interpreter in response to each expression?
+    Assume that the sequence is to be evaluated in the order in which
+    it is presented.
+    #+END_QUOTE
+**** Answer
+     #+BEGIN_SRC scheme
+   10 ; 10
+   (+ 5 3 4) ; 12
+   (- 9 1) ; 8
+   (/ 6 2) ; 3
+   (+ (* 2 4) (- 4 6)) ; 6
+   (define a 3) ;
+   (define b (+ a 1)) ;
+   (+ a b (* a b)) ; 16
+   (= a b) ; #f
+   (if (and (> b a) (< b (* a b)))
+       b
+       a) ; 4
+   (cond ((= a 4) 6)
+         ((= b 4) (+ 6 7 a))
+         (else 25)) ; 16
+   (+ 2 (if (> b a) b a)) ; 6
+   (* (cond ((> a b) a)
+            ((< a b) b)
+            (else -1))
+    (+ a 1)) ; 16
+     #+END_SRC
+*** 1.2
+    #+BEGIN_QUOTE
+    *Exercise 1.2:* Translate the following expression into prefix
+    form.
+
+    5 + 4 + (2 - (3 - (6 + 4/5)))
+    -----------------------------
+    3(6 - 2)(2 - 7)
+    #+END_QUOTE
+**** Answer
+     #+BEGIN_SRC scheme :results value
+     (/ (+ 5 4 (- 2 (- 3 (- 6 (/ 4 5))))) (* 3 (- 6 2) (- 2 7)))
+     #+END_SRC
+
+     #+RESULTS:
+     : -11/50
+*** 1.3
+    #+BEGIN_QUOTE
+    *Exercise 1.3:* Define a procedure that takes three numbers as
+    arguments and returns the sum of the squares of the two larger
+    numbers.
+    #+END_QUOTE
+**** Answer
+     #+BEGIN_SRC  scheme
+     (define (square x) (* x x))
+     (define (largest-sums x y z)
+       (+
+        (if (> x y) (square x) (square y))
+        (if (> y z) (square y) (square z))))
+     #+END_SRC
+*** 1.4
+    #+BEGIN_QUOTE
+    *Exercise 1.4:* Observe that our model of evaluation allows for
+    combinations whose operators are compound expressions.  Use this
+    observation to describe the behavior of the following procedure:
+
+    (define (a-plus-abs-b a b)
+      ((if (> b 0) + -) a b))
+    #+END_QUOTE
+**** Answer
+     The expression ~((if (> b 0) + -) a b)~ will evaluate to ~(+ a b)~ if ~b~
+     is positive, and ~(- a b)~ otherwise.
+
+*** 1.5
+    #+BEGIN_QUOTE
+    *Exercise 1.5:* Ben Bitdiddle has invented a test to determine
+    whether the interpreter he is faced with is using
+    applicative-order evaluation or normal-order evaluation.  He
+    defines the following two procedures:
+
+      (define (p) (p))
+
+      (define (test x y)
+        (if (= x 0)
+        0
+        y))
+
+    Then he evaluates the expression
+
+      (test 0 (p))
+
+    What behavior will Ben observe with an interpreter that uses
+    applicative-order evaluation?  What behavior will he observe with
+    an interpreter that uses normal-order evaluation?  Explain your
+    answer.  (Assume that the evaluation rule for the special form
+    `if' is the same whether the interpreter is using normal or
+    applicative order: The predicate expression is evaluated first,
+    and the result determines whether to evaluate the consequent or
+    the alternative expression.)
+    #+END_QUOTE
+
+**** Answer
+     Applicative-order interpreters must evaluate the arguments of =(test 0
+     (p))= before it can be expanded. =(p)= just evaluates to =(p)=, so
+     =(test 0 (p))= is replaced with =(test 0 (p))=
+     again. Applicative-order interpreters will never finish evaluating the
+     expression, since they will just keep attempting to evaluate before
+     expanding.
+
+     Normal-order interpreters will expand the expression as much as
+     possible before beginning to reduce it. So they will expand =(test 0
+     (p))= to =(if (= 0 0) 0 (p))=, then reduce it to =(if #t 0 (p))=, then to =0=.
+
