@@ -39,9 +39,7 @@
     *Exercise 1.2:* Translate the following expression into prefix
     form.
 
-    5 + 4 + (2 - (3 - (6 + 4/5)))
-    -----------------------------
-    3(6 - 2)(2 - 7)
+    =5 + 4 + (2 - (3 - (6 + 4/5))) ÷ 3(6 - 2)(2 - 7)=
     #+END_QUOTE
 **** Answer
      #+BEGIN_SRC scheme :results value
@@ -70,8 +68,8 @@
     combinations whose operators are compound expressions.  Use this
     observation to describe the behavior of the following procedure:
 
-    (define (a-plus-abs-b a b)
-      ((if (> b 0) + -) a b))
+    =(define (a-plus-abs-b a b)
+      ((if (> b 0) + -) a b))=
     #+END_QUOTE
 **** Answer
      The expression ~((if (> b 0) + -) a b)~ will evaluate to ~(+ a b)~ if ~b~
@@ -84,16 +82,16 @@
     applicative-order evaluation or normal-order evaluation.  He
     defines the following two procedures:
 
-      (define (p) (p))
+      =(define (p) (p))=
 
-      (define (test x y)
+      ~(define (test x y)
         (if (= x 0)
         0
-        y))
+        y))~
 
     Then he evaluates the expression
 
-      (test 0 (p))
+      ~(test 0 (p))~
 
     What behavior will Ben observe with an interpreter that uses
     applicative-order evaluation?  What behavior will he observe with
