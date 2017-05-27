@@ -186,19 +186,19 @@
      The new =sqrt-iter= performs much better on small numbers:
 
      #+BEGIN_EXAMPLE
-        (old-sqrt-iter 1 0.001)
-     => 0.04124542607499115
-        (sqrt-iter 1 0.001)
-     => 0.03162278245070105
+     (old-sqrt-iter 1 0.001)
+        => 0.04124542607499115
+     (sqrt-iter 1 0.001)
+        => 0.03162278245070105
      #+END_EXAMPLE
 
      And on large numbers:
 
      #+BEGIN_EXAMPLE
      (sqrt-iter 1 1000000000000000)
-     => 31635794.320938785
+        => 31635794.320938785
      (old-sqrt-iter 1 1000000000000000)
-     => <loops forever>
+        => <loops forever>
      #+END_EXAMPLE
 
 *** 1.8
@@ -271,20 +271,20 @@
     What are the values of the following expressions?
 
     : (A 1 10)
-: 
+ 
     : (A 2 4)
-: 
+ 
     : (A 3 3)
 
     Consider the following procedures, where ~A~ is the procedure
     defined above:
 
     : (define (f n) (A 0 n))
-: 
+ 
     : (define (g n) (A 1 n))
-: 
+ 
     : (define (h n) (A 2 n))
-: 
+ 
     : (define (k n) (* 5 n n))
 
     Give concise mathematical definitions for the functions computed
