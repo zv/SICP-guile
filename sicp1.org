@@ -122,11 +122,9 @@
     Eva Lu Ator claims this can indeed be done, and she defines a new
     version of ~if~:
 
-    src_scheme{
-      (define (new-if predicate then-clause else-clause)
-      (cond (predicate then-clause)
-      (else else-clause)))
-    }
+    : (define (new-if predicate then-clause else-clause)
+    : (cond (predicate then-clause)
+    : (else else-clause)))
 
     Eva demonstrates the program for Alyssa:
 
