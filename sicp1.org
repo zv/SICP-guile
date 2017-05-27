@@ -69,7 +69,7 @@
     observation to describe the behavior of the following procedure:
 
     =(define (a-plus-abs-b a b)
-      ((if (> b 0) + -) a b))=
+    ((if (> b 0) + -) a b))=
     #+END_QUOTE
 **** Answer
      The expression ~((if (> b 0) + -) a b)~ will evaluate to ~(+ a b)~ if ~b~
@@ -82,12 +82,12 @@
     applicative-order evaluation or normal-order evaluation.  He
     defines the following two procedures:
 
-     : (define (p) (p))
-     : (define (test x y) (if (= x 0) 0 y))
+    : (define (p) (p))
+    : (define (test x y) (if (= x 0) 0 y))
 
     Then he evaluates the expression
 
-     : (test 0 (p))~
+    : (test 0 (p))
 
     What behavior will Ben observe with an interpreter that uses
     applicative-order evaluation?  What behavior will he observe with
@@ -127,26 +127,110 @@
 
     Eva demonstrates the program for Alyssa:
 
-: (new-if (= 2 3) 0 5)
-: 5
-:
+    : (new-if (= 2 3) 0 5)
+    : 5
 
-: (new-if (= 1 1) 0 5)
-: 0
+    : (new-if (= 1 1) 0 5)
+    : 0
+
     Delighted, Alyssa uses ~new-if~ to rewrite the square-root program:
 
-: (define (sqrt-iter guess x)
-: (new-if (good-enough? guess x)
-:     guess
-: (sqrt-iter (improve guess x)
-:     x)))
-
+    : (define (sqrt-iter guess x)
+    : (new-if (good-enough? guess x)
+    :     guess
+    : (sqrt-iter (improve guess x)
+    :     x)))
 
     What happens when Alyssa attempts to use this to compute square
     roots?  Explain.
     #+END_QUOTE
 
 **** Answer
+     =new-if= isn't a special form, so all its arguments will be evaluated
+     before expansion to its definition in terms of =cond=. Since one of
+     its arguments is a recursive call to =sqrt-iter=, the evaluation will
+     never stop.
+
+*** 1.7
+    #+BEGIN_QUOTE
+    *Exercise 1.7:* The ~good-enough?~ test used in computing square
+    roots will not be very effective for finding the square roots of
+    very small numbers.  Also, in real computers, arithmetic operations
+    are almost always performed with limited precision.  This makes
+    our test inadequate for very large numbers.  Explain these
+    statements, with examples showing how the test fails for small and
+    large numbers.  An alternative strategy for implementing
+    ~good-enough?~ is to watch how ~guess~ changes from one iteration
+    to the next and to stop when the change is a very small fraction
+    of the guess.  Design a square-root procedure that uses this kind
+    of end test.  Does this work better for small and large numbers?
+    #+END_QUOTE
+
+**** Answer
+     The =good-enough?= test will be less effective for small numbers
+     because the acceptable error, 0.001, is large relative to small
+     numbers.
+
+     The test will be ineffective (or fail entirely) for large numbers with
+     limited precision, because a large number =x= +/- 0.001 is still =x=
+     at low enough precision.
+
+     A =good-enough?= function using fractions of the guess instead of a
+     constant to determine when to stop:
+
      #+BEGIN_SRC scheme
-     
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) (/ x 1000)))
      #+END_SRC
+
+     The new =sqrt-iter= performs much better on small numbers:
+
+     #+BEGIN_EXAMPLE
+        (old-sqrt-iter 1 0.001)
+     => 0.04124542607499115
+        (sqrt-iter 1 0.001)
+     => 0.03162278245070105
+     #+END_EXAMPLE
+
+     And on large numbers:
+
+     #+BEGIN_EXAMPLE
+     (sqrt-iter 1 1000000000000000)
+     => 31635794.320938785
+     (old-sqrt-iter 1 1000000000000000)
+     => <loops forever>
+     #+END_EXAMPLE
+
+*** 1.8
+    #+BEGIN_QUOTE
+    *Exercise 1.8:* Newton's method for cube roots is based on the
+    fact that if y is an approximation to the cube root of x, then a
+    better approximation is given by the value
+
+    :     x/y^2 + 2y
+    :     ----------
+    :         3
+
+    Use this formula to implement a cube-root procedure analogous to
+    the square-root procedure.  (In section *Note 1-3-4:: we will see
+    how to implement Newton's method in general as an abstraction of
+    these square-root and cube-root procedures.)
+    #+END_QUOTE
+
+**** Answer
+     #+BEGIN_SRC scheme
+  (define (good-enough-cuberoot? guess x)
+      (< (abs (- (* guess guess guess) x)) (/ x 1000)))
+  
+  (define (improve-cuberoot guess x)
+    (/ (+ (/ x (* guess guess)) (* 2 guess)) 3))
+  
+  (define (cube-root-iter guess x)
+    (if (good-enough-cuberoot? guess x)
+        guess
+        (cube-root-iter (improve-cuberoot guess x) x)))
+  
+  (define (cube-root x)
+    (cube-root-iter 1.0 x))
+     #+END_SRC
+
