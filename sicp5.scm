@@ -462,7 +462,7 @@ What pointers represent the values of `x' and `y' ? |#
      | 1 | 2 |
      +---+---+
 
-* car/cdr Adjascency lst
+* car/cdr Adjacency lst
 
     +---+----+----+----+---+---+
     | 0 | 1  | 2  |  3 | 4 | 5 |

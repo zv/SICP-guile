@@ -112,8 +112,8 @@
 ;;   (movw val (const 1))                ; base case: 1! = 1
 ;;   (goto (reg continue)))                 ; return to caller fact-done)
 
-(test-equal 720 (get-register-contents factorial 'product))
-(test-approximate 9 (get-register-contents newtons 'guess))
+;; (test-equal 720 (get-register-contents factorial 'product))
+;; (test-approximate 9 (get-register-contents newtons 'guess))
 
 (test-end "register simulator")
 

@@ -93,6 +93,7 @@ registers, named `flag' and `pc'"
          [flag   (make-register 'flag)]
          [stack  (make-stack)]
          [the-instruction-sequence '()]
+         [breakpoints '()]
          [instructions-executed 0]
          [the-ops `((initialize-stack ,(λ () (stack 'initialize))))]
          [register-table `((pc ,pc)
@@ -113,8 +114,8 @@ registers, named `flag' and `pc'"
       (match (get-contents pc)
         [() 'done]
         [insts (begin
-                 (set! instructions-executed (+ 1 instructions-executed))
-                 ((instruction-execution-proc (car insts)))
+                 ;; rework execution to be a sequence of steps
+                 (step)
                  (execute))]))
     (define (step)
       (let ((insts (get-contents pc)))
