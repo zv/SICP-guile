@@ -37,83 +37,51 @@
 
 
 
-#|
-(define* (machine-test name #:key result registers ops assembly)
-  (define (register-names registers)
-    (map (λ (elt)
-           (if (list? elt) (car elt) elt))
-         registers))
-
-  (define (set-registers machine registers)
+(define* (test-machine name machine #:key arguments expected)
+  (define (set-registers registers)
     (map (λ (elt)
            (if (list? elt)
                (set-register-contents! machine (car elt) (cadr elt))))
          registers))
 
-  (define (test-result machine results)
+  (define (test-result results)
     (map
      (λ (elt)
        (test-equal name (cadr elt) (get-register-contents machine (car elt))))
      results))
 
-  (define mach (make-machine (register-names registers) ops assembly))
-
-  (set-registers mach registers)
-  (start mach)
-  (test-result result))
-|#
+  (set-registers arguments)
+  (machine 'start)
+  (test-result expected))
 
 (test-begin "tests")
 (test-begin "register simulator")
 
-;; (test-machine "GCD"
-;;               #:result     '((a 16))
-;;               #:registers  '((a 120) (b 16) t)
-;;               #:ops        `((rem ,modulo) (= ,=))
-;;               #:assembly   '(test-b                    ;; label
-;;                              (test =)                  ;; test
-;;                              (jeq (label gcd-done)) ;; conditional branch
-;;                              (t<-r)                    ;; button push
-;;                              (a<-b)                    ;; button push
-;;                              (b<-t)                    ;; button push
-;;                              (goto (label test-b))     ;; unconditional branch
-;;                              gcd-done))
+;; Exercise 5.1
+(test-machine "factorial"
+              factorial
+              #:arguments '((n 6))
+              #:expected '((product 720)))
 
-;; (define-register-machine test-gcd
-;;   #:assembly (test-b
-;;               (test (op =) (reg b) (const 0))
-;;               (jeq (label gcd-done))
-;;               (movw t (reg a))
-;;               rem-loop
-;;               (test (op <) (reg t) (reg b))
-;;               (jeq (label rem-done))
-;;               (movw t (op -) (reg t) (reg b))
-;;               (goto (label rem-loop))
-;;               rem-done
-;;               (movw a (reg b))
-;;               (movw b (reg t))
-;;               (goto (label test-b))
-;;               gcd-done))
+
+;; Exercise 5.3
+(test-machine "newtons"
+              newtons
+              #:arguments '((x 64))
+              #:expected '((guess 8.000001655289593)))
+
 
-;; (define-register-machine recursive-gcd
-;;   #:assembly
-;;   (movw continue (label fact-done))   ; set up final return address fact-loop
-;;   (test (op =) (reg n) (const 1))
-;;   (jeq (label base-case))
-;;   (push continue)                       ; Set up for the recursive call
-;;   (push n)                              ; by saving n and continue.
-;;   (movw n (op -) (reg n) (const 1))   ; Set up continue so that the
-;;   (movw continue (label after-fact))  ; computation will continue
-;;   (goto (label fact-loop))              ; at after-fact when the after-fact                              ; subroutine returns.
-;;   (pop n)
-;;   (pop continue)
-;;   (movw val (op *) (reg n) (reg val)) ; val now contains n(n - 1)!
-;;   (goto (reg continue))                 ; return to caller base-case
-;;   (movw val (const 1))                ; base case: 1! = 1
-;;   (goto (reg continue)))                 ; return to caller fact-done)
+;; Exercise 5.4
+(test-machine "recursive-expt"
+              recursive-expt
+              #:arguments '((b 10) (n 2))
+              #:expected '((product 100)))
 
-;; (test-equal 720 (get-register-contents factorial 'product))
-;; (test-approximate 9 (get-register-contents newtons 'guess))
+(test-machine "iter-expt"
+              iter-expt
+              #:arguments '((b 10) (n 2))
+              #:expected '((product 100)))
+
 
 (test-end "register simulator")
 
@@ -131,13 +99,8 @@
                       end-fib))
 
 
-(test-equal
-    '(1 counter)
-    (extract-stack-manipulations sample-text))
-
-(test-equal
-    '(loop)
-    (extract-goto-destinations sample-text))
+(test-equal '(1 counter) (extract-stack-manipulations sample-text))
+(test-equal '(loop) (extract-goto-destinations sample-text))
 
 (test-begin "register helper fns")
 
