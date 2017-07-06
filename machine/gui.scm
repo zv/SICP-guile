@@ -32,51 +32,11 @@
 
 (define *machine*
   (make-machine
-    '((goto (label machine-start))
-
-        ;;; procedure fact
-      fact
-      (pop retaddr)       ; return address
-      (pop temp)          ; argument
-      (push n)                ; push caller's n and retaddr
-      (push retaddr)
-      (movw n (reg temp))   ; working on n
-      (test (op =) (reg n) (const 1))
-      (jeq (label fact-base))
-      (movw temp (op -) (reg n) (const 1))
-      ;; prepare for the recursive call:
-      ;; push the argument and return value on stack
-      (push temp)
-      (movw retaddr (label fact-after-rec-return))
-      (push retaddr)
-      (goto (label fact))     ; the recursive call
-      fact-after-rec-return
-      (movw retval (op *) (reg retval) (reg n))
-      (goto (label fact-end))
-
-      fact-base
-      (movw retval (const 1))
-
-      fact-end
-                                                  ; pop the caller's registers we've pushd
-      (pop retaddr)
-      (pop n)
-      (goto (reg retaddr))    ; return to caller
-        ;;; end procedure fact
-
-      machine-start
-                                                  ; to call fact, push n and a return address on stack
-                                                  ; and jump to fact
-      (push n)
-      (movw retaddr (label machine-end))
-      (push retaddr)
-      (goto (label fact))
-
-      machine-end
-      )))
+    '()))
 
 ;; initialize machine
-(map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 10)))
+;; (map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((n . 10)))
+;; (map (λ (elt) (set-register-contents! *machine* (car elt) (cdr elt))) '((tree . (1 (3 4) 5 (6 (7 3) 9)))))
 (*machine* 'init)
 
 
@@ -118,6 +78,7 @@
         [else (+ (element-index e (cdr lst)) 1)]))
 
 (define (extract-readable elt) (if (pair? elt) (caar elt) elt))
+(define (extract-readable elt) elt)
 
 (define (wrap-rows str n)
   "Wrap a string to a max of `n' rows"
@@ -246,7 +207,7 @@
          (format #f " [~a] ~a\n" (colorize-string (number->string ctr)
                                                   (if (= ctr 0) 'BOLD 'DARK))
                  (if (pair? head)
-                     (format #f "*0x~4,'0x" (element-index (caar head) instr-seq))
+                     (format #f "*0x~4,'0x" 9999)
                      head)
                  ;; (extract-readable head)
                  )
@@ -266,6 +227,10 @@
   (if (equal? status "on")
       (set! *tracing* #t)
       (set! *tracing* #f)))
+
+
+                                                  ; Loading
+
 
                                                   ; Driver Loop
 (define (print-machine-state machine)
@@ -278,24 +243,18 @@ handling appropriate termcap values and so on"
   (display-metainfo machine)
   (format #t "~a\n" (make-string (terminal-width) break)))
 
-(define (load-machine filename args)
-  (let* ((port     (open-input-file filename #:guess-encoding #t))
-         (machine (eval (read port) (interaction-environment))))
+(define (load-machine filename)
+  (load filename))
+
+(define (run-machine machine args)
+  (let* ((machine (eval-string machine))
+         (arguments (eval-string args)))
     (set! *machine* machine)
     (map (λ (elt)
+           (display elt)
            (set-register-contents! *machine* (car elt) (cdr elt)))
-         args)
+         arguments)
     (*machine* 'init)))
-
-(define (pairlist->alist arg)
-  "Takes in a list of k,v pairs '(a 1 b 2 c 3 d 4) and returns an alist of
-pairs ((a . 1) (b . 2) (c . 3) (d . 4)) "
-  (if (null? arg) '()
-      (let ((fst (string->symbol (car arg)))
-            (snd (string->number (cadr arg)))) ;; we can safely error out if there is no cadr
-        (cons
-         (cons fst snd)
-         (pairlist->alist (cddr arg))))))
 
 (define (process-prompt-input)
   (let* ((line (read-line)))
@@ -304,10 +263,9 @@ pairs ((a . 1) (b . 2) (c . 3) (d . 4)) "
       [("quit")   (exit)]
       [("step") ((*machine* 'step))]
       [("j")    ((*machine* 'step))]
-      [("load" filename)
-       (load-machine filename '())]
-      [("load" filename rest ...)
-       (load-machine filename (pairlist->alist rest))]
+      [("load" filename) (load-machine filename)]
+      [("run" machine args ...)
+       (run-machine machine (if (null? args) "'()" (string-join args)))]
       [("trace" status) (toggle-tracing status)]
       [_      ((*machine* 'step))])))
 
