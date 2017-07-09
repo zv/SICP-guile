@@ -42,6 +42,11 @@
 
 
 #| Exercise: 2.1
+Define a better version of `make-rat' that handles both positive and
+negative arguments. `Make-rat' should normalize the sign so that if the
+rational number is positive, both the numerator and denominator are
+positive, and if the rational number is negative, only the numerator is
+negative.
 |#
 (define (make-rat n d)
   (let* [(g (abs (gcd n d)))
@@ -53,13 +58,30 @@
         (cons num den))))
 
 #| Exercise: 2.2
-|#
-;;; racket
-(struct coordinate (x y)
-  #:transparent)
-(struct segment (start end)
-  #:transparent)
+Consider the problem of representing line segments in a plane. Each segment
+is represented as a pair of points: a starting point and an ending point.
+Define a constructor `make-segment' and selectors `start-segment' and
+`end-segment' that define the representation of segments in terms of
+points. Furthermore, a point can be represented as a pair of numbers: the x
+coordinate and the y coordinate. Accordingly, specify a constructor
+`make-point' and selectors `x-point' and `y-point' that define this
+representation. Finally, using your selectors and constructors, define a
+procedure `midpoint-segment' that takes a line segment as argument and
+returns its midpoint (the point whose coordinates are the average of the
+coordinates of the endpoints). To try your procedures, you'll need a way to
+print points:
 
+    (define (print-point p)
+      (newline)
+      (display "(")
+      (display (x-point p))
+      (display ",")
+      (display (y-point p))
+      (display ")"))
+
+|#
+(struct coordinate (x y) #:transparent)
+(struct segment (start end) #:transparent)
 
 (define (midpoint segment)
   (let [(mid-x (/ (+ (coordinate-x (segment-start segment))
@@ -93,7 +115,13 @@
          (y-point (end-segment segment)))
       2)))
 
-#| Exercise: 2.3
+#| Exercise 2.3
+Implement a representation for rectangles in a plane. (Hint: You may want
+to make use of *Note Exercise 2-2::.) In terms of your constructors and
+selectors, create procedures that compute the perimeter and the area of a
+given rectangle. Now implement a different representation for rectangles.
+Can you design your system with suitable abstraction barriers, so that the
+same perimeter and area procedures will work using either representation?
 |#
 (struct rectangle-s (height width)
   #:guard (λ (height width type-name)
@@ -125,6 +153,19 @@
               (coordinate-x (rectangle-b rect))))))
 
 #| Exercise: 2.4
+Here is an alternative procedural representation
+of pairs.  For this representation, verify that `(car (cons x y))'
+yields `x' for any objects `x' and `y'.
+
+(define (cons x y)
+  (lambda (m) (m x y)))
+
+(define (car z)
+  (z (lambda (p q) p)))
+
+What is the corresponding definition of `cdr'? (Hint: To verify that this
+works, make use of the substitution model of section *Note 1-1-5.)
+
 |#
 ;;; whoa!!!
 (define (recons x y)
@@ -138,6 +179,10 @@
 
 
 #| Exercise: 2.5
+Show that we can represent pairs of nonnegative integers using only numbers
+and arithmetic operations if we represent the pair a and b as the integer
+that is the product 2^a 3^b. Give the corresponding definitions of the
+procedures `cons', `car', and `cdr'.
 |#
 (define lower-expt 2)
 (define higher-expt 5)
@@ -155,6 +200,12 @@
     ,(unpack-base d higher-expt)))
 
 #| Exercise: 2.6
+In case representing pairs as procedures wasn't mind-boggling enough,
+consider that, in a language that can manipulate procedures, we can get by
+without numbers (at least insofar as nonnegative integers are concerned) by
+implementing 0 and the operation of adding 1 as
+
+(define zero (lambda (f) (lambda (x) x)))
 |#
 (define church-zero (λ (f) (λ (x) x)))
 
@@ -181,6 +232,14 @@
 
 
 #| Exercise: 2.7
+Alyssa's program is incomplete because she has not specified the
+implementation of the interval abstraction. Here is a definition of the
+interval constructor:
+
+(define (make-interval a b) (cons a b))
+
+Define selectors `upper-bound' and `lower-bound' to complete the
+implementation.
 |#
 ;; (module interval racket
 ;;   (provide add-interval mul-interval div-interval)
@@ -194,6 +253,9 @@
 (define (lower-bound interval) (car interval))
 
 #| Exercise: 2.8
+Using reasoning analogous to Alyssa's, describe how the difference of two
+intervals may be computed. Define a corresponding subtraction procedure,
+called `sub-interval'.
 |#
 (define (sub-interval x y)
   (let ((p1 (- (lower-bound x) (lower-bound y)))
@@ -202,9 +264,22 @@
                    (max p1 p2))))
 
 #| Exercise: 2.9
+The "width" of an interval is half of the difference between its upper and
+lower bounds. The width is a measure of the uncertainty of the number
+specified by the interval. For some arithmetic operations the width of the
+result of combining two intervals is a function only of the widths of the
+argument intervals, whereas for others the width of the combination is not
+a function of the widths of the argument intervals. Show that the width of
+the sum (or difference) of two intervals is a function only of the widths
+of the intervals being added (or subtracted). Give examples to show that
+this is not true for multiplication or division.
 |#
 
 #| Exercise: 2.10
+Ben Bitdiddle, an expert systems programmer, looks over Alyssa's shoulder
+and comments that it is not clear what it means to divide by an interval
+that spans zero. Modify Alyssa's code to check for this condition and to
+signal an error if it occurs.
 |#
 (define (div-interval x y)
   (cond ((or (= 0 (upper-bound y)) (= 0 (lower-bound y)))
@@ -214,6 +289,29 @@
                                            (/ 1.0 (lower-bound y)))))))
 
 #| Exercise: 2.11
+In passing, Ben also cryptically comments: "By testing the signs of the
+endpoints of the intervals, it is possible to break `mul-interval' into
+nine cases, only one of which requires more than two multiplications."
+Rewrite this procedure using Ben's suggestion.
+
+After debugging her program, Alyssa shows it to a potential user, who
+complains that her program solves the wrong problem. He wants a program
+that can deal with numbers represented as a center value and an additive
+tolerance; for example, he wants to work with intervals such as 3.5 +/-
+0.15 rather than [3.35, 3.65]. Alyssa returns to her desk and fixes this
+problem by supplying an alternate constructor and alternate selectors:
+
+(define (make-center-width c w) (make-interval (- c w) (+ c w)))
+
+(define (center i) (/ (+ (lower-bound i) (upper-bound i)) 2))
+
+(define (width i) (/ (- (upper-bound i) (lower-bound i)) 2))
+
+Unfortunately, most of Alyssa's users are engineers. Real engineering
+situations usually involve measurements with only a small uncertainty,
+measured as the ratio of the width of the interval to the midpoint of the
+interval. Engineers usually specify percentage tolerances on the parameters
+of devices, as in the resistor specifications given earlier.
 |#
  (define (mul-interval x y)
   (let ((p1 (* (lower-bound x) (lower-bound y)))
@@ -224,6 +322,10 @@
                    (max p1 p2 p3 p4))))
 
 #| Exercise: 2.17
+Define a procedure `last-pair' that returns the list that contains only the
+last element of a given (nonempty) list:
+
+(last-pair (list 23 72 149 34)) (34)
 |#
 (define (last-pair lst)
   (let [(lastls (cdr lst))]
@@ -231,6 +333,10 @@
         (last-pair lastls))))
 
 #| Exercise: 2.18
+Define a procedure `reverse' that takes a list as argument and returns a
+list of the same elements in reverse order:
+
+(reverse (list 1 4 9 16 25)) (25 16 9 4 1)
 |#
 (define (reverse-l lst)
   (if (null? lst) null
@@ -241,6 +347,40 @@
         [else (reverse-ls (cdr xs) (cons (car xs) result))]))
 
 #| Exercise: 2.19
+Consider the change-counting program of section *Note 1-2-2::. It would be
+nice to be able to easily change the currency used by the program, so that
+we could compute the number of ways to change a British pound, for example.
+As the program is written, the knowledge of the currency is distributed
+partly into the procedure `first-denomination' and partly into the
+procedure `count-change' (which knows that there are five kinds of U.S.
+coins). It would be nicer to be able to supply a list of coins to be used
+for making change.
+
+We want to rewrite the procedure `cc' so that its second argument is a list
+of the values of the coins to use rather than an integer specifying which
+coins to use. We could then have lists that defined each kind of currency:
+
+(define us-coins (list 50 25 10 5 1))
+
+(define uk-coins (list 100 50 20 10 5 2 1 0.5))
+
+We could then call `cc' as follows:
+
+(cc 100 us-coins) 292
+
+To do this will require changing the program `cc' somewhat. It will still
+have the same form, but it will access its second argument differently, as
+follows:
+
+(define (cc amount coin-values) (cond ((= amount 0) 1) ((or (< amount 0)
+(no-more? coin-values)) 0) (else (+ (cc amount (except-first-denomination
+coin-values)) (cc (- amount (first-denomination coin-values))
+coin-values)))))
+
+Define the procedures `first-denomination', `except-first-denomination',
+and `no-more?' in terms of primitive operations on list structures. Does
+the order of the list `coin-values' affect the answer produced by `cc'? Why
+or why not?
 |#
 (define (valid-change n types)
   (filter (lambda (x) (<= x n)) types))
@@ -253,6 +393,38 @@
                      (valid-change amt types)))))
 
 #| Exercise: 2.20
+The procedures `+', `*', and `list' take arbitrary numbers of arguments.
+One way to define such procedures is to use `define' with notation
+"dotted-tail notation". In a procedure definition, a parameter list that
+has a dot before the last parameter name indicates that, when the procedure
+is called, the initial parameters (if any) will have as values the initial
+arguments, as usual, but the final parameter's value will be a "list" of
+any remaining arguments. For instance, given the definition
+
+(define (f x y . z) <BODY>)
+
+the procedure `f' can be called with two or more arguments. If we evaluate
+
+(f 1 2 3 4 5 6)
+
+then in the body of `f', `x' will be 1, `y' will be 2, and `z' will be the
+list `(3 4 5 6)'. Given the definition
+
+(define (g . w) <BODY>)
+
+the procedure `g' can be called with zero or more arguments. If we evaluate
+
+(g 1 2 3 4 5 6)
+
+then in the body of `g', `w' will be the list `(1 2 3 4 5 6)'.(4)
+
+Use this notation to write a procedure `same-parity' that takes one or more
+integers and returns a list of all the arguments that have the same
+even-odd parity as the first argument. For example,
+
+(same-parity 1 2 3 4 5 6 7) (1 3 5 7)
+
+(same-parity 2 3 4 5 6 7) (2 4 6)
 |#
 
 (define (same-parity elt . xs)
@@ -261,6 +433,17 @@
 
 
 #| Exercise: 2.21
+The procedure `square-list' takes a list of numbers as argument and returns
+a list of the squares of those numbers.
+
+(square-list (list 1 2 3 4)) (1 4 9 16)
+
+Here are two different definitions of `square-list'. Complete both of them
+by filling in the missing expressions:
+
+(define (square-list items) (if (null? items) nil (cons <??> <??>)))
+
+(define (square-list items) (map <??> <??>))
 |#
 (define (square n) (* n n))
 
@@ -272,6 +455,23 @@
   (map square items))
 
 #| Exercise: 2.22
+Louis Reasoner tries to rewrite the first `square-list' procedure of *Note
+Exercise 2-21:: so that it evolves an iterative process:
+
+  (define (square-list items) (define (iter things answer) (if (null?
+things) answer (iter (cdr things) (cons (square (car things)) answer))))
+(iter items nil))
+
+Unfortunately, defining `square-list' this way produces the answer list in
+the reverse order of the one desired. Why?
+
+Louis then tries to fix his bug by interchanging the arguments to `cons':
+
+(define (square-list items) (define (iter things answer) (if (null? things)
+answer (iter (cdr things) (cons answer (square (car things)))))) (iter
+items nil))
+
+This doesn't work either. Explain.
 |#
 ;;; Louis Reasoner has mixed up the arguments `answer' and `(square (car things))'
 ;;; In his second attempt
@@ -282,6 +482,17 @@
 ;;                        (append answer (list (square (car things)))))))
 
 #| Exercise: 2.23
+The procedure `for-each' is similar to `map'. It takes as arguments a
+procedure and a list of elements. However, rather than forming a list of
+the results, `for-each' just applies the procedure to each of the elements
+in turn, from left to right. The values returned by applying the procedure
+to the elements are not used at all--`for-each' is used with procedures
+that perform an action, such as printing. For example,
+
+(for-each (lambda (x) (newline) (display x)) (list 57 321 88)) 57 321 88
+
+The value returned by the call to `for-each' (not illustrated above) can be
+something arbitrary, such as true. Give an implementation of `for-each'.
 |#
 
 (define (for-each-zv fn xs)
@@ -324,9 +535,21 @@
                  (count-leaves (cdr x))))))
 
 #| Exercise: 2.24
+Suppose we evaluate the expression `(list 1 (list 2 (list 3 4)))'. Give the
+result printed by the interpreter, the corresponding box-and-pointer
+structure, and the interpretation of this as a tree (as in *Note Figure
+2-6::).
 |#
 
 #| Exercise: 2.25
+Give combinations of `car's and `cdr's that will pick 7 from each of the
+following lists:
+
+(1 3 (5 7) 9)
+
+((7))
+
+(1 (2 (3 (4 (5 (6 7))))))
 |#
 (define (is-sevens)
   [ printf "~a\n" (car (cdaddr '(1 3 (5 7) 9)))]
@@ -334,6 +557,20 @@
   [ printf "~a\n" (cadadr (cadadr (cadadr '(1 (2 (3 (4 (5 (6 7)))))))))])
 
 #| Exercise: 2.26
+Suppose we define `x' and `y' to be two lists:
+
+(define x (list 1 2 3))
+
+(define y (list 4 5 6))
+
+What result is printed by the interpreter in response to evaluating each of
+the following expressions:
+
+(append x y)
+
+(cons x y)
+
+(list x y)
 |#
 (define two-twentysix-x (list 1 2 3))
 (define two-twentysix-y (list 4 5 6))
@@ -342,6 +579,18 @@
 ;;;  (list two-twentysix-x two-twentysix-y)  => '((1 2 3) (4 5 6))
 
 #| Exercise: 2.27
+Modify your `reverse' procedure of *Note Exercise 2-18:: to produce a
+`deep-reverse' procedure that takes a list as argument and returns as its
+value the list with its elements reversed and with all sublists
+deep-reversed as well. For example,
+
+(define x (list (list 1 2) (list 3 4)))
+
+x ((1 2) (3 4))
+
+(reverse x) ((3 4) (1 2))
+
+(deep-reverse x) ((4 3) (2 1))
 |#
 (define (deep-reverse-l lst)
   (cond [(null? lst) null]
@@ -351,6 +600,15 @@
         [else lst]))
 
 #| Exercise: 2.28
+Write a procedure `fringe' that takes as argument a tree (represented as a
+list) and returns a list whose elements are all the leaves of the tree
+arranged in left-to-right order. For example,
+
+(define x (list (list 1 2) (list 3 4)))
+
+(fringe x) (1 2 3 4)
+
+(fringe (list x x)) (1 2 3 4 1 2 3 4)
 |#
 (define (fringe xs)
   (cond [(null? xs) null]
@@ -360,6 +618,42 @@
 
 
 #| Exercise: 2.29
+A binary mobile consists of two branches, a left branch and a right branch.
+Each branch is a rod of a certain length, from which hangs either a weight
+or another binary mobile. We can represent a binary mobile using compound
+data by constructing it from two branches (for example, using `list'):
+
+(define (make-mobile left right) (list left right))
+
+A branch is constructed from a `length' (which must be a number) together
+with a `structure', which may be either a number (representing a simple
+weight) or another mobile:
+
+(define (make-branch length structure) (list length structure))
+
+a. Write the corresponding selectors `left-branch' and `right-branch',
+which return the branches of a mobile, and `branch-length' and
+`branch-structure', which return the components of a branch.
+
+b. Using your selectors, define a procedure `total-weight' that returns the
+total weight of a mobile.
+
+c. A mobile is said to be "balanced" if the torque applied by its top-left
+branch is equal to that applied by its top-right branch (that is, if the
+length of the left rod multiplied by the weight hanging from that rod is
+equal to the corresponding product for the right side) and if each of the
+submobiles hanging off its branches is balanced. Design a predicate that
+tests whether a binary mobile is balanced.
+
+d. Suppose we change the representation of mobiles so that the constructors
+are
+
+(define (make-mobile left right) (cons left right))
+
+(define (make-branch length structure) (cons length structure))
+
+How much do you need to change your programs to convert to the new
+representation?
 |#
 ;; Racket Style
 (struct mobile (l r)
@@ -393,12 +687,34 @@
      (total-weight (right-branch mbl))))
 
 #| Exercise: 2.30
+Define a procedure `square-tree' analogous to the `square-list' procedure
+of *Note Exercise 2-21::. That is, `square-list' should behave as follows:
+
+(square-tree (list 1 (list 2 (list 3 4) 5) (list 6 7))) (1 (4 (9 16) 25)
+(36 49))
+
+Define `square-tree' both directly (i.e., without using any higher-order
+procedures) and also by using `map' and recursion.
 |#
 (define (square-tree tree)
   (map (λ (node)
          (if (list? node) (square-tree node)
              (* node node))) tree))
 #| Exercise: 2.31
+Abstract your answer to *Note Exercise 2-30:: to produce a procedure
+`tree-map' with the property that `square-tree' could be defined as
+
+(define (square-tree tree) (tree-map square tree))
+
+We can represent a set as a list of distinct elements, and we can represent
+the set of all subsets of the set as a list of lists. For example, if the
+set is `(1 2 3)', then the set of all subsets is `(() (3) (2) (2 3) (1) (1
+3) (1 2) (1 2 3))'. Complete the following definition of a procedure that
+generates the set of subsets of a set and give a clear explanation of why
+it works:
+
+(define (subsets s) (if (null? s) (list nil) (let ((rest (subsets (cdr
+s)))) (append rest (map <??> rest)))))
 |#
 (define (tree-map fn tree)
   (map (λ (node)
@@ -451,6 +767,29 @@
 
 
 #| Exercise: 2.34
+Evaluating a polynomial in x at a given value of x can be formulated as an
+accumulation. We evaluate the polynomial
+
+a_n r^n | a_(n-1) r^(n-1) + ... + a_1 r + a_0
+
+using a well-known algorithm called "Horner's rule", which structures the
+computation as
+
+(... (a_n r + a_(n-1)) r + ... + a_1) r + a_0
+
+In other words, we start with a_n, multiply by x, add a_(n-1), multiply by
+x, and so on, until we reach a_0.(3)
+
+Fill in the following template to produce a procedure that evaluates a
+polynomial using Horner's rule. Assume that the coefficients of the
+polynomial are arranged in a sequence, from a_0 through a_n.
+
+(define (horner-eval x coefficient-sequence) (accumulate (lambda
+(this-coeff higher-terms) <??>) 0 coefficient-sequence))
+
+For example, to compute 1 + 3x + 5x^3 + x^(5) at x = 2 you would evaluate
+
+(horner-eval 2 (list 1 3 0 5 0 1))
 |#
 (define (horner-eval x coefficient-sequence)
   (accumulate (λ (this-coeff higher-terms)
@@ -460,11 +799,26 @@
 
 
 #| Exercise: 2.35
+Redefine `count-leaves' from section *Note 2-2-2:: as an accumulation:
+
+(define (count-leaves t) (accumulate <??> <??> (map <??> <??>)))
 |#
 (define (count-leaves-z t)
   (accumulate + 0 (map count-leaves t)))
 
 #| Exercise: 2.36
+The procedure `accumulate-n' is similar to `accumulate' except that it
+takes as its third argument a sequence of sequences, which are all assumed
+to have the same number of elements. It applies the designated accumulation
+procedure to combine all the first elements of the sequences, all the
+second elements of the sequences, and so on, and returns a sequence of the
+results. For instance, if `s' is a sequence containing four sequences, `((1
+2 3) (4 5 6) (7 8 9) (10 11 12)),' then the value of `(accumulate-n + 0 s)'
+should be the sequence `(22 26 30)'. Fill in the missing expressions in the
+following definition of `accumulate-n':
+
+(define (accumulate-n op init seqs) (if (null? (car seqs)) nil (cons
+(accumulate op init <??>) (accumulate-n op init <??>))))
 |#
 (define (accumulate-n op ini seqs)
   (if (null? (car seqs))
@@ -473,6 +827,41 @@
             (accumulate-n op ini (map (lambda (x) (cdr x)) seqs)))))
 
 #| Exercise: 2.37
+Exercise 2.37 .............
+
+Suppose we represent vectors v = (v_i) as sequences of numbers, and
+matrices m = (m_(ij)) as sequences of vectors (the rows of the matrix). For
+example, the matrix
+
++- -+ | 1 2 3 4 | | 4 5 6 6 | | 6 7 8 9 | +- -+
+
+is represented as the sequence `((1 2 3 4) (4 5 6 6) (6 7 8 9))'. With this
+representation, we can use sequence operations to concisely express the
+basic matrix and vector operations. These operations (which are described
+in any book on matrix algebra) are the following:
+
+__ (dot-product v w) returns the sum >_i v_i w_i
+
+(matrix-*-vector m v) returns the vector t, __ where t_i = >_j m_(ij) v_j
+
+(matrix-*-matrix m n) returns the matrix p, __ where p_(ij) = >_k m_(ik)
+n_(kj)
+
+(transpose m) returns the matrix n, where n_(ij) = m_(ji)
+
+We can define the dot product as(4)
+
+(define (dot-product v w) (accumulate + 0 (map * v w)))
+
+Fill in the missing expressions in the following procedures for computing
+the other matrix operations. (The procedure `accumulate-n' is defined in
+*Note Exercise 2-36::.)
+
+(define (matrix-*-vector m v) (map <??> m))
+
+(define (transpose mat) (accumulate-n <??> <??> mat))
+
+(define (matrix-*-matrix m n) (let ((cols (transpose n))) (map <??> m)))
 |#
 (define zv-matrix '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
 (define zv-square '((1 2 3) (4 5 6) (6 7 8)))
@@ -491,10 +880,38 @@
      (map (λ (row) (matrix-*-vector elems row)) m)))
 
 #| Exercise: 2.38
+The `accumulate' procedure is also known as `fold-right', because it
+combines the first element of the sequence with the result of combining all
+the elements to the right. There is also a `fold-left', which is similar to
+`fold-right', except that it combines elements working in the opposite
+direction:
+
+(define (fold-left op initial sequence) (define (iter result rest) (if
+(null? rest) result (iter (op result (car rest)) (cdr rest)))) (iter
+initial sequence))
+
+What are the values of
+
+(fold-right / 1 (list 1 2 3))
+
+(fold-left / 1 (list 1 2 3))
+
+(fold-right list nil (list 1 2 3))
+
+(fold-left list nil (list 1 2 3))
+
+Give a property that `op' should satisfy to guarantee that `fold-right' and
+`fold-left' will produce the same values for any sequence.
 |#
 ;;;; skipped
 
 #| Exercise: 2.39
+Complete the following definitions of `reverse' (*Note Exercise 2-18::) in
+terms of `fold-right' and `fold-left' from *Note Exercise 2-38:::
+
+(define (reverse sequence) (fold-right (lambda (x y) <??>) nil sequence))
+
+(define (reverse sequence) (fold-left (lambda (x y) <??>) nil sequence))
 |#
 (define (reverse-fr sequence)
   (foldr (lambda (x y) (append y `(,x))) null sequence))
@@ -503,6 +920,9 @@
   (foldl (lambda (x y) (cons x y)) null sequence))
 
 #| Exercise: 2.40
+Define a procedure `unique-pairs' that, given an integer n, generates the
+sequence of pairs (i,j) with 1 <= j< i <= n. Use `unique-pairs' to simplify
+the definition of `prime-sum-pairs' given above.
 |#
 (define (unique-pairs n)
   (flatmap (λ (i)
@@ -524,6 +944,9 @@
   (map make-pair-sum (filter prime-sum? (unique-pairs n))))
 
 #| Exercise: 2.41
+Write a procedure to find all ordered triples of distinct positive integers
+i, j, and k less than or equal to a given integer n that sum to a given
+integer s.
 |#
 (define (triplets-summing-to s n)
   (define (unique-triplets n)
@@ -539,7 +962,45 @@
           (unique-triplets n)))
 
 #| Exercise: 2.42
-|# (finally!)
+The "eight-queens puzzle" asks how to place eight queens on a chessboard so
+that no queen is in check from any other (i.e., no two queens are in the
+same row, column, or diagonal). One possible solution is shown in *Note
+Figure 2-8. One way to solve the puzzle is to work across the board,
+placing a queen in each column. Once we have placed k - 1 queens, we must
+place the kth queen in a position where it does not check any of the queens
+already on the board. We can formulate this approach recursively: Assume
+that we have already generated the sequence of all possible ways to place k
+- 1 queens in the first k - 1 columns of the board. For each of these ways,
+generate an extended set of positions by placing a queen in each row of the
+kth column. Now filter these, keeping only the positions for which the
+queen in the kth column is safe with respect to the other queens. This
+produces the sequence of all ways to place k queens in the first k columns.
+By continuing this process, we will produce not only one solution, but all
+solutions to the puzzle.
+
+We implement this solution as a procedure `queens', which returns a
+sequence of all solutions to the problem of placing n queens on an n*n
+chessboard. `Queens' has an internal procedure `queen-cols' that returns
+the sequence of all ways to place queens in the first k columns of the
+board.
+
+(define (queens board-size) (define (queen-cols k) (if (= k 0) (list
+empty-board) (filter (lambda (positions) (safe? k positions)) (flatmap
+(lambda (rest-of-queens) (map (lambda (new-row) (adjoin-position new-row k
+rest-of-queens)) (enumerate-interval 1 board-size))) (queen-cols (- k
+1)))))) (queen-cols board-size))
+
+In this procedure `rest-of-queens' is a way to place k - 1 queens in the
+first k - 1 columns, and `new-row' is a proposed row in which to place the
+queen for the kth column. Complete the program by implementing the
+representation for sets of board positions, including the procedure
+`adjoin-position', which adjoins a new row-column position to a set of
+positions, and `empty-board', which represents an empty set of positions.
+You must also write the procedure `safe?', which determines for a set of
+positions, whether the queen in the kth column is safe with respect to the
+others. (Note that we need only check whether the new queen is safe--the
+other queens are already guaranteed safe with respect to each other.)
+|#
 ;;; Real Solution (copied)
 (define (queens board-size)
   (define (queen-cols k)
@@ -621,6 +1082,22 @@
 ;;;; Symbolic Manipulation
 
 #| Exercise: 2.53
+What would the interpreter print in response to evaluating each of the
+following expressions?
+
+(list 'a 'b 'c)
+
+(list (list 'george))
+
+(cdr '((x1 x2) (y1 y2)))
+
+(cadr '((x1 x2) (y1 y2)))
+
+(pair? (car '(a short list)))
+
+(memq 'red '((red shoes) (blue socks)))
+
+(memq 'red '(red shoes blue socks))
 |#
 
 ;;; (list 'a 'b 'c)                         => '(a b c)
@@ -632,6 +1109,22 @@
 ;;; (memq 'red '(red shoes blue socks))     => '(shoes blue socks)
 
 #| Exercise: 2.54
+Two lists are said to be `equal?' if they contain equal elements arranged
+in the same order. For example,
+
+(equal? '(this is a list) '(this is a list))
+
+is true, but
+
+(equal? '(this is a list) '(this (is a) list))
+
+is false. To be more precise, we can define `equal?' recursively in terms
+of the basic `eq?' equality of symbols by saying that `a' and `b' are
+`equal?' if they are both symbols and the symbols are `eq?', or if they are
+both lists such that `(car a)' is `equal?' to `(car b)' and `(cdr a)' is
+`equal?' to `(cdr b)'. Using this idea, implement `equal?' as a
+procedure.(5)
+
 |#
 (define (zv-equal? a b)
   (cond [(or (empty? a) (empty? b)) (eq? a b)]
@@ -642,6 +1135,11 @@
         [else (eq? a b)]))
 
 #| Exercise: 2.55
+Eva Lu Ator types to the interpreter the expression
+
+(car ''abracadabra)
+
+To her surprise, the interpreter prints back `quote'. Explain.
 |#
 ;; It is a "double quoted" item, e.g the symbols (quote abracadabra) resolve to
 ;; the *function* quote, which is created from syntax sugar.
@@ -691,6 +1189,16 @@
 
 
 #| Exercise: 2.56
+Show how to extend the basic differentiator to handle more kinds of
+expressions. For instance, implement the differentiation rule
+
+n_1 n_2 --- = --- if and only if n_1 d_2 = n_2 d_1 d_1 d_2
+
+by adding a new clause to the `deriv' program and defining appropriate
+procedures `exponentiation?', `base', `exponent', and
+`make-exponentiation'. (You may use the symbol `**' to denote
+exponentiation.) Build in the rules that anything raised to the power 0 is
+1 and anything raised to the power 1 is the thing itself.
 |#
 (define (exponentiation? x)
   (and (list? x) (eq? (car x) 'expt)))
@@ -705,6 +1213,16 @@
         [else `(expt ,e1 ,e2)]))
 
 #| Exercise: 2.57
+Extend the differentiation program to handle sums and products of arbitrary
+numbers of (two or more) terms. Then the last example above could be
+expressed as
+
+(deriv '(* x y (+ x 3)) 'x)
+
+Try to do this by changing only the representation for sums and products,
+without changing the `deriv' procedure at all. For example, the `addend' of
+a sum would be the first term, and the `augend' would be the sum of the
+rest of the terms.
 |#
 (define (make-sum a1 a2)
   (cond [(=number? a1 0) a2]
@@ -735,6 +1253,26 @@
       `(* ,@(cddr s))))
 
 #| Exercise: 2.58
+Suppose we want to modify the differentiation program so that it works with
+ordinary mathematical notation, in which `+' and `*' are infix rather than
+prefix operators. Since the differentiation program is defined in terms of
+abstract data, we can modify it to work with different representations of
+expressions solely by changing the predicates, selectors, and constructors
+that define the representation of the algebraic expressions on which the
+differentiator is to operate.
+
+a. Show how to do this in order to differentiate algebraic expressions
+presented in infix form, such as `(x + (3 * (x + (y + 2))))'. To simplify
+the task, assume that `+' and `*' always take two arguments and that
+expressions are fully parenthesized.
+
+b. The problem becomes substantially harder if we allow standard algebraic
+notation, such as `(x + 3 * (x + y + 2))', which drops unnecessary
+parentheses and assumes that multiplication is done before addition. Can
+you design appropriate predicates, selectors, and constructors for this
+notation such that our derivative program still works?
+
+
 |#
 ;;; 1.
 (define (infix-addend s) (car s))
@@ -810,6 +1348,8 @@ x^2 + 9
         [else (intersection (cdr ss1) ss2)]))
 
 #| Exercise: 2.59
+Implement the `union-set' operation for the unordered-list representation
+of sets.
 |#
 (define (union-set ss1 ss2)
   (cond [(or (empty? ss1) (empty? ss2)) (append ss1 ss2)]
@@ -819,6 +1359,14 @@ x^2 + 9
          (cons (car ss1) (union-set (cdr ss1) ss2))]))
 
 #| Exercise: 2.60
+We specified that a set would be represented as a list with no duplicates.
+Now suppose we allow duplicates. For instance, the set {1,2,3} could be
+represented as the list `(2 3 2 1 3 2 2)'. Design procedures
+`element-of-set?', `adjoin-set', `union-set', and `intersection-set' that
+operate on this representation. How does the efficiency of each compare
+with the corresponding procedure for the non-duplicate representation? Are
+there applications for which you would use this representation in
+preference to the non-duplicate one?
 |#
 (define (element-of-joined-set? elt ss)
   (element-of-set? elt ss))
@@ -858,6 +1406,10 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
                (intersection-ordered-set set1 (cdr set2))]))))
 
 #| Exercise: 2.61
+Give an implementation of `adjoin-set' using the ordered representation. By
+analogy with `element-of-set?' show how to take advantage of the ordering
+to produce a procedure that requires on the average about half as many
+steps as with the unordered representation.
 |#
 (define (adjoin-ordered-set elt os)
   "Takes advantage of the ordering of the set to stop when elt > (car os)"
@@ -869,6 +1421,8 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
               [(= elt oelt) os]))))
 
 #| Exercise: 2.62
+Give a [theta](n) implementation of `union-set' for sets represented as
+ordered lists.
 |#
 (define (union-ordered-set ss1 ss2)
   "Perform an O(n) union of 2 ordered sets"
@@ -884,6 +1438,32 @@ given by the intersection of set1 with the cdr of set2. Here is the procedure"
 
 
 #| Exercise: 2.63
+Each of the following two procedures converts a binary tree to a list.
+
+(define (tree->list-1 tree)
+  (if (null? tree)
+      '()
+      (append (tree->list-1 (left-branch tree))
+              (cons (entry tree)
+                    (tree->list-1 (right-branch tree))))))
+
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+        result-list
+        (copy-to-list (left-branch tree)
+                      (cons (entry tree)
+                            (copy-to-list (right-branch tree)
+                                          result-list)))))
+  (copy-to-list tree '()))
+
+a. Do the two procedures produce the same result for every tree?
+If not, how do the results differ?  What lists do the two
+procedures produce for the trees in *Note Figure 2-16::?
+
+b. Do the two procedures have the same order of growth in the
+number of steps required to convert a balanced tree with n
+elements to a list?  If not, which one grows more slowly?
 |#
 
 (define (sum-of-halves n)
@@ -1033,8 +1613,10 @@ return ret
    (if (empty? (node-right tree)) ""
        (string-append str (pprint (node-right tree) (+ 1 depth))))))
 
-#|
-Exercise 2.65: Use the results of Exercise 2.63 and Exercise 2.64 to give Θ ( n ) implementations of union-set and intersection-set for sets implemented as (balanced) binary trees.107
+#| Exercise 2.65
+Use the results of Exercise 2.63 and Exercise 2.64 to give Θ ( n )
+implementations of union-set and intersection-set for sets implemented as
+(balanced) binary trees.107
 |#
 (define (union-balanced-set bs1 bs2)
   (list->tree ((union-set (tree->list-1 bs1)
@@ -1122,9 +1704,20 @@ structured as a binary tree, ordered by the numerical values of the keys.
                (cadr pair))  ; frequency
          (make-leaf-set (cdr pairs))))))
 
-#|
---End of Utility Functions------------------------------------------------------
-2.67: Define an encoding tree and a sample message:
+#| Exercise 2.67:
+Define an encoding tree and a sample message:
+
+(define sample-tree
+  (make-code-tree (make-leaf 'A 4)
+                  (make-code-tree
+                   (make-leaf 'B 2)
+                   (make-code-tree (make-leaf 'D 1)
+                                   (make-leaf 'C 1)))))
+
+(define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+
+Use the `decode' procedure to decode the message, and give the
+result.
 |#
 (define sample-tree
   (make-code-tree
