@@ -43,7 +43,7 @@
      is to have a great, pain free environment and REPL. I couldn't imagine
      doing it with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at
      home /in/ Emacs too.]]
-     
+
      With that said, the Racket community has put together something truly
      astonishing with [[http://docs.racket-lang.org/drracket/interface-essentials.html?q=faq][DrRacket]]. I have used its excellent debugger over and
      over (when you want true enlightenment, debug chapter 2's =partial-tree=)
@@ -149,10 +149,10 @@
       you don't refresh your memory. A diary can also help you learn about your
       own learning process, serve as a reference and be personal evidence of this
       challenge you are about to embark on.
-      
+
 ***** Doing both at once?
       A variety of schemes allow you to write comments of the form: =#| BLOCK COMMENT |#=.
-      You can assign heading that you think are appropriate to each scheme file you include and 
+      You can assign heading that you think are appropriate to each scheme file you include and
       later extract those comments using a shell script.
 
 
@@ -198,9 +198,9 @@
       - The mechanics of graphics
       - Encoding higher order operations on graphics into lower-order actions
     - Lambda calculus
-    - Symbolic Computation 
+    - Symbolic Computation
       - Computer algebra systems with automatic integration & differentiation
-    - Encoding, Decoding and everything in-between for Huffman Trees. 
+    - Encoding, Decoding and everything in-between for Huffman Trees.
     - The universality of the ~(list)~ datastructure in Lisp
     - Dynamic Programming and hierarchical data structures
     - Different ways to achieve language features like type-dispatch, message passing and inheritance
@@ -213,7 +213,7 @@
      If you are determined to speed through SICP, I would recommend taking your
      time reading chapter 2.3. Many commentators on the text regularly highlight
      the Huffman Coding material in Chapter 2.3.4. You will learn something interesting
-     if you are a novice *or* if you are a professional: 
+     if you are a novice *or* if you are a professional:
 
      - Symbolic Calculator by Integration & Differentiation
      - Variety of binary trees and set data structures
@@ -223,7 +223,7 @@
      automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while
      its inversion is apparently a requirement for getting a job at Google]], the
      method is also genuinely beautiful - a personal favorite of mine.
-     
+
 **** 2.4 - Multiple Representation of Abstract Data
      This chapter covers the tactics of abstraction. Ways to link code with
      operations upon 'structure' (both of the C variety and a more abstract one)
@@ -242,11 +242,11 @@
     This chapter is the beginning of the end of standard computing textbook and the
     beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
     temptations to skip content, the first paragraphs of some chapters give the impression
-    of covering what seems like already well-worn ground as a programmer - the content of the 
+    of covering what seems like already well-worn ground as a programmer - the content of the
     chapters differ wildly from whats "on the tin".
 
     Even if you are familiar, SICP has something of a reputation for taking the
-    well-worn concepts and turning them inside out to expose their "true" structure [fn:2]. 
+    well-worn concepts and turning them inside out to expose their "true" structure [fn:2].
 
     An important tip for chapter 3 is *DO NOT USE A LANGUAGE WITHOUT MUTABLE LISTS*:
     If you are working with languages without convienent mutable data: I started out
@@ -425,7 +425,7 @@
 
     If you've chosen a language that stresses immutability (like Racket or Clojure)
     you'll have a fair amount of extra work ahead of you - The default evaluator uses
-    a stack that is manipulated with the use of ~set!~. 
+    a stack that is manipulated with the use of ~set!~.
 
     Don't take my word on it though:
 
@@ -450,7 +450,7 @@
     You'll accomplish the following here:
 
     - Simple Evaluator
-      - Implement a variable-only '/stack/' without stored function pointers. 
+      - Implement a variable-only '/stack/' without stored function pointers.
       - Implement Type-Dispatching Evaluator
       - Implement all major features of scheme used thus far
         - Various forms of ~let~
@@ -498,7 +498,7 @@
 **** Testing
      Starting with a testing strategy is essential to preserving sanity here; I
      recommend using the input → result REPL 'dialogues' listed in the text to ensure
-     that you are conforming to the features that the authors expect you to use in the 
+     that you are conforming to the features that the authors expect you to use in the
      coming exercises.
 
 ***** The Test Runner
@@ -586,7 +586,7 @@
 **** Code Reuse
 
 ***** Evaluator
-      Features common to 
+      Features common to
       - An evaluator function driven by a switch statement
       - An application function that extends the frame
       - A driver loop that makes both accessible in the form of a REPL
@@ -622,7 +622,7 @@
 (define (install-procedure p)
   "Install a procedure to the base evaluator"
   (put dispatch-tt 'eval ; instead of 'eval
-                   (car p) 
+                   (car p)
                    (cadr p))
 
 ...
@@ -721,9 +721,9 @@
 
      The unification step, which the book itself describes as the most unintuitive aspect,
      should be read thoroughly: It's the material that actually does the process of generating
-     deductions from premises. 
+     deductions from premises.
 
-     It's also important to remember that much of the rest of the material is devoted to various 
+     It's also important to remember that much of the rest of the material is devoted to various
      'optimizations' and implementation details that can easily derail you.
 
 ***** Missing Stuff
@@ -747,7 +747,7 @@
     This is where the chapter is known for /'going off the deep end'/: building
     a scheme compiler with tail call optimization, garbage collection, lexical
     addressing, tracing and so on.
-    
+
 **** ZV's Graphical Debugger & REPL
      I've built a REPL debugger for the Ch5 machine language. This can be used
      with whichever assembly variant you decide to write your exercises in, but
