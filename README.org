@@ -258,6 +258,97 @@
     language, the book demands a true concurrency enviroment in order for some
     exercises and examples to work right.
 
+**** Visually debugging =cons= cells
+     It's often helpful to have a visual representation of what a particular
+     list looks like, particularly once you start dealing with cycles.
+
+     The scheme script generates [[http://www.graphviz.org/][Graphviz]] diagrams which you can use to this end.
+
+***** Examples
+      Here's some example S-expressions with their corresponding diagram:
+
+****** =(1 2 3)=
+     #+NAME:   fig:(cons (cons 1 2) (cons 3 4))
+     #+CAPTION: (1 2 3)
+     [[./vendor/cons_123.png]]
+
+****** =(cons (cons 1 2) (cons 3 4))=
+     #+NAME:   fig:(cons (cons 1 2) (cons 3 4))
+     #+CAPTION: (cons (cons 1 2) (cons 3 4))
+     [[./vendor/cons12cons34.png]]
+
+****** Cycles:
+     #+NAME:   fig: cons with cycle
+     #+CAPTION: Cons with Cycle
+     [[./vendor/cons_with_cycle.png]]
+
+***** Script
+      #+BEGIN_SRC scheme
+(define (list->graphviz lst)
+  """Convert a list into a set of Graphviz instructions"""
+  (define number 0)
+  (define result "")
+  (define ordinals '())
+  (define (result-append! str)
+    (set! result (string-append result str)))
+
+  (define* (nodename n #:optional cell)
+    (format #f "cons~a~a" n (if cell (string-append ":" cell) "")))
+
+  (define* (build-connector from to #:optional from-cell)
+    (format #f "\t~a -> ~a;~%" (nodename from from-cell) (nodename to)))
+
+  (define (build-shape elt)
+    (define (build-label cell)
+      (cond ((null? cell) "&#x2205;") ; null character
+            ((pair? cell) "&#x2022;") ; bullet dot character
+            (else (format #f "~a" cell))))
+    (set! number (+ number 1))
+
+    (format #f "\t~a [shape=record,label=\"<car> ~a | <cdr> ~a\"];~%"
+            (nodename number)
+            (build-label (car elt))
+            (build-label (cdr elt))))
+
+  (define* (search xs #:optional from-id from-cell)
+    (let ((existing (assq xs ordinals)))
+      (if (pair? existing) ;; handle lists with cycles
+          ;; we've already built a node for this entry, just make a connector
+          (result-append! (build-connector from-id (cdr existing) from-cell))
+          (begin
+            (result-append! (build-shape xs))
+            (set! ordinals (assq-set! ordinals xs number))
+            (let ((parent-id number))
+              ;; make a X->Y connector
+              (if (number? from-id)
+                  (result-append! (build-connector from-id parent-id from-cell)))
+              ;; recurse
+              (if (pair? (car xs)) (search (car xs) parent-id "car"))
+              (if (pair? (cdr xs)) (search (cdr xs) parent-id "cdr")))))))
+
+  (search lst)
+  (string-append "digraph G {\n" result "}\n"))
+      #+END_SRC
+
+***** Usage
+      When =list->graphviz= is called, it returns a string representing the graphviz script, which you'll
+      then need to feed to graphviz.
+
+      If you don't have graphviz installed already, you can fetch it from [[http://www.graphviz.org/Download..php][here]]
+      or with your favorite package manager:
+
+      - OSX :: =brew install graphviz=
+      - Redhat / Fedora :: =dnf install graphviz=
+      - Ubuntu :: =apt-get install graphviz=
+
+      Once you have Graphviz installed, make a file that does =(display
+      (list->grapviz *elt*))=, where =*elt*= is the list you'd like to display and
+      feed that to =dot=, like so:
+
+      #+BEGIN_EXAMPLE
+      $ guile box_ptr.scm | dot -o /dev/stdout -Tpng > bot_pointer_diagram.png
+      #+END_EXAMPLE
+
 
 **** 3.34
      The center of 3.34 is the constraint solver. Following the books implementation
