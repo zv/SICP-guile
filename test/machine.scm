@@ -69,8 +69,8 @@
               newtons
               #:arguments '((x 64))
               #:expected '((guess 8.000001655289593)))
-
 
+
 ;; Exercise 5.4
 (test-machine "recursive-expt"
               recursive-expt
@@ -81,6 +81,15 @@
               iter-expt
               #:arguments '((b 10) (n 2))
               #:expected '((product 100)))
+
+
+;; Exercise 5.21
+(test-machine "count leaves"
+              implicit-count-leaves
+              #:arguments '((tree '(1 (3 4) 5 (6 (7 3) 9))))
+              #:expected '((result 8))
+              )
+
 
 
 (test-end "register simulator")
