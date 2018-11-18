@@ -284,3 +284,88 @@ The second function is iterative
 
 |#
 
+
+#| Exercise 1.10
+The following procedure computes a mathematical function called Ackermann's
+function. |#
+
+     (define (A x y)
+       (cond ((= y 0) 0)
+             ((= x 0) (* 2 y))
+             ((= y 1) 2)
+             (else (A (- x 1)
+                      (A x (- y 1))))))
+
+#| What are the values of the following expressions?
+
+      (A 1 10)
+      (A 2 4)
+      (A 3 3)
+
+Consider the following procedures, where A is the procedure defined above:
+
+      (define (f n) (A 0 n))
+      (define (g n) (A 1 n))
+      (define (h n) (A 2 n))
+      (define (k n) (* 5 n n))
+
+Give concise mathematical definitions for the functions computed by the
+procedures f, g, and h for positive integer values of n. For example, (k n)
+computes 5n^2.
+
+|#
+
+#| Answer:
+
+A trace of the first Ackermann function shown produces a long list of
+recursive calls, which is only exaggerated as `x' increases.
+
+  scheme@(guile-user)> ,trace (A 1 10)
+  trace: |  (A 1 10)
+  trace: |  |  (A 1 9)
+  trace: |  |  |  (A 1 8)
+  trace: |  |  |  |  (A 1 7)
+  trace: |  |  |  |  |  (A 1 6)
+  trace: |  |  |  |  |  |  (A 1 5)
+  trace: |  |  |  |  |  |  |  (A 1 4)
+  trace: |  |  |  |  |  |  |  |  (A 1 3)
+  trace: |  |  |  |  |  |  |  |  |  (A 1 2)
+  trace: |  |  |  |  |  |  |  |  |  |  (A 1 1)
+  trace: |  |  |  |  |  |  |  |  |  |  2
+  trace: |  |  |  |  |  |  |  |  |  (A 0 2)
+  trace: |  |  |  |  |  |  |  |  |  4
+  trace: |  |  |  |  |  |  |  |  (A 0 4)
+  trace: |  |  |  |  |  |  |  |  8
+  trace: |  |  |  |  |  |  |  (A 0 8)
+  trace: |  |  |  |  |  |  |  16
+  trace: |  |  |  |  |  |  (A 0 16)
+  trace: |  |  |  |  |  |  32
+  trace: |  |  |  |  |  (A 0 32)
+  trace: |  |  |  |  |  64
+  trace: |  |  |  |  (A 0 64)
+  trace: |  |  |  |  128
+  trace: |  |  |  (A 0 128)
+  trace: |  |  |  256
+  trace: |  |  (A 0 256)
+  trace: |  |  512
+  trace: |  (A 0 512)
+  trace: |  1024
+  scheme@(guile-user)> (A 2 4)
+  $2 = 65536
+  scheme@(guile-user)> (A 3 3)
+  $3 = 65536
+
+
+The functions described can be simplified as follows:
+
+  (define (f n) (A 0 n))
+  →  2n
+
+  (define (g n) (A 1 n))
+  →  n²
+
+  (define (h n) (A 2 n))
+  →  2↑n
+
+|#
+
