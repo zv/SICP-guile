@@ -174,7 +174,7 @@
     - Computability and Mathematics
       - Newton's method
       - Ackermann's function
-      - Big O (/"Orders of Growth"/)
+      - Big O ( Orders of Growth )
       - The Fibonacci function and various methods of implementing it
       - Order of evaluation
       - Monte Carlo methods for approximating PI
@@ -203,7 +203,7 @@
 
      I think it is Abelson who is the exception here, but it's worth noting!
 
-**** =,trace= builtin
+**** ~trace~ builtin
      The [[https://www.gnu.org/software/guile/manual/html_node/Tracing-Traps.html][trace builtin]] is a tool for printing the procedure call trace from
      within the Guile VM and is incredibly useful. Scheme implementations
      elsewhere have similar builtins.

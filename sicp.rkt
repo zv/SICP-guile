@@ -2,10 +2,16 @@
 (require (lib "trace.ss"))
 
 (define (square x) (* x x))
+(define (max a b)
+  (if (> a b)
+      a
+      b))
+(define (min a b)
+  (if (< a b)
+      a
+      b))
 (define (largest-sums x y z)
-  (+
-   (if (> x y) (square x) (square y))
-   (if (> y z) (square y) (square z))))
+  (+ (square (max x y)) (square (max (min x y) z))))
 
 (define (inc a) (+ a 1))
 (define (dec a) (- a 1))
