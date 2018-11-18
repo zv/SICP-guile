@@ -369,3 +369,32 @@ The functions described can be simplified as follows:
 
 |#
 
+
+#| Exercise 1.11
+A function f is defined by the rule that
+
+    f(n) = n if n < 3
+
+and
+
+    f(n) = f(n - 1) + 2f(n - 2) + 3f(n - 3) if n >= 3.
+
+Write a procedure that computes f by means of a recursive process.
+Write a procedure that computes f by means of an iterative process.
+|#
+
+(define (rule1.11/recursive n)
+  (if (< n 3) n
+      (+ (rule1.11/recursive (- n 1))
+         (* 2 (rule1.11/recursive (- n 2)))
+         (* 3 (rule1.11/recursive (- n 3))))))
+
+(define (rule1.11/iterative n)
+  (define (driver count a b c)
+    (if (= count n) c
+        (driver (+ count 1)
+                       (+ a (* 2 b) (* 3 c))
+                       a
+                       b)))
+  (driver 0 2 1 0))
+
