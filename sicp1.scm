@@ -398,3 +398,38 @@ Write a procedure that computes f by means of an iterative process.
                        b)))
   (driver 0 2 1 0))
 
+
+#| Exercise 1.12
+The following pattern of numbers is called "Pascal's triangle".
+
+                                1
+                              1   1
+                            1   2   1
+                          1   3   3   1
+                        1   4   6   4   1
+
+The numbers at the edge of the triangle are all 1, and each number inside
+the triangle is the sum of the two numbers above it. Write a procedure that
+computes elements of Pascal's triangle by means of a recursive process.
+|#
+
+(define (pascals-triangle depth)
+  ;; `build-entry' doesn't memoize the finding of each number. You could do
+  ;; so either here or with more changes to `build-row'.
+  (define (build-entry rows col)
+    (cond
+     [(and (= rows 0) (= col 0)) 1]
+     [(or (< col 0) (< rows col)) 0]
+     [else (+ (build-entry (- rows 1) (- col 1))
+              (build-entry (- rows 1) col))]))
+
+  (define (build-row ctr length)
+    (if (= ctr (1+ length)) '()
+        (cons (build-entry length ctr) (build-row (+ ctr 1) length))))
+
+  (define (build n)
+    (if (= n depth) '()
+        (cons (build-row 0 n) (build (1+ n)))))
+
+  (build 0))
+
