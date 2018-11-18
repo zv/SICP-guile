@@ -1,4 +1,4 @@
-* SICP
+* Structure and Interpretation of Computer Programs
 ** Why?
    SICP has been a great classic of computer science for more than two decades
    and is likely to remain so for many more. Its reputation has grown
@@ -39,10 +39,9 @@
      - [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
 
 **** Environment
-     SICP can be more than didactic, it /can/ be fun. The easiest way to do this
-     is to have a great, pain free environment and REPL. I couldn't imagine
-     doing it with anything except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at
-     home /in/ Emacs too.]]
+     An important first step to having fun with SICP is to have a pain free
+     environment and REPL. I personally couldn't imagine doing it with anything
+     except Emacs. [[http://spacemacs.org/][If you are a vim user, you can be at home /in/ Emacs too.]]
 
      With that said, the Racket community has put together something truly
      astonishing with [[http://docs.racket-lang.org/drracket/interface-essentials.html?q=faq][DrRacket]]. I have used its excellent debugger over and
@@ -51,16 +50,18 @@
      Emacs in this regard.
 
 **** Language
-     SICP recommends [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]]. Many readers have used various Schemes, Lisps
-     and languages pretending to be either. I've seen the following used and
-     have tried to approximate their fitness for the task with some features
-     I've found useful:
+     SICP avoids implementation-dependent behavior and often won't show the
+     results of functions whose behavior differs between implementations. Still,
+     SICP has often been done with [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] while many have used other
+     Schemes, Lisps and languages pretending to be both. I've seen some of the
+     following used and have tried to approximate their fitness for the task
+     with some features I've found useful:
 
-     + Object system is not required but can save you lots of time
-     + Being able to redefine a function in the same file is extremely useful in SICP.
+     + Object systems are tremendously useful in chapter 3 particularly.
+     + Function 'redefinition' is extremely useful and practically required if you want to write your code literately. 
      + A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
-     + Several chapters more-or-less require mutable lists. Languages like Racket support mutable lists but use different method names and so will require you rewrite some code from the book.
-     + Some chapters, particularly those dealing with changes to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
+     + Several chapters more-or-less require mutable lists. Languages like Racket do /have/ mutable lists but use different method names and so will require you rewrite some code from the book.
+     + Some chapters, such as those pertaining to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
 
      | Language  | Ease | Unit Tests | Native OOP | Function Redefinition | ~set!~ | Notes                                                                               |
      |-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
@@ -74,14 +75,15 @@
      I've heard are servicable.
 
 ***** Using a Non-Lisp?
-      Some online commentators have described SICP as stressing homoiconicity, but
-      if such implicit emphasis exists I couldn't detect any (although the concept
+      Some online commentators have described SICP as stressing homoiconicity,
+      but if such emphasis exists I couldn't detect it (although the concept
       /itself/ is referenced obliquely).
 
-      It is completely possible, if unhinged, to entirely do SICP in a language like
-      Javascript or Ruby. I personally have reimplemented several challenges in JS and
-      did get a dash of enlightenment that is usually very remote in Javascript (as
-      well as learning something /about/ JS that few JS textbooks teach).
+      It is completely possible (if unhinged) to do SICP in a language like
+      Javascript or Ruby. I personally have reimplemented several challenges in
+      JS and did get a dash of enlightenment that can be very remote in
+      Javascript (as well as learning something /about/ JS that few JS textbooks
+      teach).
 
       Chapter 4's implementation would be the first major hurdle for a nonlisp
       effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
@@ -95,7 +97,7 @@
 
 ***** Helpful Details
       SICP doesn't rely on implementation details in MIT Scheme to communicate
-      its points and translates well across implementations. Still, if this is
+      it's points and translates well across implementations. Still, if this is
       your first time using Scheme, you might be able to benefit from a few
       modern implementation-specific details:
 
@@ -113,24 +115,22 @@
 ****** Object System
        SICP will instruct you in building your own 'OOP' system and is helpful
        in organizing some of the more complex exercises. With that said, it's
-       both more expedient to use your own Lisp's object system (usually some
+       more expedient to use your own Lisp's object system (usually some
        descendent of Common Lisp's) as well as didactic in its own right.
 
-       There's not much conflict here however. The places where SICP asks you to
-       use its own 'objects' aren't the places you'd want to use your
+       There's really no conflict here. The places where SICP asks you to use
+       its own 'objects' system aren't the places you'd want to use your
        language's object system. Bigger exercises (particularly those in
        Chapter 3) are where you benefit from a 'proper' object system. You could
-       also make your own (ideal use of macros!), because while it's true that
-       Lisp object systems can provide many features with varying degrees of
-       adherance to the doctrine of object-orientation, SICP benefits come from
-       a few like inheritance/composition.
+       also make your own, because while it's true that Lisp object systems can
+       provide many features with varying degrees of adherance to the doctrine
+       of object-orientation (whatever that implies), SICP is eased by the
+       basics: parametricity, generic functions and/or inheritance.
 
 ****** Unit Testing With SRFI-78
-       There's lots of ways to test Scheme code, I still recommend the simplest
-       thing that works: [[https://srfi.schemers.org/srfi-78/srfi-78.html][SRFI-78]]. If you haven't used it before, you can read
-       some tests for my implementation of interpreter and compiler code in
-       =test/=.
-
+       There's many ways to test Scheme code, I recommend the simplest thing
+       that works: [[https://srfi.schemers.org/srfi-78/srfi-78.html][SRFI-78]]. If you haven't used it before, you can read some
+       tests for my implementation of interpreter and compiler code in =test/=.
 
 **** Mechanics
 ***** Keeping your exercises under version control
@@ -139,10 +139,10 @@
       2.71 (Chapter 2). This means that having the results of your work
       chronicled will make your life considerably easier.
 
-      Also, as you get deeper into the book, more serious challenges will be
-      posed. You'll be building a Lisp interpreter, a JIT compiler, an actual
-      compiler - these are serious software construction projects and you'll
-      benefit from the tools of software construction.
+      Also, as you get deeper into the book, increasingly serious challenges
+      will be posed. You'll be building a Lisp interpreter, a JIT compiler, then
+      an "actual" compiler - these are serious software engineering projects
+      and you'll benefit from the tools of software engineering.
 
 ***** Keeping a Diary
       SICP contains so much information that's easy to lose track of later on if
@@ -155,7 +155,6 @@
       You can assign heading that you think are appropriate to each scheme file you include and
       later extract those comments using a shell script.
 
-
 ** Contents
 *** Chapter 1
     If you've got experience programming in any functional programming language,
@@ -165,17 +164,49 @@
     many numerical routines that you might be exposed to for the first time here.
 
     A quick review:
-    - Implementing loops with recursive functions
-    - car/cdr/cons and other lisp list manipulation functions
-    - Some 'highlight' results from Computability theory (Ackermann's function et al)
-    - Numerous Monte Carlo methods for approximating PI
-    - A Change Counting "machine"
+
+    - Foundational Scheme
+      - Implementing loops with recursive functions
+      - car/cdr/cons and other lisp list manipulation functions
+      - Function definition and limited explanation of "scope"
+      - Conditionals & predicates
+      - Expressions, value and defintions
+    - Computability and Mathematics
+      - Newton's method
+      - Ackermann's function
+      - Big O (/"Orders of Growth"/)
+      - The Fibonacci function and various methods of implementing it
+      - Order of evaluation
+      - Monte Carlo methods for approximating PI
+    - Recursion    
+      - Linear & tree recursion (along with other methods of accumulating return values)
+      - A change counting "machine"
+      - Contrast with using function arguments or iterative solutions
     - Euclid's method for greatest common denominator
     - High Level Functions
-    - Fermat's Triangle
+    - Pascals's Triangle
     - Define, convert and calculate fixed points of lots of common functions
     - Convert reals to rationals
     - Approximate trigonometric functions
+
+**** "recursive procedures" and "recursive processes"
+     Chapter 1 often asks you to consider two implementations of a function, a
+     "recursive" and an "iterative", both of which call a function in their
+     definition whose name *is* that function.
+
+     Some programmers are used to calling any function which calls itself
+     "recursive". The book directly tackles this "common misconception" in 1.2:
+
+     #+BEGIN_QUOTE
+     In contrasting iteration and recursion, we must be careful not to confuse the notion of a recursive process with the notion of a recursive procedure. When we describe a procedure as recursive, we are referring to the syntactic fact that the procedure definition refers (either directly or indirectly) to the procedure itself. But when we describe a process as following a pattern that is, say, linearly recursive, we are speaking about how the process evolves, not about the syntax of how a procedure is written. It may seem disturbing that we refer to a recursive procedure such as fact-iter as generating an iterative process. However, the process really is iterative: Its state is captured completely by its three state variables, and an interpreter need keep track of only three variables in order to execute the process.
+     #+END_QUOTE
+
+     I think it is Abelson who is the exception here, but it's worth noting!
+
+**** =,trace= builtin
+     The [[https://www.gnu.org/software/guile/manual/html_node/Tracing-Traps.html][trace builtin]] is a tool for printing the procedure call trace from
+     within the Guile VM and is incredibly useful. Scheme implementations
+     elsewhere have similar builtins.
 
 *** Chapter 2
     This chapter is broadly concerned with the generality and principles of
@@ -208,12 +239,10 @@
     This book starts to give you a few nuggets of profound realization that the book
     is known for. It gets even better.
 
-
 **** 2.3 Symbolic Data
      If you are determined to speed through SICP, I would recommend taking your
-     time reading chapter 2.3. Many commentators on the text regularly highlight
-     the Huffman Coding material in Chapter 2.3.4. You will learn something interesting
-     if you are a novice *or* if you are a professional:
+     time reading chapter 2.3. I, along with many others, have highlighted the
+     the Huffman Coding material in Chapter 2.3.4.
 
      - Symbolic Calculator by Integration & Differentiation
      - Variety of binary trees and set data structures
@@ -225,9 +254,9 @@
      method is also genuinely beautiful - a personal favorite of mine.
 
 **** 2.4 - Multiple Representation of Abstract Data
-     This chapter covers the tactics of abstraction. Ways to link code with
-     operations upon 'structure' (both of the C variety and a more abstract one)
-     while retaining 'genericity'.
+     This chapter covers the tactics of abstraction. Ways to equipt 'structure'
+     with operations (both of the C variety and a more abstract one) while
+     retaining 'genericity'.
 
      It's at once the least memorable and yet possibly the *most* important for
      practice of programming at large. The chapter justifies and presents
@@ -239,11 +268,12 @@
      record your answers.
 
 *** Chapter 3
-    This chapter is the beginning of the end of standard computing textbook and the
-    beginning of SICP. If you are already a programmer, Chapter 3 presents some huge
-    temptations to skip content, the first paragraphs of some chapters give the impression
-    of covering what seems like already well-worn ground as a programmer - the content of the
-    chapters differ wildly from whats "on the tin".
+    This chapter is the end of standard computing textbook and the beginning of
+    SICP. If you are already a programmer, Chapter 3 presents some huge
+    temptations to skip content, the first paragraphs of some chapters give the
+    impression of covering what seems like already well-worn ground as a
+    programmer - the content of the chapters differ wildly from whats "on the
+    tin".
 
     Even if you are familiar, SICP has something of a reputation for taking the
     well-worn concepts and turning them inside out to expose their "true" structure [fn:2].
@@ -351,9 +381,10 @@
 
 
 **** 3.34
-     The center of 3.34 is the constraint solver. Following the books implementation
-     is slower but does remove any function-to-function mapping confusion. On the other hand,
-     writing your own saves you some time but requires a bit more non-SICP effort.
+     3.34 focuses on a constraint solver. Following the books implementation is
+     slower but does remove any function-to-function mapping confusion. On the
+     other hand, writing your own saves you some time but requires a bit more
+     non-SICP effort.
 
 ***** A Skeleton Constraint Solver Class
       The book implements the primary classes of the constraint-solver as
@@ -417,6 +448,7 @@
   (let ((cs (make <probe> #:name name #:connector connector)))
     (connect connector cs) cs))
        #+END_SRC
+
 *** Chapter 4
     This chapter centers around the creation of a number of Scheme evaluators and is
     widely regarded as the most substantial chapter. The regularity with which it
@@ -811,11 +843,10 @@
     =amb= evaluator would really be neat -- I just installed a primitive procedure.
 
 *** TODO Permutations and the Floor Puzzle
-    Permutations and the generation thereof are one of those strange backwaters of
-    computer programming that never really manages to fit into the broader scheme
-    (ha) of knowledge. I've come up with no less than 3 ways to do them over the
-    years, including counting in base-N (where N is the number of permuted items),
-    the traditional map-n-slap and other mundane methods.
+    Donald Knuth wrote a whole fasc. of TAOCP on permutation problems and I can
+    see why. I've come up with no less than 2 dozen ways reformulations do them
+    over the years: including counting in base-N (where N is the number of
+    permuted items), the traditional map-n-slap, round-robin (what is called "bell method")
 
     I always feel guilty not giving an honest effort before looking up an algorithm
     online and I always feel somewhat stumped on permutation problems. Sure, I know
