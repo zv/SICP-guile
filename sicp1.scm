@@ -950,3 +950,10 @@ memoization, effectively each step is performing twice as much work for n
 steps, e.g n^2, trimming the speed of the original implementation down to
 [theta](n). |#
 
+
+#| TODO Exercise 1.27
+Demonstrate that the Carmichael numbers listed in *Note Footnote 1.47
+really do fool the Fermat test. That is, write a procedure that takes an
+integer n and tests whether a^n is congruent to a modulo n for every a<n,
+and try your procedure on the given Carmichael numbers. |#
+
