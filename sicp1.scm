@@ -895,3 +895,13 @@ explain the fact that it is different from 2?
 
 (define (1.23/next n) (if (= n 2) 3 (+ n 2)))
 
+
+#| TODO Exercise 1.24
+Modify the `timed-prime-test' procedure of *Note Exercise 1-22 to use
+`fast-prime?' (the Fermat method), and test each of the 12 primes you found
+in that exercise. Since the Fermat test has [theta](`log' n) growth, how
+would you expect the time to test primes near 1,000,000 to compare with the
+time needed to test primes near 1000? Do your data bear this out? Can you
+explain any discrepancy you find?
+|#
+
