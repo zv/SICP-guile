@@ -807,3 +807,71 @@ the following numbers: 199, 1999, 19999.
 ;; TODO XXX write test
 ;; (format #f "~a" (for-each smallest-divisor '(199 1999 1999)))
 
+
+#| Exercise 1.22
+Most Lisp implementations include a primitive called `runtime' that returns
+an integer that specifies the amount of time the system has been running
+(measured, for example, in microseconds). The following `timed-prime-test'
+procedure, when called with an integer n, prints n and checks to see if n
+is prime. If n is prime, the procedure prints three asterisks followed by
+the amount of time used in performing the test.
+|#
+          (define (timed-prime-test n)
+            (newline)
+            (display n)
+            (start-prime-test n (current-time)))
+
+          (define (start-prime-test n start-time)
+            (if (prime? n)
+                (report-prime (- (current-time) start-time))))
+
+          (define (report-prime elapsed-time)
+            (display " *** ")
+            (display elapsed-time)
+            #t)
+
+#|
+Using this procedure, write a procedure `search-for-primes' that
+checks the primality of consecutive odd integers in a specified range. Use
+your procedure to find the three smallest primes larger than 1000; larger
+than 10,000; larger than 100,000; larger than 1,000,000. Note the time
+needed to test each prime. Since the testing algorithm has order of growth
+of [theta](_[sqrt]_(n)), you should expect that testing for primes around
+10,000 should take about _[sqrt]_(10) times as long as testing for primes
+around 1000. Do your timing data bear this out? How well do the data for
+100,000 and 1,000,000 support the _[sqrt]_(n) prediction? Is your result
+compatible with the notion that programs on your machine run in time
+proportional to the number of steps required for the computation?
+|#
+(define (prime? n)
+  (= n (smallest-divisor n)))
+
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder
+          (square (expmod base (/ exp 2) m))
+          m))
+        (else
+         (remainder
+          (* base (expmod base (- exp 1) m))
+          m))))
+
+(define (search-for-primes start)
+  (define (is-prime? n)
+    (cond
+     [(even? n) #f]
+     [(< n 0) #f]
+     [(timed-prime-test n) #t]
+     [else (is-prime? (- n 2))]))
+
+  (define (driver n primes count)
+    (cond
+     [(even? n) (driver (+ n 1) primes count)]
+     [(= count 3) primes]
+     [(is-prime? n) (driver (+ n 2) (cons n primes) (+ count 1))]
+     [else (driver (+ n 2) primes count)]))
+
+  (driver start '() 0))
+;;; TODO XXX write test
+
