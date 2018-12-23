@@ -905,3 +905,20 @@ time needed to test primes near 1000? Do your data bear this out? Can you
 explain any discrepancy you find?
 |#
 
+
+#| Exercise 1.25
+Alyssa P. Hacker complains that we went to a lot of extra work in writing
+`expmod'. After all, she says, since we already know how to compute
+exponentials, we could have simply written
+
+          (define (expmod base exp m)
+            (remainder (fast-expt base exp) m))
+
+Is she correct? Would this procedure serve as well for our fast prime
+tester? Explain. |#
+
+#| Answer:
+Depending on the behavior of large values of `base' and `exp' combined with
+the system's handling of large numbers, it is either a middling gain or an
+enormously slower operation. |#
+
