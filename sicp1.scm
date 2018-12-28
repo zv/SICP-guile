@@ -2,6 +2,26 @@
 (use-modules (ice-9 format))
 (use-modules (srfi srfi-41))
 
+
+#| Utilities |#
+(define inside-repl?
+  ;; current-source-location is formatted in a line, column, filename alist
+  ;; e.g ((line . INTEGER) (column . INTEGER) (filename . SYMBOL|FALSE))
+  (eq? #f (assq-ref (current-source-location) 'filename)))
+
+(define do-debug? #t)
+(define (debug format-string . format-args)
+  (if do-debug?
+      (apply format `(#t
+                      ,(string-append format-string "~&")
+                      ,@format-args))))
+
+(define (square x) (* x x))
+(define (inc n) (+ n 1))
+(define (average n m) (/ (+ n m) 2))
+
+
+
 #| Exercise 1.1
 Below is a sequence of expressions. What is the result printed by the
 interpreter in response to each expression? Assume that the sequence is to be
@@ -76,7 +96,6 @@ Define a procedure that takes three numbers as arguments and returns the sum of
 the squares of the two larger numbers.
 |#
 
-(define (square x) (* x x))
 (define (largest-squares x y z)
   (+
    (if (> x y) (square x) (square y))
