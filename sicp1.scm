@@ -653,3 +653,44 @@ a. The procedure is evaluated 5 times
 b. The order of growth is O(log(n))
 |#
 
+
+#| 1.29
+Simpson’s Rule is a more accurate method of numerical integration than the
+method illustrated above. Using Simpson’s Rule, the integral of a function
+f between a and b is approximated as
+
+    h/3 ⋅ (y₀ + 4y₁ + 2y₂ + 4y₃ + 2y₄ + ⋯ + 2y₍ₙ₋₂₎ + 4y₍ₙ₋₁₎ + yₙ)
+
+where h = (b − a)/n, for some even integer n , and yₖ = f(a + kh).
+(Increasing n increases the accuracy of the approximation.) Define a
+procedure that takes as arguments f, a, b , and n and returns the value
+of the integral, computed using Simpson’s Rule. Use your procedure to
+integrate cube between 0 and 1 (with n = 100 and n = 1000 ), and compare
+the results to those of the integral procedure shown above. |#
+
+(define (identity x) x)
+(define (inc n) (+ n 1))
+
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+         (sum term (next a) next b))))
+
+(define (sum-integers a b) (sum identity a inc b))
+
+(define (integral f a b dx)
+  (define (add-dx x) (+ x dx))
+  (* (sum f (+ a (/ dx 2.0)) add-dx b)
+     dx))
+
+(define (simpsons-rule-solver f a b n)
+  (let* ([h (/ (- b a) n)]
+         ;; compute yₖ
+         [fy (λ (k)
+               (* (if (even? k) 4 2)
+                  (f (+ a (* k h)))))])
+
+    (* (/ h 3)
+       (+ (f a) (sum fy 0 inc n) (f (+ a (* n h)))))))
+
