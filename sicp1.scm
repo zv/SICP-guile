@@ -781,3 +781,32 @@ write one that generates a recursive process. |#
 ;; XXX: add to test
 ;; (1.32/iterative-accumulate * 1 identity 1 inc 5) => 120
 
+
+#| Exercise 1.33
+You can obtain an even more general version of accumulate (Exercise 1.32)
+by introducing the notion of a filter on the terms to be combined. That is,
+combine only those terms derived from values in the range that satisfy a
+specified condition. The resulting `filtered-accumulate' abstraction takes
+the same arguments as `accumulate', together with an additional predicate of
+one argument that specifies the filter. Write `filtered-accumulate' as a
+procedure. Show how to express the following using `filtered-accumulate':
+
+1. the sum of the squares of the prime numbers in the interval a to b
+(assuming that you have a prime? predicate already written)
+
+2. the product of all the positive integers less than n that are relatively
+prime to n (i.e., all positive integers i < n such that GCD (i, n) = 1). |#
+
+(define (1.33/filtered-accumulate combiner null term a next b filter)
+  (if (> a b) null
+      (if (filter a)
+          (combiner (term a)
+                    (1.33/filtered-accumulate combiner null term (next a) next b filter))
+          (1.33/filtered-accumulate combiner null term (next a) next b filter))))
+
+(define (1.33/sum-of-prime-squares a b)
+  (1.33/filtered-accumulate + 0 square a inc b prime?))
+
+(define (1.33/coprimes n)
+  (1.33/filtered-accumulate * 1 identity 1 inclb (λ i) (= 1 (gcd i n))))
+
