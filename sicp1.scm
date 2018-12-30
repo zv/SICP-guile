@@ -19,6 +19,7 @@
 (define (square x) (* x x))
 (define (inc n) (+ n 1))
 (define (average n m) (/ (+ n m) 2))
+(define (double x) (+ x x))
 
 
 
@@ -226,7 +227,7 @@ cube-root procedures.)
 
 |#
 
-(define (fix/sqrt-iter guess last-guess x)
+(define (1.8/sqrt-iter guess last-guess x)
   (let ([good-enough? (< (abs (- guess last-guess)) 0.001)]
         [next-guess (/ (+ (/ x (square guess))
                        (* 2 guess))
@@ -996,7 +997,6 @@ integrate cube between 0 and 1 (with n = 100 and n = 1000 ), and compare
 the results to those of the integral procedure shown above. |#
 
 (define (identity x) x)
-(define (inc n) (+ n 1))
 
 (define (sum term a next b)
   (if (> a b)
@@ -1026,7 +1026,7 @@ the results to those of the integral procedure shown above. |#
 The sum procedure above generates a linear recursion. The procedure can be
 rewritten so that the sum is performed iteratively. |#
 
-(define (sum term a next b)
+(define (1.30/sum term a next b)
   (define (iter a result)
     (if (> a b)
         result
@@ -1052,7 +1052,7 @@ one that generates a recursive process. |#
 (define (recursive-product term a next b)
   (if (> a b) a)
   (* (term a)
-     (recursive product term (next a) next b)))
+     (recursive-product term (next a) next b)))
 
 (define (iterative-product term a next b)
   (define (iter a result)
@@ -1062,9 +1062,9 @@ one that generates a recursive process. |#
 
   (iter a 0))
 
-(define 1.31/factorial n
-  (if ((zero? n) 1
-       (iterative-product identity 1 inc n))))
+(define (1.31/factorial n)
+  (if (zero? n) 1
+      (iterative-product identity 1 inc n)))
 
 (define (1.31/pi-approximate n)
   (define (fnth nth)
@@ -1095,9 +1095,9 @@ that generates an iterative process. If it generates an iterative process,
 write one that generates a recursive process. |#
 
 (define (1.32/recursive-accumulate combiner null term a next b)
-  (if (> a b) n ;; teeeeeee[[Ier 1111111111111111120)]]ull
+  (if (> a b) a
       (combiner (term a)
-                (1.32/accumulate combiner null term (next a) next b))))
+                (1.32/recursive-accumulate combiner null term (next a) next b))))
 
 (define (1.32/iterative-accumulate combiner null term a next b)
   (define (fold-left n acc)
@@ -1135,7 +1135,7 @@ prime to n (i.e., all positive integers i < n such that GCD (i, n) = 1). |#
   (1.33/filtered-accumulate + 0 square a inc b prime?))
 
 (define (1.33/coprimes n)
-  (1.33/filtered-accumulate * 1 identity 1 inclb (λ i) (= 1 (gcd i n))))
+  (1.33/filtered-accumulate * 1 identity 1 inc n (λ (i) (= 1 (gcd i n)))))
 
 
 #| Exercise 1.34
