@@ -707,3 +707,43 @@ rewritten so that the sum is performed iteratively. |#
 
   (iter a 0))
 
+
+#| Exercise 1.31
+1. The `sum' procedure is only the simplest of a vast number of similar
+abstractions that can be captured as higher-order procedures. Write an
+analogous procedure called product that returns the product of the values
+of a function at points over a given range. Show how to define factorial in
+terms of product. Also use product to compute approximations to π using the
+formula:
+
+    π/4 = 2/3 ⋅ 4/3 ⋅ 4/5 ⋅ 6/5 ⋅ 6/7 ⋅ 8/7
+
+2. If your product procedure generates a recursive process, write one that
+generates an iterative process. If it generates an iterative process, write
+one that generates a recursive process. |#
+
+(define (recursive-product term a next b)
+  (if (> a b) a)
+  (* (term a)
+     (recursive product term (next a) next b)))
+
+(define (iterative-product term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* (term a) result))))
+
+  (iter a 0))
+
+(define 1.31/factorial n
+  (if ((zero? n) 1
+       (iterative-product identity 1 inc n))))
+
+(define (1.31/pi-approximate n)
+  (define (fnth nth)
+    (if (even? nth)
+        (/ (double nth) (inc (double nth)))
+        (/ (inc (double nth)) (double nth))))
+
+  (* 4.0 (iterative-product fnth 0 inc n)))
+
