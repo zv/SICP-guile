@@ -58,7 +58,7 @@
      with some features I've found useful:
 
      + Object systems are tremendously useful in chapter 3 particularly.
-     + Function 'redefinition' is extremely useful and practically required if you want to write your code literately. 
+     + Function 'redefinition' is extremely useful and practically required if you want to write your code literately.
      + A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
      + Several chapters more-or-less require mutable lists. Languages like Racket do /have/ mutable lists but use different method names and so will require you rewrite some code from the book.
      + Some chapters, such as those pertaining to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
@@ -163,50 +163,57 @@
     Even if you feel like the foundational material is old news to your, there are
     many numerical routines that you might be exposed to for the first time here.
 
-    A quick review:
+**** Chapter Review:
 
-    - Foundational Scheme
-      - Implementing loops with recursive functions
-      - car/cdr/cons and other lisp list manipulation functions
-      - Function definition and limited explanation of "scope"
-      - Conditionals & predicates
-      - Expressions, value and defintions
-    - Computability and Mathematics
-      - Newton's method
-      - Ackermann's function
-      - Big O ( Orders of Growth )
-      - The Fibonacci function and various methods of implementing it
-      - Order of evaluation
-      - Monte Carlo methods for approximating PI
-    - Recursion    
-      - Linear & tree recursion (along with other methods of accumulating return values)
-      - A change counting "machine"
-      - Contrast with using function arguments or iterative solutions
-    - Euclid's method for greatest common denominator
-    - High Level Functions
-    - Pascals's Triangle
-    - Define, convert and calculate fixed points of lots of common functions
-    - Convert reals to rationals
-    - Approximate trigonometric functions
+      - Foundational Scheme
+        - Implementing loops with recursive functions
+        - car/cdr/cons and other lisp list manipulation functions
+        - Function definition and limited explanation of "scope"
+        - Conditionals & predicates
+        - Expressions, value and defintions
+      - Computability and Mathematics
+        - Newton's method
+        - Ackermann's function
+        - Big O / Orders of Growth
+        - The Fibonacci function and various methods of implementing it
+        - Order of evaluation
+        - Monte Carlo methods for approximating PI
+      - Recursion
+        - Linear & tree recursion (along with other methods of accumulating return values)
+        - Euclid's method for greatest common denominator
+        - A change counting "machine"
+        - Pascals's Triangle
+        - Contrast with using function arguments or iterative solutions
+      - High Level Functions
+        - Define, convert and calculate fixed points of lots of common functions
+          - Use fixed points to deal with functions as proceduers
+          - Use `fixed-point' function to build other, such as those that find an approximation of a continued fraction.
+      - Procedures as returned values
+        - Explore Newton's method for approximating functions .
 
-**** "recursive procedures" and "recursive processes"
-     Chapter 1 often asks you to consider two implementations of a function, a
-     "recursive" and an "iterative", both of which call a function in their
-     definition whose name *is* that function.
 
-     Some programmers are used to calling any function which calls itself
-     "recursive". The book directly tackles this "common misconception" in 1.2:
+**** Notes
+***** "recursive procedures" and "recursive processes"
+      Chapter 1 often asks you to consider two implementations of a function, a
+      "recursive" and an "iterative", both of which call a function in their
+      definition whose name *is* that function.
 
-     #+BEGIN_QUOTE
-     In contrasting iteration and recursion, we must be careful not to confuse the notion of a recursive process with the notion of a recursive procedure. When we describe a procedure as recursive, we are referring to the syntactic fact that the procedure definition refers (either directly or indirectly) to the procedure itself. But when we describe a process as following a pattern that is, say, linearly recursive, we are speaking about how the process evolves, not about the syntax of how a procedure is written. It may seem disturbing that we refer to a recursive procedure such as fact-iter as generating an iterative process. However, the process really is iterative: Its state is captured completely by its three state variables, and an interpreter need keep track of only three variables in order to execute the process.
-     #+END_QUOTE
+      Some programmers are used to calling any function which calls itself
+      "recursive". The book directly tackles this "common misconception" in 1.2:
 
-     I think it is Abelson who is the exception here, but it's worth noting!
+      #+BEGIN_QUOTE
+      In contrasting iteration and recursion, we must be careful not to confuse the notion of a recursive process with the notion of a recursive procedure. When we describe a procedure as recursive, we are referring to the syntactic fact that the procedure definition refers (either directly or indirectly) to the procedure itself. But when we describe a process as following a pattern that is, say, linearly recursive, we are speaking about how the process evolves, not about the syntax of how a procedure is written. It may seem disturbing that we refer to a recursive procedure such as fact-iter as generating an iterative process. However, the process really is iterative: Its state is captured completely by its three state variables, and an interpreter need keep track of only three variables in order to execute the process.
+      #+END_QUOTE
 
-**** ~trace~ builtin
-     The [[https://www.gnu.org/software/guile/manual/html_node/Tracing-Traps.html][trace builtin]] is a tool for printing the procedure call trace from
-     within the Guile VM and is incredibly useful. Scheme implementations
-     elsewhere have similar builtins.
+      I think it is Abelson who is the exception here, but it's worth noting!
+
+***** ~trace~ builtin
+      The [[https://www.gnu.org/software/guile/manual/html_node/Tracing-Traps.html][trace builtin]] is a tool for printing the procedure call trace from
+      within the Guile VM and is incredibly useful. Scheme implementations
+      elsewhere have similar builtins.
+***** ↦ Symbol
+      ↦ (pronounced “maps to”) is the mathematician’s way of writing lambda. y↦x/y
+      means =(lambda (y) (/ x y))=, that is, the function whose value at y is x/y.
 
 *** Chapter 2
     This chapter is broadly concerned with the generality and principles of
