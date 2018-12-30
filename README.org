@@ -82,11 +82,12 @@
       "translated" to a number of non-lisp languages including: [[http://www-inst.eecs.berkeley.edu/~cs61a/sp12/][Python]],
       [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Javascript]] and others.
 
-      If you want to do SICP in another language it is possible possible (if
-      slightly unhinged). You will greatly suffer if your choice doesn't support
-      lexical closures, first-class functions and other features typical of
-      newer lisps. You may even get a message *entirely* different from the one
-      the authors tried to convey.
+      If you want to do SICP in another language it's possible (if slightly
+      unhinged) to do so. You will greatly suffer if your choice doesn't support
+      lexical closures, first-class functions and it may be the conceit of a
+      lisp-less SICP is plainly dangerous as you will walk away with a message
+      subtly, perhaps insidiously, different from the one the authors tried to
+      convey.
 
       Caveat Emptor.
 
