@@ -810,3 +810,27 @@ prime to n (i.e., all positive integers i < n such that GCD (i, n) = 1). |#
 (define (1.33/coprimes n)
   (1.33/filtered-accumulate * 1 identity 1 inclb (λ i) (= 1 (gcd i n))))
 
+
+#| Exercise 1.34
+Suppose we define the procedure
+
+        (define (f g) (g 2))
+
+Then we have
+
+        (f square)
+        4
+
+        (f (lambda (z) (* z (+ z 1))))
+        6
+
+What happens if we (perversely) ask the interpreter to evaluate the
+combination (f f)?
+
+Explain. |#
+
+
+#| Answer:
+
+Infinite Loop |#
+
