@@ -50,18 +50,20 @@
      Emacs in this regard.
 
 **** Language
-     SICP avoids implementation-dependent behavior and often won't show the
-     results of functions whose behavior differs between implementations. Still,
-     SICP has often been done with [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]] while many have used other
-     Schemes, Lisps and languages pretending to be both. I've seen some of the
-     following used and have tried to approximate their fitness for the task
-     with some features I've found useful:
+     SICP avoids implementation-dependent behavior and, by happy coincidence,
+     doesn't indicate the result of functions whose behavior differs between
+     implementations. Still, SICP is intended to be done with [[https://www.gnu.org/software/mit-scheme/][MIT Scheme]].
 
-     + Object systems are tremendously useful in chapter 3 particularly.
-     + Function 'redefinition' is extremely useful and practically required if you want to write your code literately.
-     + A few subchapters of Chapter 3 require a 'real' concurrency system in order to tell if you are doing the right things
-     + Several chapters more-or-less require mutable lists. Languages like Racket do /have/ mutable lists but use different method names and so will require you rewrite some code from the book.
-     + Some chapters, such as those pertaining to the evaluator, are made much easier with the introduction of tests beyond ~assert~.
+     Many readers have used other other Schemes, Lisps and languages pretending
+     to be both quite successfully. I've seen some of the following used and
+     have tried to approximate their fitness for the task with some features
+     I've found useful:
+
+     + SICP builds an OOP system, but a proper object system is tremendously useful throughout the book.
+     + Function 'redefinition' is extremely useful required if you want to write your code in a linear fashion.
+     + A few subchapters of Chapter 3 require facilities for parallel computation.
+     + Several chapters require mutable lists. Languages like Racket do /have/ mutable lists but use different method names and so will require you rewrite some code from the book.
+     + The evaluator chapters (and others), are made much easier with the introduction of tests beyond ~assert~.
 
      | Language  | Ease | Unit Tests | Native OOP | Function Redefinition | ~set!~ | Notes                                                                               |
      |-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
@@ -71,8 +73,8 @@
      | LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
      | Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
 
-     I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://www.call-cc.org/][Chicken Scheme]], both
-     I've heard are servicable.
+     I've left out two very popular choices: [[https://common-lisp.net/][Common Lisp]] and [[https://www.call-cc.org/][Chicken Scheme]],
+     both I've heard are servicable.
 
 ***** Using a Non-Lisp?
       The original SICP stresses the importance of Scheme's simple syntax.
