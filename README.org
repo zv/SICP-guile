@@ -75,23 +75,16 @@
      I've heard are servicable.
 
 ***** Using a Non-Lisp?
-      Some online commentators have described SICP as stressing homoiconicity,
-      but if such emphasis exists I couldn't detect it (although the concept
-      /itself/ is referenced obliquely).
+      The original SICP stresses the importance of Scheme's simple syntax.
+      Still, because of this book's extraordinary influence, it's been
+      "translated" to a number of non-lisp languages including: [[http://www-inst.eecs.berkeley.edu/~cs61a/sp12/][Python]],
+      [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Javascript]] and others.
 
-      It is completely possible (if unhinged) to do SICP in a language like
-      Javascript or Ruby. I personally have reimplemented several challenges in
-      JS and did get a dash of enlightenment that can be very remote in
-      Javascript (as well as learning something /about/ JS that few JS textbooks
-      teach).
-
-      Chapter 4's implementation would be the first major hurdle for a nonlisp
-      effort, fortunately [[http://www.comp.nus.edu.sg/~cs1101s/sicp/][Martin Henz has rewritten virtually the entire book to
-      accommodate Javascript.]] Others have used techniques solely from an earlier
-      chapters to write Sexp parsers to write a Scheme interpreter inside JS.
-
-      All of this carries the risk of getting *completely* different message than the
-      book intended to convey.
+      If you want to do SICP in another language it is possible possible (if
+      slightly unhinged). You will greatly suffer if your choice doesn't support
+      lexical closures, first-class functions and other features typical of
+      newer lisps. You may even get a message *entirely* different from the one
+      the authors tried to convey.
 
       Caveat Emptor.
 
