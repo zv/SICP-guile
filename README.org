@@ -1,35 +1,70 @@
 * Structure and Interpretation of Computer Programs
+  Structure and Interpretation of Computer Progams (SICP) is a classic of
+  computer science, has been for more than two decades, and will remain so for
+  many more. Despite it's age, most every word in it is still as applicable
+  today as the day it was first put to paper.
+
+  This repository includes answers to a bit more than 90% of the book's 360-some
+  exercises as well as material intended to help others get an idea of how to
+  begin with the book, avoid many common pitfalls as they continue, and review
+  interesting secondary material along the way.
+
 ** Why?
-   SICP has been a great classic of computer science for more than two decades
-   and is likely to remain so for many more. Its reputation has grown
-   throughout the 90s and continued to do so 'posthumously': the 6.001 course
-   (which SICP served as the textbook of) is now a Python oriented course to
-   accommodate shifting computing trends. SICP's broad strokes remain as vibrant
-   as the day it was written however. The real soul of this book is in its
-   exercises: a powerful graphics language, a computer algebra system, a Scheme
-   and "JIT" evaluator, a Prolog-like langauge and more. This expansive coverage
-   of so many topics of computing spawned a long tradition of hackers studying
-   it and writing solutions to its exercises.
+   It's likely that you've ended up on this page precisely because you don't
+   need much persuading on the merits of the book, but I've included some famous
+   comments on the book from internet authority figures to help seal the case:
 
-   An exhaustive reading of the book was unlikely for its target audience. SICP
-   contains statements and source code that are redundant or ambiguous. Asking
-   readers to consider code and structures whose details are described in
-   principle, only later introducing their implementation. This pedagogical
-   approach is maybe more sensible in the lecture hall, but is inefficient for
-   the enthusiast.
+   #+BEGIN_QUOTE
+   ... I bought my first copy 15 years ago, and I still don't feel I have
+   learned everything the book has to teach. I have learned enough to write a
+   couple books on Lisp that (currently) have four to five stars. Yet SICP,
+   which is pretty much the bible of our world, has only three? How can this be?
+   Reading the reviews made it clear what happened. An optimistic professor
+   somewhere has been feeding SICP to undergrads who are not ready for it. But
+   it is encouraging to see how many thoughtful people have come forward to
+   defend the book. Let's see if we can put this in terms that the undergrads
+   will understand -- a problem set:
 
-   SICP makes it your responsibility to learn what the book has to teach, and
-   part of that duty is ensuring you'll actually finish it by eliminating the
-   details like dredging its contents to clarify a remark or realizing in
-   hindsight that a few minutes when starting a chapter could've saved hours
-   down the road.
+   1. Kenneth Clark said that if a lot of smart people have liked something that
+      you don't, you should try and figure out what they saw in it. List 10 qualities
+      that SICP's defenders have claimed for it.
+   2. How is the intention of SICP different from that of Knuth? Kernighan & Ritchie? 
+      An algorithms textbook?
+   3. Does any other book fulfill this purpose better?
+   4. What other programming books first published in the mid 1980s are still 
+      relevant today?
+   5. Could the concepts in this book have been presented any better in a language 
+      other than Scheme?
+   6. Who is al? Why is his name in lowercase?
 
-   If you get *absolutely* stuck, this repository also contains unique solutions to
-   almost all of the exercises in Guile & PLT Scheme.
+   --  Paul Graham
+   #+END_QUOTE
 
-   If you are interested in exploit writing, assembly or reverse engineering
-   "proper" you can also check out my "[[http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118787315,subjectCd-CSJ0.html][Practical Reverse Engineering w/ x86 and the
-   Windows Kernel]]" study guide and solutions as well.
+   The work isn't just admired in industry, one of the most famous computer
+   scientists gave it high marks as well:
+
+   #+BEGIN_QUOTE
+   Those who hate SICP think it doesn't deliver enough tips and tricks for the
+   amount of time it takes to read. But if you're like me, you're not looking
+   for one more trick, rather you're looking for a way of synthesizing what you
+   already know, and building a rich framework onto which you can add new
+   learning over a career. That's what SICP has done for me. I read a draft
+   version of the book around 1982, when I was in grad school, and it changed
+   the way I think about my profession. If you're a thoughtful computer
+   scientist (or want to be one), it will change your life too.
+
+   -- Peter Norvig
+   #+END_QUOTE
+
+   A tour of some of the most interesting concepts of computing, foundations of
+   the tools we use every day, a way to begin "/building a rich framework for
+   which you can add new learning over a career/", a book for which "/none
+   others fulfill it's purpose better/", and a genuinely good time too. It's
+   free too!
+
+   You won't get much out of the book if you just read it cover-to-cover
+   however. SICP makes it your responsibility to learn what the book has to
+   teach by doing the exercises - the true "soul" of the book.
 
 ** How To Do It
 **** Getting It
