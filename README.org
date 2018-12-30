@@ -223,56 +223,57 @@
     This is quite a broad brush and in turn the chapter doesn't stay put in one
     place for long.
 
-    Some topics:
+****  Chapter Review 
 
-    - Abstractions for arithmetic
-      - Rationals
-      - Interval
-    - Representing lists & trees with =cons= cells or pointers
-    - More advanced uses of recursion
-      - The 8 Queens Problem
-      - Permuting numbers
-    - Building a picture-drawing 'language' or library
-      - The mechanics of graphics
-      - Encoding higher order operations on graphics into lower-order actions
-    - Lambda calculus
-    - Symbolic Computation
-      - Computer algebra systems with automatic integration & differentiation
-    - Encoding, Decoding and everything in-between for Huffman Trees.
-    - The universality of the ~(list)~ datastructure in Lisp
-    - Dynamic Programming and hierarchical data structures
-    - Different ways to achieve language features like type-dispatch, message passing and inheritance
+     - Abstractions for arithmetic
+       - Rationals
+       - Interval
+     - Representing lists & trees with =cons= cells or pointers
+     - More advanced uses of recursion
+       - The 8 Queens Problem
+       - Permuting numbers
+     - Building a picture-drawing 'language' or library
+       - The mechanics of graphics
+       - Encoding higher order operations on graphics into lower-order actions
+     - Lambda calculus
+     - Symbolic Computation
+       - Computer algebra systems with automatic integration & differentiation
+     - Encoding, Decoding and everything in-between for Huffman Trees.
+     - The universality of the ~(list)~ datastructure in Lisp
+     - Dynamic Programming and hierarchical data structures
+     - Different ways to achieve language features like type-dispatch, message passing and inheritance
 
-    This book starts to give you a few nuggets of profound realization that the book
-    is known for. It gets even better.
+     This book starts to give you a few nuggets of profound realization that the book
+     is known for. It gets even better.
 
-**** 2.3 Symbolic Data
-     If you are determined to speed through SICP, I would recommend taking your
-     time reading chapter 2.3. I, along with many others, have highlighted the
-     the Huffman Coding material in Chapter 2.3.4.
+**** Notes
+***** 2.3 Symbolic Data
+      If you are determined to speed through SICP, I would recommend taking your
+      time reading chapter 2.3. I, along with many others, have highlighted the
+      the Huffman Coding material in Chapter 2.3.4.
 
-     - Symbolic Calculator by Integration & Differentiation
-     - Variety of binary trees and set data structures
-     - Huffman encoder/decoder
+      - Symbolic Calculator by Integration & Differentiation
+      - Variety of binary trees and set data structures
+      - Huffman encoder/decoder
 
-     Although not as well known, there is a function that generates an
-     automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while
-     its inversion is apparently a requirement for getting a job at Google]], the
-     method is also genuinely beautiful - a personal favorite of mine.
+      Although not as well known, there is a function that generates an
+      automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while
+      its inversion is apparently a requirement for getting a job at Google]], the
+      method is also genuinely beautiful - a personal favorite of mine.
 
-**** 2.4 - Multiple Representation of Abstract Data
-     This chapter covers the tactics of abstraction. Ways to equipt 'structure'
-     with operations (both of the C variety and a more abstract one) while
-     retaining 'genericity'.
+***** 2.4 - Multiple Representation of Abstract Data
+      This chapter covers the tactics of abstraction. Ways to equipt 'structure'
+      with operations (both of the C variety and a more abstract one) while
+      retaining 'genericity'.
 
-     It's at once the least memorable and yet possibly the *most* important for
-     practice of programming at large. The chapter justifies and presents
-     simplified summaries of the implementation details of important programming
-     language features and why they are useful.
+      It's at once the least memorable and yet possibly the *most* important for
+      practice of programming at large. The chapter justifies and presents
+      simplified summaries of the implementation details of important programming
+      language features and why they are useful.
 
-     There are only 4 exercises, so you can mostly relax and focus on the
-     content, although both /2.73/ and /2.75/ show up later, so be sure you
-     record your answers.
+      There are only 4 exercises, so you can mostly relax and focus on the
+      content, although both /2.73/ and /2.75/ show up later, so be sure you
+      record your answers.
 
 *** Chapter 3
     This chapter is the end of standard computing textbook and the beginning of
