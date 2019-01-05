@@ -1,4 +1,6 @@
 ;; -*- mode: scheme; fill-column: 75; comment-column: 50; coding: utf-8; geiser-scheme-implementation: guile -*-
+
+;; Chapter 1 of SICP
 (use-modules (ice-9 format))
 (use-modules (srfi srfi-41))
 
@@ -21,6 +23,39 @@
 (define (average n m) (/ (+ n m) 2))
 (define (double x) (+ x x))
 
+(define (identity x) x)
+
+(define tolerance 0.00001)
+
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(define (average-damp f)
+  (lambda (x)
+    (average x (f x))))
+
+(define dx 0.000001)
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x)
+            ((deriv g) x)))))
+
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g)
+               guess))
 
 
 #| Exercise 1.1
@@ -995,8 +1030,6 @@ procedure that takes as arguments f, a, b , and n and returns the value
 of the integral, computed using Simpson’s Rule. Use your procedure to
 integrate cube between 0 and 1 (with n = 100 and n = 1000 ), and compare
 the results to those of the integral procedure shown above. |#
-
-(define (identity x) x)
 
 (define (sum term a next b)
   (if (> a b)
