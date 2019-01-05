@@ -1322,3 +1322,19 @@ as in *Note Exercise 1.37 |#
              (λ (i) (- (* i 2) 1.0))
              k))
 
+
+#| Exercise 1.40
+Define a procedure cubic that can be used together with the newtons-method
+procedure in expressions of the form
+
+    (newtons-method (cubic a b c) 1)
+
+to approximate zeros of the cubic x³+ax²+bx+c. |#
+
+(define (cubic a b c)
+  (λ (x)
+    (+ (* x x x)
+       (* a (* x x))
+       (* b x)
+       c)))
+
