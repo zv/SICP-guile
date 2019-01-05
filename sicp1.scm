@@ -1214,3 +1214,70 @@ without average damping. (Note that you cannot start fixed-point with a
 guess of 1, as this would cause division by log(1)=0.)
 |#
 
+
+#| Exercise 1.37
+a. An infinite "continued fraction" is an expression of the form
+
+                  N_1
+        f = ---------------------
+                      N_2
+            D_1 + ---------------
+                          N_3
+                  D_2 + ---------
+                        D_3 + ...
+
+  As an example, one can show that the infinite continued
+  fraction expansion with the Nᵢ and the Dᵢ all equal to 1
+  produces 1/φ, where φ is the golden ratio (described
+  in section *Note 1.2.2).  One way to approximate an
+  infinite continued fraction is to truncate the expansion
+  after a given number of terms.  Such a truncation--a
+  so-called finite continued fraction "k-term finite continued
+  fraction"--has the form
+
+              N_1
+        -----------------
+                  N_2
+        D_1 + -----------
+              ...    N_K
+                  + -----
+                    D_K
+
+  Suppose that `n' and `d' are procedures of one argument (the
+  term index i) that return the Nᵢ and Dᵢ of the terms of the
+  continued fraction.  Define a procedure `cont-frac' such that
+  evaluating `(cont-frac n d k)' computes the value of the
+  k-term finite continued fraction.  Check your procedure by
+  approximating 1/φ using
+
+        (cont-frac (lambda (i) 1.0)
+                  (lambda (i) 1.0)
+                  k)
+
+  for successive values of `k'.  How large must you make `k' in
+  order to get an approximation that is accurate to 4 decimal
+  places?
+
+b. If your `cont-frac' procedure generates a recursive process,
+  write one that generates an iterative process.  If it
+  generates an iterative process, write one that generates a
+  recursive process. |#
+
+#| Answer:
+`k' must be 10 or higher in order to print 1/phi correctly. |#
+
+(define (1.37/cont-frac-recursive n d kth)
+  (define (nth-continuation nth)
+    (if (> nth kth) (d nth)
+        (/ (n nth)
+           (+ (d nth) (nth-continuation (inc nth))))))
+  (nth-continuation 1))
+
+(define (1.37/cont-frac-iter n d kth)
+  (define (nth-continuation nth acc)
+    (if (> nth kth) acc
+        (nth-continuation (inc nth)
+                          (/ (n nth) (+ (d nth) acc)))))
+  (nth-continuation 1 0))
+
+(define cont-frac 1.37/cont-frac-iter)
