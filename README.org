@@ -927,3 +927,9 @@
 type-inference without ANY instructions specified? Turns out thats actually
 fairly simple and you are just going to have to read the whole thing to find
 ou.
+
+* Special Thanks
+  This guide would never have goten done without the inspiration (almost a decade
+  ago!) by a guy named @TurtleKitty. In addition to turning me onto Lisp, he was
+  extremely patient, highly elite, drenched with cool and who will forever
+  embody the true spirit this book is meant to convey.
