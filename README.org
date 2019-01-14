@@ -28,12 +28,12 @@
    1. Kenneth Clark said that if a lot of smart people have liked something that
       you don't, you should try and figure out what they saw in it. List 10 qualities
       that SICP's defenders have claimed for it.
-   2. How is the intention of SICP different from that of Knuth? Kernighan & Ritchie? 
+   2. How is the intention of SICP different from that of Knuth? Kernighan & Ritchie?
       An algorithms textbook?
    3. Does any other book fulfill this purpose better?
-   4. What other programming books first published in the mid 1980s are still 
+   4. What other programming books first published in the mid 1980s are still
       relevant today?
-   5. Could the concepts in this book have been presented any better in a language 
+   5. Could the concepts in this book have been presented any better in a language
       other than Scheme?
    6. Who is al? Why is his name in lowercase?
 
@@ -255,7 +255,7 @@
     This is quite a broad brush and in turn the chapter doesn't stay put in one
     place for long.
 
-****  Chapter Review 
+****  Chapter Review
 
      - Abstractions for arithmetic
        - Rationals
@@ -294,11 +294,11 @@
       I found the material in section 2.3, especially related to Huffman Coding,
       notably elegant, although it covers a wider variety of topics, each
       interesting in it's own right.
-      
+
       - Symbolic Calculator by Integration & Differentiation
       - Variety of binary trees and set data structures
       - Huffman encoder/decoder
-       
+
       You will also have the advantage of being able to implement =partial-tree=
       [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and get a job at Google]]. The method is also genuinely beautiful - a
       personal favorite of mine.
@@ -347,19 +347,19 @@
       Here's some example S-expressions with their corresponding diagram:
 
 ****** =(1 2 3)=
-     #+NAME:   fig:(cons (cons 1 2) (cons 3 4))
-     #+CAPTION: (1 2 3)
-     [[./vendor/cons_123.png]]
+       #+NAME:   fig:(cons (cons 1 2) (cons 3 4))
+       #+CAPTION: (1 2 3)
+       [[./vendor/cons_123.png]]
 
 ****** =(cons (cons 1 2) (cons 3 4))=
-     #+NAME:   fig:(cons (cons 1 2) (cons 3 4))
-     #+CAPTION: (cons (cons 1 2) (cons 3 4))
-     [[./vendor/cons12cons34.png]]
+       #+NAME:   fig:(cons (cons 1 2) (cons 3 4))
+       #+CAPTION: (cons (cons 1 2) (cons 3 4))
+       [[./vendor/cons12cons34.png]]
 
 ****** Cycles:
-     #+NAME:   fig: cons with cycle
-     #+CAPTION: Cons with Cycle
-     [[./vendor/cons_with_cycle.png]]
+       #+NAME:   fig: cons with cycle
+       #+CAPTION: Cons with Cycle
+       [[./vendor/cons_with_cycle.png]]
 
 ***** Script
       #+BEGIN_SRC scheme
@@ -528,297 +528,305 @@
     reputation, and what makes the effort worthwhile. But it could have been better.
     #+END_QUOTE
 
-    You'll accomplish the following here:
+**** Chapter Review
+     - Simple Evaluator
+       - Implement a variable-only '/stack/' without stored function pointers.
+       - Implement Type-Dispatching Evaluator
+       - Implement all major features of scheme used thus far
+         - Various forms of ~let~
+         - ~letrec~
+         - ~cond~
+         - Predicates
+         - etc.
+       - Simultaneous vs. Ordered ~define~
+       - The Implementation of Closures
+     - Just-in-Time Interpreter/Compiler (the 'analyzer')
+       - Challenges of a JIT
+     - Lazy Evaluator
+       - Differences between lazy variables and a lazy interpreter
+       - Relationship to the promise functions ~force~ and ~delay~
+       - Build a model of side-effects in lazy (or otherwise) evaluators
+       - Implementation and use of '[[https://en.wikipedia.org/wiki/Thunk][thunks]]'
+       - Permitting choice by adding lazy features to basic eval
+     - "Nondeterministic" & Logic Evaluator
+       - Apply our earlier DFS with backtracking knowledge to build logic solvers
+       - Implement a system of closures for tracking logic unification state
+       - Understanding rule-oriented (as opposed to procedure-oriented) computing
+       - Simplify problems to their essential logical form (and solve them)
+       - Implementation of 'Pattern Matching' ala Erlang
+       - A "true" parser
+         - Specify a grammar for natural language
+         - ...and then writing something that emits all possible sentences
+       - Use a random evaluator to explore choices in a truly nondeterministic fashion
+**** Tips
+***** Functional-First Approach
+      Some evaluator exercises occur prior to their implementation, most frequently
+      taking the following form:
 
-    - Simple Evaluator
-      - Implement a variable-only '/stack/' without stored function pointers.
-      - Implement Type-Dispatching Evaluator
-      - Implement all major features of scheme used thus far
-        - Various forms of ~let~
-        - ~letrec~
-        - ~cond~
-        - Predicates
-        - etc.
-      - Simultaneous vs. Ordered ~define~
-      - The Implementation of Closures
-    - Just-in-Time Interpreter/Compiler (the 'analyzer')
-      - Challenges of a JIT
-    - Lazy Evaluator
-      - Differences between lazy variables and a lazy interpreter
-      - Relationship to the promise functions ~force~ and ~delay~
-      - Build a model of side-effects in lazy (or otherwise) evaluators
-      - Implementation and use of '[[https://en.wikipedia.org/wiki/Thunk][thunks]]'
-      - Permitting choice by adding lazy features to basic eval
-    - "Nondeterministic" & Logic Evaluator
-      - Apply our earlier DFS with backtracking knowledge to build logic solvers
-      - Implement a system of closures for tracking logic unification state
-      - Understanding rule-oriented (as opposed to procedure-oriented) computing
-      - Simplify problems to their essential logical form (and solve them)
-      - Implementation of 'Pattern Matching' ala Erlang
-      - A "true" parser
-        - Specify a grammar for natural language
-        - ...and then writing something that emits all possible sentences
-      - Use a random evaluator to explore choices in a truly nondeterministic fashion
+      1. Talk about the motivation and abstract concepts employed by an evaluator
+      2. Discuss Implementation
+      3. Exercises asking for implementation of various features
+      4. Actual scheme code defining the implementation
 
+      Instead of following the book linearly, I think that having a working
+      implementation is extremely important throughout the book, so I'd recommend you
+      include the entire evaluator prior to completing exercises related to it. [[https://mitpress.mit.edu/sicp/code/index.html][The
+      Complete Code from SICP 2/e]] is available and can be used directly if you are
+      using a mainline scheme distribution.
 
-**** Functional-First Approach
-     Some evaluator exercises occur prior to their implementation, most frequently
-     taking the following form:
+***** Testing
+      Starting with a testing strategy is essential to preserving sanity here; I
+      recommend using the input → result REPL 'dialogues' listed in the text to ensure
+      that you are conforming to the features that the authors expect you to use in the
+      coming exercises.
 
-     1. Talk about the motivation and abstract concepts employed by an evaluator
-     2. Discuss Implementation
-     3. Exercises asking for implementation of various features
-     4. Actual scheme code defining the implementation
-
-     Instead of following the book linearly, I think that having a working
-     implementation is extremely important throughout the book, so I'd recommend you
-     include the entire evaluator prior to completing exercises related to it. [[https://mitpress.mit.edu/sicp/code/index.html][The
-     Complete Code from SICP 2/e]] is available and can be used directly if you are
-     using a mainline scheme distribution.
-
-**** Testing
-     Starting with a testing strategy is essential to preserving sanity here; I
-     recommend using the input → result REPL 'dialogues' listed in the text to ensure
-     that you are conforming to the features that the authors expect you to use in the
-     coming exercises.
-
-***** The Test Runner
-      The default Guile test runner will output a =.log= file to your current directory
-      instead of printing errors to =stdout=. This is an example test-runner that allows
-      for more immediate testing.
-
-      #+BEGIN_SRC scheme
-(use-modules (srfi srfi-64))
-(define (sicp-evaluator-runner)
-  (let* ((runner (test-runner-null))
-         (num-passed 0)
-         (num-failed 0))
-    (test-runner-on-test-end! runner
-      (lambda (runner)
-        (case (test-result-kind runner)
-          ((pass xpass) (set! num-passed (+ num-passed 1)))
-          ((fail xfail)
-           (begin
-             (let
-                 ((rez (test-result-alist runner)))
-               (format #t
-                       "~a::~a\n Expected Value: ~a | Actual Value: ~a\n Error: ~a\n Form: ~a\n"
-                       (assoc-ref rez 'source-file)
-                       (assoc-ref rez 'source-line)
-                       (assoc-ref rez 'expected-value)
-                       (assoc-ref rez 'actual-value)
-                       (assoc-ref rez 'actual-error)
-                       (assoc-ref rez 'source-form))
-               (set! num-failed (+ num-failed 1)))))
-          (else #t))))
-    (test-runner-on-final! runner
-      (lambda (runner)
-        (format #t "Passed: ~d || Failed: ~d.~%"
-                num-passed num-failed)))
-    runner))
-
-(test-runner-factory
- (lambda () (sicp-evaluator-runner)))
-      #+END_SRC
-
-***** ~test-eval~ Macro
-      This simple macro allows you to directly extract the expected/result pairs from
-      the REPL excerpts.
-      #+BEGIN_SRC scheme
- ;; Standard Evaluator Tests
-(define-syntax test-eval
-  (syntax-rules (=> test-environment test-equal)
-    ((test-eval expr =>)
-     (syntax-error "no expect statement"))
-    ((test-eval expr => expect)
-     (test-eqv  expect (test-evaluator 'expr test-environment)))
-    ((test-eval expr expect)
-     (test-eqv  expect (test-evaluator 'expr test-environment)))))
-      #+END_SRC
-
-***** Unit Tests
-      Now just add tests! The next section of this guide will show you how to
-      automatically run tests at sensible points as part of the ~driver-loop~.
-
-      #+BEGIN_SRC scheme
-(test-begin "Tests") ; Begin our tests
-(test-begin "Evaluator") ; Begin evaluator tests
-(test-begin "Basic") ; The basic (4.1) evaluator
-(define test-environment (setup-environment)) ; Initialize the test environment
-(define test-evaluator eval) ; Set the evaluator you wish to use
-
-;; You can choose to use `=>' or not
-(test-eval (and 1 2) => 2)
-
-(test-eval
- (let fib-iter ((a 1) (b 0) (count 4))
-   (if (= count 0) b
-       (fib-iter (+ a b) a (- count 1))))
- => 3)
-
-;; cleanup
-(set! test-environment '())
-
-(test-end "Basic")
-(test-end "Evaluator")
-(test-end "Tests")
-      #+END_SRC
-
-**** Code Reuse
-
-***** Evaluator
-      Features common to
-      - An evaluator function driven by a switch statement
-      - An application function that extends the frame
-      - A driver loop that makes both accessible in the form of a REPL
-
-****** Type-dispatch for the core evaluator switch statement
-       [[http://sarabander.github.io/sicp/html/4_002e1.xhtml#Exercise-4_002e3][Exercise 4.3]] asks you to implement a type-dispatch scheme for the base
-       evaluator, allowing you to incrementally introduce functionality rather than
-       rewrite ~eval~ with each new feature. This turns out to be very useful
-       and I wrote all my evaluators in this style.
-
-       The concept is demonstrated here:
+****** The Test Runner
+       The default Guile test runner will output a =.log= file to your current directory
+       instead of printing errors to =stdout=. This is an example test-runner that allows
+       for more immediate testing.
 
        #+BEGIN_SRC scheme
-(define-class <dispatch-table> ()
-  (method-table #:init-value  (make-hash-table)
-                #:getter      method-table))
+ (use-modules (srfi srfi-64))
+ (define (sicp-evaluator-runner)
+   (let* ((runner (test-runner-null))
+          (num-passed 0)
+          (num-failed 0))
+     (test-runner-on-test-end! runner
+       (lambda (runner)
+         (case (test-result-kind runner)
+           ((pass xpass) (set! num-passed (+ num-passed 1)))
+           ((fail xfail)
+            (begin
+              (let
+                  ((rez (test-result-alist runner)))
+                (format #t
+                        "~a::~a\n Expected Value: ~a | Actual Value: ~a\n Error: ~a\n Form: ~a\n"
+                        (assoc-ref rez 'source-file)
+                        (assoc-ref rez 'source-line)
+                        (assoc-ref rez 'expected-value)
+                        (assoc-ref rez 'actual-value)
+                        (assoc-ref rez 'actual-error)
+                        (assoc-ref rez 'source-form))
+                (set! num-failed (+ num-failed 1)))))
+           (else #t))))
+     (test-runner-on-final! runner
+       (lambda (runner)
+         (format #t "Passed: ~d || Failed: ~d.~%"
+                 num-passed num-failed)))
+     runner))
 
-(define (table-ordinal op type)
-  (let ((opstr  (symbol->string op))
-        (typestr (symbol->string type)))
-    (string-append opstr "/" typestr)))
-
-(define-method (get (dt <dispatch-table>) op type)
-  (if (and (symbol? op) (symbol? type))
-      (hash-ref (method-table dt) (table-ordinal op type))
-      #f))
-
-(define-method (put (dt <dispatch-table>) op type item)
-  (hash-set! (method-table dt) (table-ordinal op type) item))
-
-(define dispatch-tt (make <dispatch-table>))
-
-(define (install-procedure p)
-  "Install a procedure to the base evaluator"
-  (put dispatch-tt 'eval ; instead of 'eval
-                   (car p)
-                   (cadr p))
-
-...
-
-(install-procedure `(and ,eval-and))
-
-(install-procedure `(let* ,(λ (exp env) (zeval (let*->nested-lets exp) env))))
-
-(install-procedure `(undefine ,eval-undefinition))
-
-(install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
+ (test-runner-factory
+  (lambda () (sicp-evaluator-runner)))
        #+END_SRC
 
-****** Driver Loops
-       Just as you dispatched a procedure specific to an evaluator above, you can do
-       the same with the ~driver-loop~ implementation provided to each evaluator.
+****** ~test-eval~ Macro
+       This simple macro allows you to directly extract the expected/result pairs from
+       the REPL excerpts.
+       #+BEGIN_SRC scheme
+  ;; Standard Evaluator Tests
+ (define-syntax test-eval
+   (syntax-rules (=> test-environment test-equal)
+     ((test-eval expr =>)
+      (syntax-error "no expect statement"))
+     ((test-eval expr => expect)
+      (test-eqv  expect (test-evaluator 'expr test-environment)))
+     ((test-eval expr expect)
+      (test-eqv  expect (test-evaluator 'expr test-environment)))))
+       #+END_SRC
 
-       1. You'll want to be able to quickly switch the evaluator invoked by ~driver-loop~ as you progress through the chapter and later chapters have a radically different loop.
-       2. [[http://www.nongnu.org/geiser/][Geiser]] is a very popular scheme integration module for Emacs Lisp that you will probably use. Like many IDE-integrated IDE's it doesn't deal well with a program that requests user input on =stdin=.
-       3. You can share more code, even between radically different implementations.
-
-       My approach is simple - add an entry to a table of ~driver-loop~ implementations
-       which are chosen at runtime.
+****** Unit Tests
+       Now just add tests! The next section of this guide will show you how to
+       automatically run tests at sensible points as part of the ~driver-loop~.
 
        #+BEGIN_SRC scheme
-;; This function is what actually gets called to invoke your evaluator's REPL
-(define (driver-loop evaluator)
-  ((get dispatch-tt 'driver-loop evaluator)))
+ (test-begin "Tests") ; Begin our tests
+ (test-begin "Evaluator") ; Begin evaluator tests
+ (test-begin "Basic") ; The basic (4.1) evaluator
+ (define test-environment (setup-environment)) ; Initialize the test environment
+ (define test-evaluator eval) ; Set the evaluator you wish to use
 
-(define (install-driver-loop evaluator fn)
-  "Install a new `driver-loop' REPL"
-  (put dispatch-tt 'driver-loop evaluator fn))
+ ;; You can choose to use `=>' or not
+ (test-eval (and 1 2) => 2)
 
-; base evaluator implementation from 4.14
-(define (base-driver-loop)
-  (prompt-for-input ";;; Base(zeval) input:")
-  (let ((input (read)))
-    (let ((output
-           (zeval input
-                 the-global-environment)))
-      (announce-output output-prompt)
-      (user-print output)))
-  (base-driver-loop))
+ (test-eval
+  (let fib-iter ((a 1) (b 0) (count 4))
+    (if (= count 0) b
+        (fib-iter (+ a b) a (- count 1))))
+  => 3)
 
-;; install the base driver loop
-(install-driver-loop 'eval base-driver-loop)
+ ;; cleanup
+ (set! test-environment '())
 
-(define inside-repl?
-  "A method to determine if we are inside a REPL or being executed directly"
-  (eq? #f (assq-ref (current-source-location) 'filename)))
-
-...
-
-;; at the end of the file, you can specify which loop you want to invoke when
-;; you run.
-(if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
-    (begin
-      ;; load our tests
-      (load "test/evaluator.scm")
-      ;; start the REPL
-      (driver-loop 'amb)))
-;;; EOF
+ (test-end "Basic")
+ (test-end "Evaluator")
+ (test-end "Tests")
        #+END_SRC
 
-**** Missing Functions
-     Many code excerpts from the text cannot be directly used in the evaluator
-     /provided/ by the book itself. Before you initialize your evaluators environment,
-     be sure to add the following to your ~primitive-procedures~
+***** Code Reuse
 
-     #+BEGIN_SRC lisp
-(append! primitive-procedures
-         `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
-           (= ,=) (< ,<) (<= ,<=) (> ,>) (> ,>=)
-           (not ,not)
-           (list ,list)
-           (member ,member)
-           (display ,display)))
-     #+END_SRC
+****** Evaluator
+       Features common to
+       - An evaluator function driven by a switch statement
+       - An application function that extends the frame
+       - A driver loop that makes both accessible in the form of a REPL
 
-     Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
-     one used by the ~analyze~ evaluator.
+******* Type-dispatch for the core evaluator switch statement
+        [[http://sarabander.github.io/sicp/html/4_002e1.xhtml#Exercise-4_002e3][Exercise 4.3]] asks you to implement a type-dispatch scheme for the base
+        evaluator, allowing you to incrementally introduce functionality rather than
+        rewrite ~eval~ with each new feature. This turns out to be very useful
+        and I wrote all my evaluators in this style.
 
-**** 4.3 - Variations on a Scheme
-     The `amb` evaluator presented in 4.3 is far from simple and requires patience and
-     an eye for detail to work out whats really going on.
+        The concept is demonstrated here:
 
-**** 4.4 - Query Evaluator
-     The query evaluator may be the most difficult material yet, particularly if you
-     aren't previously familiar with a language like Prolog.
+        #+BEGIN_SRC scheme
+ (define-class <dispatch-table> ()
+   (method-table #:init-value  (make-hash-table)
+                 #:getter      method-table))
 
-     This material requires very careful reading to grasp its operation and the book
-     frequently spends more time on its consequences over its content.
+ (define (table-ordinal op type)
+   (let ((opstr  (symbol->string op))
+         (typestr (symbol->string type)))
+     (string-append opstr "/" typestr)))
 
-     If you want to grasp its implementation, you will have to read and reread
-     chapter 4.4.4.
+ (define-method (get (dt <dispatch-table>) op type)
+   (if (and (symbol? op) (symbol? type))
+       (hash-ref (method-table dt) (table-ordinal op type))
+       #f))
 
-     The unification step, which the book itself describes as the most unintuitive aspect,
-     should be read thoroughly: It's the material that actually does the process of generating
-     deductions from premises.
+ (define-method (put (dt <dispatch-table>) op type item)
+   (hash-set! (method-table dt) (table-ordinal op type) item))
 
-     It's also important to remember that much of the rest of the material is devoted to various
-     'optimizations' and implementation details that can easily derail you.
+ (define dispatch-tt (make <dispatch-table>))
 
-***** Missing Stuff
-****** Stack Overflows on Exercises
-       The query evaluator presented as is cannot compute rules of the form ~(?x rule
-       ?y)~ as many questions ask to, simply translate them to the postfix form and you
-       will be fine.
+ (define (install-procedure p)
+   "Install a procedure to the base evaluator"
+   (put dispatch-tt 'eval ; instead of 'eval
+                    (car p)
+                    (cadr p))
 
-       #+BEGIN_EXAMPLE
-(rule (?x next-to ?y in (?x ?y . ?u)))
-                ⇩
-(rule (next-to ?x ?y in (?x ?y . ?u)))
-       #+END_EXAMPLE
+ ...
 
+ (install-procedure `(and ,eval-and))
+
+ (install-procedure `(let* ,(λ (exp env) (zeval (let*->nested-lets exp) env))))
+
+ (install-procedure `(undefine ,eval-undefinition))
+
+ (install-procedure `(while ,(λ (exp env) (zeval (make-while exp) env))))
+        #+END_SRC
+
+******* Driver Loops
+        Just as you dispatched a procedure specific to an evaluator above, you can do
+        the same with the ~driver-loop~ implementation provided to each evaluator.
+
+        1. You'll want to be able to quickly switch the evaluator invoked by ~driver-loop~ as you progress through the chapter and later chapters have a radically different loop.
+        2. [[http://www.nongnu.org/geiser/][Geiser]] is a very popular scheme integration module for Emacs Lisp that you will probably use. Like many IDE-integrated IDE's it doesn't deal well with a program that requests user input on =stdin=.
+        3. You can share more code, even between radically different implementations.
+
+        My approach is simple - add an entry to a table of ~driver-loop~ implementations
+        which are chosen at runtime.
+
+        #+BEGIN_SRC scheme
+ ;; This function is what actually gets called to invoke your evaluator's REPL
+ (define (driver-loop evaluator)
+   ((get dispatch-tt 'driver-loop evaluator)))
+
+ (define (install-driver-loop evaluator fn)
+   "Install a new `driver-loop' REPL"
+   (put dispatch-tt 'driver-loop evaluator fn))
+
+ ; base evaluator implementation from 4.14
+ (define (base-driver-loop)
+   (prompt-for-input ";;; Base(zeval) input:")
+   (let ((input (read)))
+     (let ((output
+            (zeval input
+                  the-global-environment)))
+       (announce-output output-prompt)
+       (user-print output)))
+   (base-driver-loop))
+
+ ;; install the base driver loop
+ (install-driver-loop 'eval base-driver-loop)
+
+ (define inside-repl?
+   "A method to determine if we are inside a REPL or being executed directly"
+   (eq? #f (assq-ref (current-source-location) 'filename)))
+
+ ...
+
+ ;; at the end of the file, you can specify which loop you want to invoke when
+ ;; you run.
+ (if inside-repl? 'ready ;; we want the repl available ASAP if were inside emacs
+     (begin
+       ;; load our tests
+       (load "test/evaluator.scm")
+       ;; start the REPL
+       (driver-loop 'amb)))
+ ;;; EOF
+        #+END_SRC
+
+***** Missing Functions
+      Many code excerpts from the text cannot be directly used in the evaluator
+      /provided/ by the book itself. Before you initialize your evaluators environment,
+      be sure to add the following to your ~primitive-procedures~
+
+      #+BEGIN_SRC lisp
+ (append! primitive-procedures
+          `((+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs)
+            (= ,=) (< ,<) (<= ,<=) (> ,>) (> ,>=)
+            (not ,not)
+            (list ,list)
+            (member ,member)
+            (display ,display)))
+      #+END_SRC
+
+      Additionally, ~let~ is missing from the `amb` interpreter as well. Just add the
+      one used by the ~analyze~ evaluator.
+
+***** 4.3 - Variations on a Scheme
+      The `amb` evaluator presented in 4.3 is far from simple and requires patience and
+      an eye for detail to work out whats really going on.
+
+***** 4.4 - Query Evaluator
+      The query evaluator may be the most difficult material yet, particularly if you
+      aren't previously familiar with a language like Prolog.
+
+      This material requires very careful reading to grasp its operation and the book
+      frequently spends more time on its consequences over its content.
+
+      If you want to grasp its implementation, you will have to read and reread
+      chapter 4.4.4.
+
+      The unification step, which the book itself describes as the most unintuitive aspect,
+      should be read thoroughly: It's the material that actually does the process of generating
+      deductions from premises.
+
+      It's also important to remember that much of the rest of the material is devoted to various
+      'optimizations' and implementation details that can easily derail you.
+
+****** Missing Stuff
+******* Stack Overflows on Exercises
+        The query evaluator presented as is cannot compute rules of the form ~(?x rule
+        ?y)~ as many questions ask to, simply translate them to the postfix form and you
+        will be fine.
+
+        #+BEGIN_EXAMPLE
+ (rule (?x next-to ?y in (?x ?y . ?u)))
+                 ⇩
+ (rule (next-to ?x ?y in (?x ?y . ?u)))
+        #+END_EXAMPLE
+**** Notes
+***** 4.19
+      This is a neat exercise and I think it's interesting to try to run it in
+      other Lisps (I actually found a bug in a development version of Guile with
+      this exercise)
+
+      Here's some useful definitions:
+      - Sequential Rule :: Identifiers are bound and evaluated sequentially.
+      - Simultaneous Scope Rule :: Identifiers are bound simultaneously
+
+      You might also notice that translating it directly to other languages wont work.
 *** Chapter 5
     Chapter 5 begins with modeling a 'register machine', approximate to many
     contemporary architectures. Asking you to implement (or invent) a register
@@ -892,10 +900,11 @@
     =amb= evaluator would really be neat -- I just installed a primitive procedure.
 
 *** TODO Permutations and the Floor Puzzle
-    Donald Knuth wrote a whole fasc. of TAOCP on permutation problems and I can
+    Donald Knuth wrote a whole book (fascicle) on permutation problems and I can
     see why. I've come up with no less than 2 dozen ways reformulations do them
     over the years: including counting in base-N (where N is the number of
-    permuted items), the traditional map-n-slap, round-robin (what is called "bell method")
+    permuted items), the traditional map-n-slap, round-robin (what is called
+    "bell method")
 
     I always feel guilty not giving an honest effort before looking up an algorithm
     online and I always feel somewhat stumped on permutation problems. Sure, I know
@@ -931,6 +940,7 @@
     - 4.71
     - 4.74
 
+
 * Footnotes
 [fn:1] Including all exercises asking you to draw with pen and paper as well as those specified above.
 [fn:2] Ever wonder how people make calculators and webservers using ONLY
@@ -940,7 +950,7 @@ ou.
 
 * Special Thanks
   This guide would never have gotten done without the inspiration of a guy named
-  TurtleKitty almost a decade ago. 
+  TurtleKitty almost a decade ago.
 
   In addition to turning me onto Lisp, he was extremely patient, highly elite,
   effortlessly cool, a damn good programmer who, for me, will forever embody the
