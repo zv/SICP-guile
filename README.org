@@ -196,31 +196,32 @@
 
 **** Chapter Review:
 
-      - Foundational Scheme
-        - Implementing loops with recursive functions
-        - car/cdr/cons and other lisp list manipulation functions
-        - Function definition and limited explanation of "scope"
-        - Conditionals & predicates
-        - Expressions, value and defintions
-      - Computability and Mathematics
-        - Newton's method
-        - Ackermann's function
-        - Big O / Orders of Growth
-        - The Fibonacci function and various methods of implementing it
-        - Order of evaluation
-        - Monte Carlo methods for approximating PI
-      - Recursion
-        - Linear & tree recursion (along with other methods of accumulating return values)
-        - Euclid's method for greatest common denominator
-        - A change counting "machine"
-        - Pascals's Triangle
-        - Contrast with using function arguments or iterative solutions
-      - High Level Functions
-        - Define, convert and calculate fixed points of lots of common functions
-          - Use fixed points to deal with functions as proceduers
-          - Use `fixed-point' function to build other, such as those that find an approximation of a continued fraction.
-      - Procedures as returned values
-        - Explore Newton's method for approximating functions .
+     - Foundational Scheme
+       - Implementing loops with recursive functions
+       - car/cdr/cons and other lisp list manipulation functions
+       - Function definition and limited explanation of "scope"
+       - Conditionals & predicates
+       - Expressions, value and defintions
+     - Computability and Mathematics
+       - Newton's method
+       - Ackermann's function
+       - Big O / Orders of Growth
+       - The Fibonacci function and various methods of implementing it
+       - Order of evaluation
+       - Monte Carlo methods for approximating PI
+       - Speeding up numeric procedures by "doubling" the amount of work done in each step.
+     - Recursion
+       - Linear & tree recursion (along with other methods of accumulating return values)
+       - Euclid's method for greatest common denominator
+       - A change counting "machine"
+       - Pascals's Triangle
+       - Contrast with using function arguments or iterative solutions
+     - High Level Functions
+       - Define, convert and calculate fixed points of lots of common functions
+         - Use fixed points to deal with functions as proceduers
+         - Use `fixed-point' function to build other, such as those that find an approximation of a continued fraction.
+     - Procedures as returned values
+       - Explore Newton's method for approximating functions .
 
 
 **** Notes
