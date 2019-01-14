@@ -279,24 +279,33 @@
      is known for. It gets even better.
 
 **** Notes
-***** 2.3 Symbolic Data
-      If you are determined to speed through SICP, I would recommend taking your
-      time reading chapter 2.3. I, along with many others, have highlighted the
-      the Huffman Coding material in Chapter 2.3.4.
 
+***** Why in Racket?
+      I've done this chapter in Racket almost exclusively because of the
+      picture-language issue I've described below. It's a neat language and I
+      don't think it has any features shown "upfront" that let you cheat,
+      intentionally or otherwise, on the SICP exercises.
+
+***** Picture Language and Racket
+      This chapter employs a "picture language" library not built inside SICP,
+      however Racket and MITScheme come with these built-in or easily fetchable.
+
+***** Subchapter 2.3 - /Symbolic Data/
+      I found the material in section 2.3, especially related to Huffman Coding,
+      notably elegant, although it covers a wider variety of topics, each
+      interesting in it's own right.
+      
       - Symbolic Calculator by Integration & Differentiation
       - Variety of binary trees and set data structures
       - Huffman encoder/decoder
+       
+      You will also have the advantage of being able to implement =partial-tree=
+      [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and get a job at Google]]. The method is also genuinely beautiful - a
+      personal favorite of mine.
 
-      Although not as well known, there is a function that generates an
-      automatically balanced binary tree called =partial-tree=, [[https://twitter.com/mxcl/status/608682016205344768?ref_src=twsrc%255Etfw][and while
-      its inversion is apparently a requirement for getting a job at Google]], the
-      method is also genuinely beautiful - a personal favorite of mine.
-
-***** 2.4 - Multiple Representation of Abstract Data
-      This chapter covers the tactics of abstraction. Ways to equipt 'structure'
-      with operations (both of the C variety and a more abstract one) while
-      retaining 'genericity'.
+***** Subchapter 2.4 - /Multiple Representation of Abstract Data/
+      This chapter covers the well-worn tactics of abstraction. How to go beyond just
+      equipping structures with operations, with or without 'genericity', etc.
 
       It's at once the least memorable and yet possibly the *most* important for
       practice of programming at large. The chapter justifies and presents
