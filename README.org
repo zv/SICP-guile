@@ -71,7 +71,7 @@
      Although the original is [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you strip down to the
      texinfo basics or gear up to a fully-featured experience on the web.
      - [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
-     - [[http://zv.github.io/note/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
+     - [[http://zv.github.io/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
 
 **** Environment
      An important first step to having fun with SICP is to have a pain free
