@@ -510,17 +510,30 @@
        #+END_SRC
 
 *** Chapter 4
-    This chapter centers around the creation of a number of Scheme evaluators and is
-    widely regarded as the most substantial chapter. The regularity with which it
-    revises its own ideas make a testing framework and toolbelt a profitable use
-    of your time.
+    This chapter centers around the creation of a number of Scheme evaluators
+    and is widely regarded as the most substantial chapter of SICP for
+    experienced programmers.
+    
+    This is the first chapter where preparation really pays off, the reason
+    being that the structure of this chapter is different from the others which
+    I've decided to call the /4I loop/
 
-    If you've chosen a language that stresses immutability (like Racket or Clojure)
-    you'll have a fair amount of extra work ahead of you - The default evaluator uses
-    a stack that is manipulated with the use of ~set!~.
+    1. Introduce
+    2. Implement
+    3. Improve
+    4. Interchange
 
-    Don't take my word on it though:
+    In other words, you'll build out an interpreter, improve it and then rebuild
+    it it from the ground up with a different strategy. You're going to have at
+    least 3+1 different interpreters by the end of the chapter and so having
+    tests will ensure the correctness of each. This pattern makes adopting a
+    testing framework a very profitable use of your time.
 
+    If you've chosen a language that stresses immutability (like Racket or
+    Clojure) you'll have a fair amount of extra work ahead of you - The default
+    evaluator uses a stack that is manipulated with the use of ~set!~. 
+
+    You don't have to take my word for it though:
     #+BEGIN_QUOTE
     I'm close the finishing the last major chunk of the book. Working with two
     colleagues for around two hours a week, it's taken us nearly a year to get this
