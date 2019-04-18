@@ -133,10 +133,11 @@ the squares of the two larger numbers.
 |#
 
 (define (largest-squares x y z)
-  (+
-   (if (> x y) (square x) (square y))
-   (if (> y z) (square y) (square z))))
-
+  (cond
+   ((and (>= x z) (>= y z) (+ (square x) (square y)))
+    (and (>= y x) (>= z x) (+ (square y) (square z)))
+    (and (>= x y) (>= z y) (+ (square x) (square z))))
+   
 
 #| Exercise 1.4
 Observe that our model of evaluation allows for combinations whose operators are
