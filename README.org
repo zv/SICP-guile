@@ -238,6 +238,34 @@
       #+END_QUOTE
 
       I think it is Abelson who is the exception here, but it's worth noting!
+      
+****** Notes
+       I've since revised my thinking. 
+       
+       I no longer think Abelson's definition is an
+       author's idiosyncrasy or anacronism. In general, I think this definition of 
+       "recursive" (when confined to topics relevant to technicians) is generally
+       more useful.
+
+       If this "common misconception" is yours as well, you can certainly
+       get by without changing a beat. They intersect and their consequences
+       are often just pedantic. In addition, it's more and harder worker, not only
+       because it requires more thorough reading of to predict evolution of a program's
+       state, but by nature is less sensitive to our primitive reflex to
+       confuse objects with a word used to signify them.
+
+       However, you'll have an opportunity to view this
+       "redefinition" with fresh eyes and you may find that in addition to it's
+       precision, it's actually more /powerful/ and uniquely qualified to lay
+       the groundwork for reasoning about it's many dependent concepts.
+
+       At the very least, when thinking to yourself or talking with peers,
+       you're prepared to communicate a fine point on iterative behavior inside
+       "/syntactically recursive/" functions, which might otherwise be lost to a
+       definition who only indirectly provides anything beyond a label in
+       some taxonomy of functions. (which /still/ is only indirectly connected
+       with a cataloging of attributes like [[https://en.wikipedia.org/wiki/Primitive_recursive_function][general]] and [[https://en.wikipedia.org/wiki/General_recursive_function][primitive]] recursion.
+
 
 ***** ~trace~ builtin
       The [[https://www.gnu.org/software/guile/manual/html_node/Tracing-Traps.html][trace builtin]] is a tool for printing the procedure call trace from
