@@ -95,7 +95,7 @@
      I've found useful:
 
      + SICP builds an OOP system, but a proper object system is tremendously useful throughout the book.
-     + Function 'redefinition' is extremely useful required if you want to write your code in a linear fashion.
+     + Function 'redefinition' is useful when tackling SICP linearly, with each exercise's answer added onto a single file of source code for each chapter.
      + A few subchapters of Chapter 3 require facilities for parallel computation.
      + Several chapters require mutable lists. Languages like Racket do /have/ mutable lists but use different method names and so will require you rewrite some code from the book.
      + The evaluator chapters (and others), are made much easier with the introduction of tests beyond ~assert~.
@@ -104,7 +104,7 @@
      |-----------+------+------------+------------+--------------+--------+-------------------------------------------------------------------------------------|
      | Guile     | 5/5  | ✓          | ✓          | ✓            | ✓      | Fully featured Lisp used by many programs like GDB as an extension language.        |
      | Racket    | 3/5  | ✓          | ✓          |              |        | New SAT solvers and dynamic PL researchers have spawned from this schism of scheme. |
-     | MITScheme | 5/5  | ?          |            | ✓            | ✓      | The Default SICP Choice                                                             |
+     | MITScheme | 4/5  | ?          |            | ✓            | ✓      | The Default SICP Choice                                                             |
      | LFErlang  | 2/5  | ✓          |            |              |        | An ambitious competitor to Elixir by the co-creator of Erlang                       |
      | Clojure   | 1/5  | ✓          | ✓          |              |        | Needs no introduction                                                               |
 
@@ -227,50 +227,22 @@
 **** Notes
 ***** "recursive procedures" and "recursive processes"
       Chapter 1 often asks you to consider two implementations of a function, a
-      "recursive" and an "iterative", both of which call a function in their
-      definition whose name *is* that function.
+      /recursive/ and an /iterative/, *both* of which invoke themselves within
+      their own function's body.
 
-      Some programmers are used to calling any function which calls itself
-      "recursive". The book directly tackles this "common misconception" in 1.2:
+      This is confusing because many programmers refer to *any* self-invoking
+      function as simply /"recursive"/. The book tries to tackle this "common
+      misconception" in 1.2:
 
       #+BEGIN_QUOTE
       In contrasting iteration and recursion, we must be careful not to confuse the notion of a recursive process with the notion of a recursive procedure. When we describe a procedure as recursive, we are referring to the syntactic fact that the procedure definition refers (either directly or indirectly) to the procedure itself. But when we describe a process as following a pattern that is, say, linearly recursive, we are speaking about how the process evolves, not about the syntax of how a procedure is written. It may seem disturbing that we refer to a recursive procedure such as fact-iter as generating an iterative process. However, the process really is iterative: Its state is captured completely by its three state variables, and an interpreter need keep track of only three variables in order to execute the process.
       #+END_QUOTE
 
-      I think it is Abelson who is the exception here, but it's worth noting!
-      
-****** Notes
-       I've since revised my thinking. 
-       
-       I no longer think Abelson's definition is an
-       author's idiosyncrasy or anacronism. In general, I think this definition of 
-       "recursive" (when confined to topics relevant to technicians) is generally
-       more useful.
-
-       If this "common misconception" is yours as well, you can certainly
-       get by without changing a beat. They intersect and their consequences
-       are often just pedantic. In addition, it's more and harder worker, not only
-       because it requires more thorough reading of to predict evolution of a program's
-       state, but by nature is less sensitive to our primitive reflex to
-       confuse objects with a word used to signify them.
-
-       However, you'll have an opportunity to view this
-       "redefinition" with fresh eyes and you may find that in addition to it's
-       precision, it's actually more /powerful/ and uniquely qualified to lay
-       the groundwork for reasoning about it's many dependent concepts.
-
-       At the very least, when thinking to yourself or talking with peers,
-       you're prepared to communicate a fine point on iterative behavior inside
-       "/syntactically recursive/" functions, which might otherwise be lost to a
-       definition who only indirectly provides anything beyond a label in
-       some taxonomy of functions. (which /still/ is only indirectly connected
-       with a cataloging of attributes like [[https://en.wikipedia.org/wiki/Primitive_recursive_function][general]] and [[https://en.wikipedia.org/wiki/General_recursive_function][primitive]] recursion.
-
-
 ***** ~trace~ builtin
       The [[https://www.gnu.org/software/guile/manual/html_node/Tracing-Traps.html][trace builtin]] is a tool for printing the procedure call trace from
       within the Guile VM and is incredibly useful. Scheme implementations
       elsewhere have similar builtins.
+
 ***** ↦ Symbol
       ↦ (pronounced “maps to”) is the mathematician’s way of writing lambda. y↦x/y
       means =(lambda (y) (/ x y))=, that is, the function whose value at y is x/y.
@@ -452,13 +424,13 @@
        (list->grapviz *elt*))=, where =*elt*= is the list you'd like to display and
        feed that to =dot=, like so:
 
-       #+BEGIN_EXAMPLE
-       $ guile box_ptr.scm | dot -o /dev/stdout -Tpng > bot_pointer_diagram.png
+       #+BEGIN_SRC console
+       zv@sicp $ guile box_ptr.scm | dot -o /dev/stdout -Tpng > bot_pointer_diagram.png
        #+END_EXAMPLE
 
 ***** An in-place list reversal you might remember - 3.14
       SICP gives classic algorithm for in-place reversal of lists. It's beauty is self-evident.
-      #+begin_src guile
+      #+begin_src scheme
 (define (mystery x)
   (define (loop x y)
     (if (null? x)
@@ -468,17 +440,17 @@
           (loop temp x))))
   (loop x '()))
       #+end_src
+
 ***** Constraint Solver - 3.34
-      3.34 focuses on a constraint solver. Following the books implementation is
-      slower but does remove any function-to-function mapping confusion. On the
-      other hand, writing your own saves you some time but requires a bit more
-      non-SICP effort.
+      Section 3.34 focuses on implementing a constraint solver, which, if SICP's
+      lead is followed rigidly, will result in a collection of functions written
+      to mimic some of the functionality found in OOP-style objects.
 
-****** A Skeleton Constraint Solver Class
-       The book implements the primary classes of the constraint-solver as
-       straitforward Lisp functions with closures. Classes let you solve exercises
-       faster, write fewer lines and be more satisfied with your final result.
+      You can solve these exercises faster, write fewer lines and likely be
+      /more/ satisfied with your results by using the object system provided by
+      your language of choice (In my case, [[https://www.gnu.org/software/guile/manual/html_node/GOOPS.html][GOOPS]]).
 
+****** Skeletons of Constraint Solver Classes
        The following are example base-classes for the primary classes along with their
        entire implementation, which allow method introduced later later in the chapter
        such as ~process-new-value~ and ~process-forget-value~ to share implementation
@@ -541,7 +513,7 @@
     This chapter centers around the creation of a number of Scheme evaluators
     and is widely regarded as the most substantial chapter of SICP for
     experienced programmers.
-    
+
     This is the first chapter where preparation really pays off, the reason
     being that the structure of this chapter is different from the others which
     I've decided to call the /4I loop/
@@ -559,9 +531,10 @@
 
     If you've chosen a language that stresses immutability (like Racket or
     Clojure) you'll have a fair amount of extra work ahead of you - The default
-    evaluator uses a stack that is manipulated with the use of ~set!~. 
+    evaluator uses a stack that is manipulated with the use of ~set!~.
 
     You don't have to take my word for it though:
+
     #+BEGIN_QUOTE
     I'm close the finishing the last major chunk of the book. Working with two
     colleagues for around two hours a week, it's taken us nearly a year to get this
@@ -610,6 +583,7 @@
          - Specify a grammar for natural language
          - ...and then writing something that emits all possible sentences
        - Use a random evaluator to explore choices in a truly nondeterministic fashion
+
 **** Tips
 ***** Functional-First Approach
       Some evaluator exercises occur prior to their implementation, most frequently
@@ -1001,8 +975,8 @@ fairly simple and you are just going to have to read the whole thing to find
 ou.
 
 * Special Thanks
-  This guide would never have gotten done without the inspiration of a coworker who 
-  called himself Turtle Kitty a very long time ago. 
+  This guide would never have gotten done without the inspiration of a coworker who
+  called himself Turtle Kitty a very long time ago.
 
   In addition to turning me onto Lisp, he was highly elite, extremely patient
   effortlessly cool, a damn good programmer, whom I think embodies the spirit and
