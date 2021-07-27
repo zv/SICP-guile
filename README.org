@@ -1,9 +1,9 @@
 * Structure and Interpretation of Computer Programs
-  Structure and Interpretation of Computer Progams (SICP) is a classic of
-  computer science, has been for more than two decades, and will remain so for
-  many more. Despite it's age, most every word in it is still as applicable
-  today as the day it was first put to paper.
-
+  /Structure and Interpretation of Computer Programs/ (SICP) is a computing
+  textbook by [[http://groups.csail.mit.edu/mac/projects/mac/][Hal Abelson]] & [[http://groups.csail.mit.edu/mac/users/gjs/][Gerald Sussman]], published by MIT in two editions
+  (1985, 1995) and noted for it's ambitious approach to instruction in the logic
+  of computer programming.
+  
   This repository includes answers to a bit more than 90% of the book's 360-some
   exercises as well as material intended to help others get an idea of how to
   begin with the book, avoid many common pitfalls as they continue, and review
@@ -68,10 +68,14 @@
 
 ** How To Do It
 **** Getting It
-     Although the original is [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you strip down to the
-     texinfo basics or gear up to a fully-featured experience on the web.
-     - [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's SICP (Web)]]
-     - [[http://zv.github.io/sicp-in-texinfo][My Own Instructions (Emacs/Texinfo)]]
+
+     This guide expects you to read from the 2nd (1995) edition, which while [[https://mitpress.mit.edu/sicp/][available online]], I'd recommend you /either/ strip down to a
+     minimal-distraction version in texinfo *or* gear up to the fully-featured
+     experience on the web.
+     
+     - [[http://sarabander.github.io/sicp/html/4_002e4.xhtml#g_t4_002e4][Sara Bander's Fully-Featured SICP (Web)]]
+     - [[http://zv.github.io/sicp-in-texinfo][SICP in Emacs / texinfo]]
+     - [[https://mitpress.mit.edu/sicp/][Original Text from MIT]] [Not Recommended]
 
 **** Environment
      An important first step to having fun with SICP is to have a pain free
