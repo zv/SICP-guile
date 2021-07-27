@@ -426,7 +426,7 @@
 
        #+BEGIN_SRC console
        zv@sicp $ guile box_ptr.scm | dot -o /dev/stdout -Tpng > bot_pointer_diagram.png
-       #+END_EXAMPLE
+       #+END_SRC
 
 ***** An in-place list reversal you might remember - 3.14
       SICP gives classic algorithm for in-place reversal of lists. It's beauty is self-evident.
