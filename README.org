@@ -331,11 +331,10 @@
     Even if you are familiar, SICP has something of a reputation for taking the
     well-worn concepts and turning them inside out to expose their "true" structure [fn:2].
 
-    An important tip for chapter 3 is *DO NOT USE A LANGUAGE WITHOUT MUTABLE LISTS*:
-    If you are working with languages without convienent mutable data: I started out
-    with Racket but was forced to rewrite my work after realizing that Racket's
-    ~mlists~ were not going to cut it for a chapter focused on the use and danger of
-    mutable structures.
+    An important tip for chapter 3 is to *use a language with mutable lists*:
+    I was forced to rewrite my work after the realization that Racket's ~mlists~
+    wouldn't cut it in a chapter /focused/ on the uses and dangers of mutable
+    structures.
 
     Another important consideration is the parallel programming facilities of your
     language, the book demands a true concurrency enviroment in order for some
