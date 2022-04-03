@@ -134,9 +134,9 @@ the squares of the two larger numbers.
 
 (define (largest-squares x y z)
   (cond
-   ((and (>= x z) (>= y z) (+ (square x) (square y)))
-    (and (>= y x) (>= z x) (+ (square y) (square z)))
-    (and (>= x y) (>= z y) (+ (square x) (square z))))
+   ((and (>= x z) (>= y z)) (+ (square x) (square y)))
+   ((and (>= y x) (>= z x)) (+ (square y) (square z)))
+   ((and (>= x y) (>= z y)) (+ (square x) (square z)))))
    
 
 #| Exercise 1.4
